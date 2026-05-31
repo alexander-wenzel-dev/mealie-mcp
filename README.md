@@ -47,6 +47,23 @@ For Claude Code:
 claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uv --directory "$(pwd)" run mealie-mcp
 ```
 
+## Tools
+
+| Name                   | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `mealie_create_recipe` | Create a recipe by name. Returns the slug.    |
+| `mealie_get_recipe`    | Fetch a recipe by slug or id.                 |
+| `mealie_delete_recipe` | Delete a recipe by slug or id.                |
+
+## Regenerate the API client
+
+The Mealie OpenAPI spec is cached at `spec/mealie-openapi.json` and pinned in `pyproject.toml`. Regenerate the typed client from the cached spec:
+
+```sh
+uv run regen-client            # use the cached spec
+uv run regen-client --update   # refetch from $MEALIE_BASE_URL/openapi.json and re-pin
+```
+
 ## Run tests
 
 ```sh
