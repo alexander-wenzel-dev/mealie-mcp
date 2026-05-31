@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  inner-loop:
+  definition-of-ready:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

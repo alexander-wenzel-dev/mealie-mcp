@@ -69,6 +69,8 @@ select = [
     "RET",        # flake8-return
     "ARG",        # flake8-unused-arguments
     "INP",        # flake8-no-pep420 (no implicit namespace packages)
+    "ASYNC",      # flake8-async (blocking calls in async funcs)
+    "FURB",       # refurb (modernization suggestions)
 ]
 ignore = [
     "TRY003",   # avoid long messages outside exception class (noisy)
