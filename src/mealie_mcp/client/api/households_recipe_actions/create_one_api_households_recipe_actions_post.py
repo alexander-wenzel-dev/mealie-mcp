@@ -1,0 +1,180 @@
+from http import HTTPStatus
+from typing import Any
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.create_group_recipe_action import CreateGroupRecipeAction
+from ...models.group_recipe_action_out import GroupRecipeActionOut
+from ...models.http_validation_error import HTTPValidationError
+from ...types import UNSET, Response, Unset
+
+
+def _get_kwargs(
+    *,
+    body: CreateGroupRecipeAction,
+    accept_language: None | str | Unset = UNSET,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(accept_language, Unset):
+        headers["accept-language"] = accept_language
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/api/households/recipe-actions",
+    }
+
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
+
+    _kwargs["headers"] = headers
+    return _kwargs
+
+
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> GroupRecipeActionOut | HTTPValidationError | None:
+    if response.status_code == 201:
+        response_201 = GroupRecipeActionOut.from_dict(response.json())
+
+        return response_201
+
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    return None
+
+
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[GroupRecipeActionOut | HTTPValidationError]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    *,
+    client: AuthenticatedClient,
+    body: CreateGroupRecipeAction,
+    accept_language: None | str | Unset = UNSET,
+) -> Response[GroupRecipeActionOut | HTTPValidationError]:
+    """Create One
+
+    Args:
+        accept_language (None | str | Unset):
+        body (CreateGroupRecipeAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[GroupRecipeActionOut | HTTPValidationError]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+        accept_language=accept_language,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    *,
+    client: AuthenticatedClient,
+    body: CreateGroupRecipeAction,
+    accept_language: None | str | Unset = UNSET,
+) -> GroupRecipeActionOut | HTTPValidationError | None:
+    """Create One
+
+    Args:
+        accept_language (None | str | Unset):
+        body (CreateGroupRecipeAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        GroupRecipeActionOut | HTTPValidationError
+    """
+
+    return sync_detailed(
+        client=client,
+        body=body,
+        accept_language=accept_language,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient,
+    body: CreateGroupRecipeAction,
+    accept_language: None | str | Unset = UNSET,
+) -> Response[GroupRecipeActionOut | HTTPValidationError]:
+    """Create One
+
+    Args:
+        accept_language (None | str | Unset):
+        body (CreateGroupRecipeAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[GroupRecipeActionOut | HTTPValidationError]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+        accept_language=accept_language,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: AuthenticatedClient,
+    body: CreateGroupRecipeAction,
+    accept_language: None | str | Unset = UNSET,
+) -> GroupRecipeActionOut | HTTPValidationError | None:
+    """Create One
+
+    Args:
+        accept_language (None | str | Unset):
+        body (CreateGroupRecipeAction):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        GroupRecipeActionOut | HTTPValidationError
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+            accept_language=accept_language,
+        )
+    ).parsed
