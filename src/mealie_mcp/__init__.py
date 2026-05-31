@@ -1,3 +1,5 @@
-from mealie_mcp.server import mcp
+"""Mealie MCP package.
 
-__all__ = ["mcp"]
+Avoid importing submodules eagerly so the `regen-client` script can run even
+when the generated client folder does not yet exist.
+"""

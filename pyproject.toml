@@ -8,10 +8,16 @@ license = { text = "MIT" }
 authors = [{ name = "Alexander Wenzel" }]
 dependencies = [
     "fastmcp>=3.3.1",
+    "httpx>=0.28.1",
 ]
 
 [project.scripts]
 mealie-mcp = "mealie_mcp.server:main"
+regen-client = "mealie_mcp._scripts.regen_client:main"
+
+[tool.mealie-mcp.spec]
+version = "v3.19.2"
+sha256 = "810fa4db9975404f8079619e49d88a8229a658b30b533f5c9e299dc31261d9bd"
 
 [build-system]
 requires = ["hatchling"]
@@ -28,6 +34,7 @@ dev = [
     "pre-commit>=4.6.0",
     "bandit>=1.9.4",
     "pip-audit>=2.10.0",
+    "openapi-python-client>=0.29.0",
 ]
 
 [tool.ruff]
