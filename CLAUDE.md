@@ -88,9 +88,9 @@ Build a Python MCP server that wraps the Mealie REST API. The server exposes Mea
 - The operator owns the Mealie test instance and the `.env` file. They copy `.env.example` to `.env` and fill in real values.
 - The agent does not provision the instance, create or edit `.env`, ask for credential values, or paste them into the conversation.
 - If `.env` is missing, unit tests still run. Live tests fail fast with a clear message.
-- An agent running with no `.env` may complete the inner loop up to and including `uv run pytest`. It must stop before `pytest -m live` and report that live verification is pending.
+- An agent running with no `.env` may run the definition-of-ready checks up to and including `uv run pytest`. It must stop before `pytest -m live` and report that live verification is pending.
 
-## Inner loop
+## Definition of ready
 
 A task is only ready for review when all of these commands pass.
 
@@ -130,7 +130,7 @@ uv run pytest -m live   # run locally before merge, not in CI
 
 - Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary.
 - Commit in small steps using conventional commits.
-- Push as soon as the inner loop is green locally, then open a PR.
+- Push as soon as the definition-of-ready checks are green locally, then open a PR.
 - PR title: the conventional commit subject for the headline change.
 - PR body must contain, in order:
   - Link to the task file by slug if one exists.
@@ -188,7 +188,7 @@ Anything else. Hints for the follow up task.
 
 A task is done when:
 
-- All inner loop commands pass locally.
+- All definition-of-ready checks pass locally.
 - `uv run pytest -m live` passes against the developer's Mealie test instance.
 - CI is green on the PR.
 - Every new MCP tool has at least one unit test and one live test.
