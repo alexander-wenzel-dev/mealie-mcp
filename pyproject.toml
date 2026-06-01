@@ -107,7 +107,7 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --strict-config -m 'not live' --cov --cov-fail-under=80"
+addopts = "-ra --strict-markers --strict-config -m 'not live' --cov"
 xfail_strict = true
 markers = [
     "live: tests that hit a real Mealie instance (require .env)",

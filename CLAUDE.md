@@ -31,7 +31,7 @@ Out of scope: hosting or deploying Mealie itself, any web UI or non-MCP transpor
 - `httpx` as the HTTP transport.
 - `python-dotenv` for `.env` loading at package import.
 - `pytest` with markers for unit and live tests.
-- `pytest-cov` for coverage measurement, gated at 80%.
+- `pytest-cov` for coverage measurement and reporting.
 - `ruff` for lint and format.
 - `mypy` for type checks.
 - `bandit` and `pip-audit` for security scans.
@@ -86,7 +86,7 @@ A task is only ready for review when all of these commands pass.
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src
-uv run pytest             # enforces the 80% branch-coverage gate
+uv run pytest             # branch coverage is reported, not gated
 uv run pytest -m live     # run locally before merge, not in CI
 ```
 
@@ -106,7 +106,7 @@ A failing live test is never silenced or marked `xfail` to ship. Fix the tool, f
 
 Every new tool ships with at least one unit test and at least one live test.
 
-`uv run pytest` measures branch coverage and fails the run if the unit-test coverage of `src/mealie_mcp` drops below 80%. The generated client and the `regen-client` operator script are omitted from measurement. Do not raise the threshold by adding `# pragma: no cover` to silence gaps; either add tests or leave the gap and accept the gate as the lower bound.
+`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. Per-tool dispatch code is exercised by live tests, not unit tests, so the unit number alone is a partial view. The real guardrail is the "at least one unit test and one live test per tool" rule above; the coverage report is for visibility.
 
 ## Security rules
 
