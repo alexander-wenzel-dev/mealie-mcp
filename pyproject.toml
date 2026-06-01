@@ -36,6 +36,7 @@ dev = [
     "bandit>=1.9.4",
     "pip-audit>=2.10.0",
     "openapi-python-client>=0.29.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.ruff]
@@ -106,7 +107,7 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --strict-config -m 'not live'"
+addopts = "-ra --strict-markers --strict-config -m 'not live' --cov --cov-fail-under=80"
 xfail_strict = true
 markers = [
     "live: tests that hit a real Mealie instance (require .env)",
@@ -114,6 +115,19 @@ markers = [
 
 [tool.bandit]
 exclude_dirs = ["tests", "src/mealie_mcp/client"]
+
+[tool.coverage.run]
+source = ["src/mealie_mcp"]
+branch = true
+omit = ["src/mealie_mcp/client/*", "src/mealie_mcp/_scripts/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

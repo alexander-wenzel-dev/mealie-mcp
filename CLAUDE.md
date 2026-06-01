@@ -31,6 +31,7 @@ Out of scope: hosting or deploying Mealie itself, any web UI or non-MCP transpor
 - `httpx` as the HTTP transport.
 - `python-dotenv` for `.env` loading at package import.
 - `pytest` with markers for unit and live tests.
+- `pytest-cov` for coverage measurement, gated at 80%.
 - `ruff` for lint and format.
 - `mypy` for type checks.
 - `bandit` and `pip-audit` for security scans.
@@ -85,8 +86,8 @@ A task is only ready for review when all of these commands pass.
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src
-uv run pytest
-uv run pytest -m live   # run locally before merge, not in CI
+uv run pytest             # enforces the 80% branch-coverage gate
+uv run pytest -m live     # run locally before merge, not in CI
 ```
 
 ## Tool patterns
@@ -104,6 +105,8 @@ Live tests are tagged `@pytest.mark.live` and reuse the shared fixtures in `test
 A failing live test is never silenced or marked `xfail` to ship. Fix the tool, fix the test, or descope and surface the decision. After any live test failure, confirm by hand that no `mcp-test-` data remains and delete it before the next run.
 
 Every new tool ships with at least one unit test and at least one live test.
+
+`uv run pytest` measures branch coverage and fails the run if the unit-test coverage of `src/mealie_mcp` drops below 80%. The generated client and the `regen-client` operator script are omitted from measurement. Do not raise the threshold by adding `# pragma: no cover` to silence gaps; either add tests or leave the gap and accept the gate as the lower bound.
 
 ## Security rules
 

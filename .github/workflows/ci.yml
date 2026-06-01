@@ -45,7 +45,7 @@ jobs:
       - name: mypy
         run: uv run mypy src
 
-      - name: pytest
+      - name: pytest (with coverage gate)
         run: uv run pytest
 
       - name: bandit
