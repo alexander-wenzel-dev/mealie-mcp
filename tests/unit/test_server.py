@@ -20,4 +20,10 @@ def test_server_registers_expected_tools() -> None:
         "mealie_create_recipe",
         "mealie_get_recipe",
         "mealie_delete_recipe",
+        "mealie_create_comment",
+        "mealie_get_comment",
+        "mealie_list_comments",
+        "mealie_list_recipe_comments",
+        "mealie_update_comment",
+        "mealie_delete_comment",
     }
