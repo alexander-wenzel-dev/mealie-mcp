@@ -39,3 +39,35 @@ class TestDeleteRecipe:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):
             recipe_crud.delete_recipe(client, slug_or_id="")
+
+
+class TestDuplicateRecipe:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):
+            recipe_crud.duplicate_recipe(client, slug_or_id="")
+
+
+class TestUpdateLastMade:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):
+            recipe_crud.update_last_made(client, slug_or_id="", timestamp="2026-06-01T00:00:00")
+
+    def test_rejects_empty_timestamp(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="timestamp must be a non-empty string"):
+            recipe_crud.update_last_made(client, slug_or_id="abc", timestamp="")
+
+    def test_rejects_non_iso_timestamp(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="timestamp must be an ISO 8601 datetime"):
+            recipe_crud.update_last_made(client, slug_or_id="abc", timestamp="yesterday")
+
+
+class TestParseRecipeUrl:
+    def test_rejects_empty_url(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="url must be a non-empty string"):
+            recipe_crud.parse_recipe_url(client, url="")
+
+
+class TestCreateRecipeFromHtmlOrJson:
+    def test_rejects_empty_data(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="data must be a non-empty string"):
+            recipe_crud.create_recipe_from_html_or_json(client, data="")

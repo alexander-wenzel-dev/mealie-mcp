@@ -49,11 +49,12 @@ claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEA
 
 ## Tools
 
-| Name                   | Description                                   |
-| ---------------------- | --------------------------------------------- |
-| `mealie_create_recipe` | Create a recipe by name. Returns the slug.    |
-| `mealie_get_recipe`    | Fetch a recipe by slug or id.                 |
-| `mealie_delete_recipe` | Delete a recipe by slug or id.                |
+The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added as the project grows.
+
+| Group             | Coverage                                                                  |
+| ----------------- | ------------------------------------------------------------------------- |
+| `recipe_crud`     | Create, read, list, duplicate, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes. |
+| `recipe_comments` | Create, read, list, update, and delete recipe comments.                   |
 
 ## Regenerate the API client
 
