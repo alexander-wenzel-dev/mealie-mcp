@@ -10,7 +10,6 @@ from http import HTTPStatus
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.recipe_crud import (
     create_one_api_recipes_post,
@@ -20,7 +19,7 @@ from mealie_mcp.client.api.recipe_crud import (
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_recipe import CreateRecipe
 from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import decode, raise_api_error, require_non_empty
+from mealie_mcp.tools._common import expect_dict, expect_str, require_non_empty
 
 
 def create_recipe(client: AuthenticatedClient, name: str) -> dict[str, str]:
@@ -30,11 +29,7 @@ def create_recipe(client: AuthenticatedClient, name: str) -> dict[str, str]:
     response = create_one_api_recipes_post.sync_detailed(
         client=client, body=CreateRecipe(name=name)
     )
-    if response.status_code != HTTPStatus.CREATED:
-        raise_api_error("create_recipe", int(response.status_code), response.content)
-    slug = decode(response.content)
-    if not isinstance(slug, str):
-        raise ToolError(f"Unexpected create_recipe response: {slug!r}")
+    slug = expect_str("create_recipe", response, HTTPStatus.CREATED)
     return {"slug": slug}
 
 
@@ -43,12 +38,7 @@ def get_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
     require_non_empty("slug_or_id", slug_or_id)
 
     response = get_one_api_recipes_slug_get.sync_detailed(slug_or_id, client=client)
-    if response.status_code != HTTPStatus.OK:
-        raise_api_error("get_recipe", int(response.status_code), response.content)
-    payload = decode(response.content)
-    if not isinstance(payload, dict):
-        raise ToolError(f"Unexpected get_recipe response: {payload!r}")
-    return payload
+    return expect_dict("get_recipe", response)
 
 
 def delete_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
@@ -56,12 +46,7 @@ def delete_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any
     require_non_empty("slug_or_id", slug_or_id)
 
     response = delete_one_api_recipes_slug_delete.sync_detailed(slug_or_id, client=client)
-    if response.status_code != HTTPStatus.OK:
-        raise_api_error("delete_recipe", int(response.status_code), response.content)
-    payload = decode(response.content)
-    if not isinstance(payload, dict):
-        return {"deleted": slug_or_id}
-    return payload
+    return expect_dict("delete_recipe", response)
 
 
 def register(mcp: FastMCP) -> None:

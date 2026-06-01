@@ -3,11 +3,24 @@
 from __future__ import annotations
 
 import json
+from http import HTTPStatus
 
 import pytest
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.tools._common import decode, raise_api_error, require_non_empty
+from mealie_mcp.client.types import Response
+from mealie_mcp.tools._common import (
+    decode,
+    expect_dict,
+    expect_list,
+    expect_str,
+    raise_api_error,
+    require_non_empty,
+)
+
+
+def _response(status: HTTPStatus, content: bytes) -> Response[None]:
+    return Response(status_code=status, content=content, headers={}, parsed=None)
 
 
 class TestDecode:
@@ -63,3 +76,40 @@ class TestRequireNonEmpty:
 
     def test_accepts_value(self) -> None:
         require_non_empty("name", "x")
+
+
+class TestExpectDict:
+    def test_returns_dict_on_ok(self) -> None:
+        assert expect_dict("act", _response(HTTPStatus.OK, b'{"k": 1}')) == {"k": 1}
+
+    def test_accepts_custom_status(self) -> None:
+        assert expect_dict("act", _response(HTTPStatus.CREATED, b"{}"), HTTPStatus.CREATED) == {}
+
+    def test_raises_on_unexpected_status(self) -> None:
+        with pytest.raises(ToolError, match=r"act failed \(404\)"):
+            expect_dict("act", _response(HTTPStatus.NOT_FOUND, b'{"detail": "nope"}'))
+
+    def test_raises_on_non_dict_body(self) -> None:
+        with pytest.raises(ToolError, match="Unexpected act response"):
+            expect_dict("act", _response(HTTPStatus.OK, b"[]"))
+
+
+class TestExpectList:
+    def test_returns_list_on_ok(self) -> None:
+        assert expect_list("act", _response(HTTPStatus.OK, b"[1, 2]")) == [1, 2]
+
+    def test_raises_on_non_list_body(self) -> None:
+        with pytest.raises(ToolError, match="Unexpected act response"):
+            expect_list("act", _response(HTTPStatus.OK, b'{"k": 1}'))
+
+
+class TestExpectStr:
+    def test_returns_string_on_ok(self) -> None:
+        assert (
+            expect_str("act", _response(HTTPStatus.CREATED, b'"slug"'), HTTPStatus.CREATED)
+            == "slug"
+        )
+
+    def test_raises_on_non_string_body(self) -> None:
+        with pytest.raises(ToolError, match="Unexpected act response"):
+            expect_str("act", _response(HTTPStatus.OK, b"{}"))
