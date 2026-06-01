@@ -8,9 +8,10 @@ from __future__ import annotations
 
 from fastmcp import FastMCP
 
-from mealie_mcp.tools import recipe_crud
+from mealie_mcp.tools import recipe_comments, recipe_crud
 
 
 def register_all(mcp: FastMCP) -> None:
     """Register every tool module with the given FastMCP instance."""
     recipe_crud.register(mcp)
+    recipe_comments.register(mcp)
