@@ -51,10 +51,12 @@ claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEA
 
 The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added as the project grows.
 
-| Group             | Coverage                                                                  |
-| ----------------- | ------------------------------------------------------------------------- |
-| `recipe_crud`     | Create, read, list, duplicate, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes. |
-| `recipe_comments` | Create, read, list, update, and delete recipe comments.                   |
+| Group                  | Coverage                                                                  |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `recipe_crud`          | Create, read, list, duplicate, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes. |
+| `recipe_comments`      | Create, read, list, update, and delete recipe comments.                   |
+| `organizer_categories` | Create, read, list, update, and delete recipe categories.                 |
+| `organizer_tags`       | Create, read, list, update, and delete recipe tags.                       |
 
 ## Regenerate the API client
 
