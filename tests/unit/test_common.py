@@ -12,6 +12,7 @@ from mealie_mcp.client.models.order_direction import OrderDirection
 from mealie_mcp.client.types import UNSET, Response
 from mealie_mcp.tools._common import (
     MAX_PER_PAGE,
+    ack_delete,
     decode,
     expect_dict,
     expect_list,
@@ -20,6 +21,7 @@ from mealie_mcp.tools._common import (
     raise_api_error,
     require_non_empty,
     require_per_page,
+    to_unset,
 )
 
 
@@ -139,6 +141,43 @@ class TestExpectStr:
     def test_raises_on_non_string_body(self) -> None:
         with pytest.raises(ToolError, match="Unexpected act response"):
             expect_str("act", _response(HTTPStatus.OK, b"{}"))
+
+
+class TestToUnset:
+    def test_none_becomes_unset(self) -> None:
+        assert to_unset(None) is UNSET
+
+    def test_value_passes_through(self) -> None:
+        assert to_unset("hello") == "hello"
+        assert to_unset(["a", "b"]) == ["a", "b"]
+
+    def test_empty_string_passes_through(self) -> None:
+        assert to_unset("") == ""
+
+    def test_zero_passes_through(self) -> None:
+        assert to_unset(0) == 0
+
+
+class TestAckDelete:
+    def test_returns_canonical_ack_on_ok(self) -> None:
+        assert ack_delete("delete_x", _response(HTTPStatus.OK, b""), "abc") == {
+            "id": "abc",
+            "deleted": True,
+        }
+
+    def test_ignores_response_body_shape(self) -> None:
+        assert ack_delete("delete_x", _response(HTTPStatus.OK, b'"slug"'), "abc") == {
+            "id": "abc",
+            "deleted": True,
+        }
+        assert ack_delete("delete_x", _response(HTTPStatus.OK, b'{"k": 1}'), "abc") == {
+            "id": "abc",
+            "deleted": True,
+        }
+
+    def test_raises_on_non_ok(self) -> None:
+        with pytest.raises(ToolError, match=r"Mealie delete_x failed \(404\)"):
+            ack_delete("delete_x", _response(HTTPStatus.NOT_FOUND, b'{"detail": "nope"}'), "abc")
 
 
 class TestParseOrderDirection:
