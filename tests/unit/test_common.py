@@ -42,12 +42,14 @@ class TestDecode:
 class TestRaiseApiError:
     def test_dict_with_string_detail(self) -> None:
         body = json.dumps({"detail": "Recipe already exists"}).encode()
-        with pytest.raises(ToolError, match=r"action failed \(409\): Recipe already exists"):
+        with pytest.raises(
+            ToolError, match=r"^Mealie action failed \(409\): Recipe already exists$"
+        ):
             raise_api_error("action", 409, body)
 
     def test_dict_with_message_fallback(self) -> None:
         body = json.dumps({"message": "boom"}).encode()
-        with pytest.raises(ToolError, match=r"action failed \(500\): boom"):
+        with pytest.raises(ToolError, match=r"^Mealie action failed \(500\): boom$"):
             raise_api_error("action", 500, body)
 
     def test_dict_with_nested_detail(self) -> None:
@@ -55,16 +57,24 @@ class TestRaiseApiError:
         with pytest.raises(ToolError) as excinfo:
             raise_api_error("action", 409, body)
         message = str(excinfo.value)
-        assert "action failed (409):" in message
+        assert message.startswith("Mealie action failed (409): ")
         assert json.loads(message.split("): ", 1)[1]) == {"code": "x", "message": "y"}
 
     def test_string_body(self) -> None:
-        with pytest.raises(ToolError, match=r"action failed \(500\): upstream boom"):
+        with pytest.raises(ToolError, match=r"^Mealie action failed \(500\): upstream boom$"):
             raise_api_error("action", 500, b"upstream boom")
 
     def test_empty_body_uses_status(self) -> None:
-        with pytest.raises(ToolError, match=r"action failed \(502\): HTTP 502"):
+        with pytest.raises(ToolError, match=r"^Mealie action failed \(502\): HTTP 502$"):
             raise_api_error("action", 502, b"")
+
+    def test_html_body_passes_through(self) -> None:
+        html = b"<html><body><h1>502 Bad Gateway</h1></body></html>"
+        with pytest.raises(ToolError) as excinfo:
+            raise_api_error("action", 502, html)
+        assert str(excinfo.value) == (
+            "Mealie action failed (502): <html><body><h1>502 Bad Gateway</h1></body></html>"
+        )
 
 
 class TestRequireNonEmpty:
