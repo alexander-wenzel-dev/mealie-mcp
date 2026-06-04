@@ -21,14 +21,14 @@ from mealie_mcp.client.api.organizer_categories import (
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.category_in import CategoryIn
-from mealie_mcp.client.types import UNSET
-from mealie_mcp.client_factory import build_client
+from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
+    ack_delete,
     expect_dict,
     parse_order_direction,
-    raise_api_error,
     require_non_empty,
     require_per_page,
+    to_unset,
 )
 
 
@@ -46,8 +46,8 @@ def list_categories(
         client=client,
         page=page,
         per_page=per_page,
-        search=search if search is not None else UNSET,
-        order_by=order_by if order_by is not None else UNSET,
+        search=to_unset(search),
+        order_by=to_unset(order_by),
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_categories", response)
@@ -99,12 +99,10 @@ def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]
     response = delete_one_api_organizers_categories_item_id_delete.sync_detailed(
         item_id, client=client
     )
-    if response.status_code != HTTPStatus.OK:
-        raise_api_error("delete_category", int(response.status_code), response.content)
-    return {"id": item_id, "deleted": True}
+    return ack_delete("delete_category", response, item_id)
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the category tools on the given FastMCP instance."""
 
     @mcp.tool(name="mealie_list_categories")
@@ -128,7 +126,7 @@ def register(mcp: FastMCP) -> None:
             A pagination envelope with ``items`` and pagination metadata.
         """
         return list_categories(
-            build_client(),
+            get_client(),
             page=page,
             per_page=per_page,
             search=search,
@@ -146,7 +144,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The category payload as a JSON-compatible dict.
         """
-        return get_category(build_client(), item_id=item_id)
+        return get_category(get_client(), item_id=item_id)
 
     @mcp.tool(name="mealie_get_category_by_slug")
     def _get_category_by_slug(slug: str) -> dict[str, Any]:
@@ -161,7 +159,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The category payload as a JSON-compatible dict.
         """
-        return get_category_by_slug(build_client(), slug=slug)
+        return get_category_by_slug(get_client(), slug=slug)
 
     @mcp.tool(name="mealie_create_category")
     def _create_category(name: str) -> dict[str, Any]:
@@ -173,7 +171,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The newly created category payload as a JSON-compatible dict.
         """
-        return create_category(build_client(), name=name)
+        return create_category(get_client(), name=name)
 
     @mcp.tool(name="mealie_update_category")
     def _update_category(item_id: str, name: str) -> dict[str, Any]:
@@ -186,7 +184,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The updated category payload as a JSON-compatible dict.
         """
-        return update_category(build_client(), item_id=item_id, name=name)
+        return update_category(get_client(), item_id=item_id, name=name)
 
     @mcp.tool(name="mealie_delete_category")
     def _delete_category(item_id: str) -> dict[str, Any]:
@@ -198,4 +196,4 @@ def register(mcp: FastMCP) -> None:
         Returns:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
-        return delete_category(build_client(), item_id=item_id)
+        return delete_category(get_client(), item_id=item_id)

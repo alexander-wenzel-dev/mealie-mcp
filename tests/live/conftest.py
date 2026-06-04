@@ -14,7 +14,7 @@ from collections.abc import Iterator
 import pytest
 
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client_factory import build_client
+from mealie_mcp.client_factory import get_client, reset_client
 
 
 @pytest.fixture(scope="session")
@@ -24,9 +24,10 @@ def mealie_client() -> Iterator[AuthenticatedClient]:
             "MEALIE_BASE_URL and MEALIE_API_TOKEN must be set for live tests. "
             "Copy .env.example to .env and fill in real values."
         )
-    client = build_client()
-    with client as ctx:
-        yield ctx
+    try:
+        yield get_client()
+    finally:
+        reset_client()
 
 
 @pytest.fixture

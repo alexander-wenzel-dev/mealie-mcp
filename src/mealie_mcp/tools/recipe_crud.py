@@ -30,15 +30,15 @@ from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
 from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
-from mealie_mcp.client.types import UNSET
-from mealie_mcp.client_factory import build_client
+from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
+    ack_delete,
     expect_dict,
     expect_str,
     parse_order_direction,
-    raise_api_error,
     require_non_empty,
     require_per_page,
+    to_unset,
 )
 
 
@@ -66,9 +66,7 @@ def delete_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any
     require_non_empty("slug_or_id", slug_or_id)
 
     response = delete_one_api_recipes_slug_delete.sync_detailed(slug_or_id, client=client)
-    if response.status_code != HTTPStatus.OK:
-        raise_api_error("delete_recipe", int(response.status_code), response.content)
-    return {"id": slug_or_id, "deleted": True}
+    return ack_delete("delete_recipe", response, slug_or_id)
 
 
 def list_recipes(
@@ -87,10 +85,10 @@ def list_recipes(
         client=client,
         page=page,
         per_page=per_page,
-        search=search if search is not None else UNSET,
-        categories=categories if categories is not None else UNSET,
-        tags=tags if tags is not None else UNSET,
-        order_by=order_by if order_by is not None else UNSET,
+        search=to_unset(search),
+        categories=to_unset(categories),
+        tags=to_unset(tags),
+        order_by=to_unset(order_by),
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_recipes", response)
@@ -162,14 +160,14 @@ def create_recipe_from_html_or_json(
             data=data,
             include_tags=include_tags,
             include_categories=include_categories,
-            url=url if url is not None else UNSET,
+            url=to_unset(url),
         ),
     )
     slug = expect_str("create_recipe_from_html_or_json", response, HTTPStatus.CREATED)
     return {"slug": slug}
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the recipe CRUD tools on the given FastMCP instance."""
 
     @mcp.tool(name="mealie_create_recipe")
@@ -183,7 +181,7 @@ def register(mcp: FastMCP) -> None:
             ``{"slug": <slug>}`` where ``slug`` is the URL-safe identifier
             Mealie assigned to the new recipe.
         """
-        return create_recipe(build_client(), name=name)
+        return create_recipe(get_client(), name=name)
 
     @mcp.tool(name="mealie_get_recipe")
     def _get_recipe(slug_or_id: str) -> dict[str, Any]:
@@ -195,7 +193,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The full Mealie recipe payload as a JSON-compatible dict.
         """
-        return get_recipe(build_client(), slug_or_id=slug_or_id)
+        return get_recipe(get_client(), slug_or_id=slug_or_id)
 
     @mcp.tool(name="mealie_delete_recipe")
     def _delete_recipe(slug_or_id: str) -> dict[str, Any]:
@@ -207,7 +205,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             A canonical acknowledgement ``{"id": <slug_or_id>, "deleted": True}``.
         """
-        return delete_recipe(build_client(), slug_or_id=slug_or_id)
+        return delete_recipe(get_client(), slug_or_id=slug_or_id)
 
     @mcp.tool(name="mealie_list_recipes")
     def _list_recipes(
@@ -234,7 +232,7 @@ def register(mcp: FastMCP) -> None:
             A pagination envelope with ``items`` and pagination metadata.
         """
         return list_recipes(
-            build_client(),
+            get_client(),
             page=page,
             per_page=per_page,
             search=search,
@@ -256,7 +254,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The newly created recipe payload as a JSON-compatible dict.
         """
-        return duplicate_recipe(build_client(), slug_or_id=slug_or_id, name=name)
+        return duplicate_recipe(get_client(), slug_or_id=slug_or_id, name=name)
 
     @mcp.tool(name="mealie_update_last_made")
     def _update_last_made(slug_or_id: str, timestamp: str) -> dict[str, Any]:
@@ -269,7 +267,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The updated recipe payload as a JSON-compatible dict.
         """
-        return update_last_made(build_client(), slug_or_id=slug_or_id, timestamp=timestamp)
+        return update_last_made(get_client(), slug_or_id=slug_or_id, timestamp=timestamp)
 
     @mcp.tool(name="mealie_parse_recipe_url")
     def _parse_recipe_url(
@@ -287,7 +285,7 @@ def register(mcp: FastMCP) -> None:
             ``{"slug": <slug>}`` for the newly created recipe.
         """
         return parse_recipe_url(
-            build_client(),
+            get_client(),
             url=url,
             include_tags=include_tags,
             include_categories=include_categories,
@@ -314,7 +312,7 @@ def register(mcp: FastMCP) -> None:
             ``{"slug": <slug>}`` for the newly created recipe.
         """
         return create_recipe_from_html_or_json(
-            build_client(),
+            get_client(),
             data=data,
             include_tags=include_tags,
             include_categories=include_categories,

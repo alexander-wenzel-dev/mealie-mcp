@@ -75,7 +75,8 @@ def test_recipe_comment_lifecycle(
     assert updated["id"] == comment_id
     assert updated["text"] == updated_text
 
-    recipe_comments.delete_comment(mealie_client, comment_id=comment_id)
+    ack = recipe_comments.delete_comment(mealie_client, comment_id=comment_id)
+    assert ack == {"id": comment_id, "deleted": True}
 
     with pytest.raises(ToolError, match=r"Mealie get_comment failed \(404"):
         recipe_comments.get_comment(mealie_client, comment_id=comment_id)

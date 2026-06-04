@@ -22,8 +22,14 @@ from mealie_mcp.client.api.recipe_comments import (
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.recipe_comment_create import RecipeCommentCreate
 from mealie_mcp.client.models.recipe_comment_update import RecipeCommentUpdate
-from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import expect_dict, expect_list, require_non_empty, require_per_page
+from mealie_mcp.client_factory import ClientProvider
+from mealie_mcp.tools._common import (
+    ack_delete,
+    expect_dict,
+    expect_list,
+    require_non_empty,
+    require_per_page,
+)
 
 
 def create_comment(client: AuthenticatedClient, recipe_id: str, text: str) -> dict[str, Any]:
@@ -74,14 +80,14 @@ def update_comment(client: AuthenticatedClient, comment_id: str, text: str) -> d
 
 
 def delete_comment(client: AuthenticatedClient, comment_id: str) -> dict[str, Any]:
-    """Delete a comment by id. Returns Mealie's success response payload."""
+    """Delete a comment by id. Returns ``{"id": comment_id, "deleted": True}``."""
     require_non_empty("comment_id", comment_id)
 
     response = delete_one_api_comments_item_id_delete.sync_detailed(comment_id, client=client)
-    return expect_dict("delete_comment", response)
+    return ack_delete("delete_comment", response, comment_id)
 
 
-def register(mcp: FastMCP) -> None:
+def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the recipe comment tools on the given FastMCP instance."""
 
     @mcp.tool(name="mealie_create_comment")
@@ -95,7 +101,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The newly created comment payload as a JSON-compatible dict.
         """
-        return create_comment(build_client(), recipe_id=recipe_id, text=text)
+        return create_comment(get_client(), recipe_id=recipe_id, text=text)
 
     @mcp.tool(name="mealie_get_comment")
     def _get_comment(comment_id: str) -> dict[str, Any]:
@@ -107,7 +113,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The comment payload as a JSON-compatible dict.
         """
-        return get_comment(build_client(), comment_id=comment_id)
+        return get_comment(get_client(), comment_id=comment_id)
 
     @mcp.tool(name="mealie_list_comments")
     def _list_comments(page: int = 1, per_page: int = 50) -> dict[str, Any]:
@@ -120,7 +126,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             A pagination envelope with ``items`` and pagination metadata.
         """
-        return list_comments(build_client(), page=page, per_page=per_page)
+        return list_comments(get_client(), page=page, per_page=per_page)
 
     @mcp.tool(name="mealie_list_recipe_comments")
     def _list_recipe_comments(slug: str) -> list[Any]:
@@ -132,7 +138,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             A list of comment payloads for the recipe.
         """
-        return list_recipe_comments(build_client(), slug=slug)
+        return list_recipe_comments(get_client(), slug=slug)
 
     @mcp.tool(name="mealie_update_comment")
     def _update_comment(comment_id: str, text: str) -> dict[str, Any]:
@@ -145,7 +151,7 @@ def register(mcp: FastMCP) -> None:
         Returns:
             The updated comment payload as a JSON-compatible dict.
         """
-        return update_comment(build_client(), comment_id=comment_id, text=text)
+        return update_comment(get_client(), comment_id=comment_id, text=text)
 
     @mcp.tool(name="mealie_delete_comment")
     def _delete_comment(comment_id: str) -> dict[str, Any]:
@@ -155,6 +161,6 @@ def register(mcp: FastMCP) -> None:
             comment_id: UUID of the comment to delete.
 
         Returns:
-            Mealie's success response payload as a JSON-compatible dict.
+            A canonical acknowledgement ``{"id": <comment_id>, "deleted": True}``.
         """
-        return delete_comment(build_client(), comment_id=comment_id)
+        return delete_comment(get_client(), comment_id=comment_id)

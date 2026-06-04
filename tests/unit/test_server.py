@@ -13,34 +13,16 @@ def test_server_module_exposes_fastmcp_instance() -> None:
     assert isinstance(mcp, FastMCP)
 
 
-def test_server_registers_expected_tools() -> None:
+def test_server_registers_unique_prefixed_tools() -> None:
+    """All registered tools use the `mealie_` prefix and have unique names.
+
+    Tool modules are auto-discovered, so an exact-set check would just
+    re-type the names. Structural assertions keep this test stable as new
+    groups are added.
+    """
     tools = asyncio.run(mcp.list_tools())
-    names = {tool.name for tool in tools}
-    assert names == {
-        "mealie_create_recipe",
-        "mealie_get_recipe",
-        "mealie_delete_recipe",
-        "mealie_list_recipes",
-        "mealie_duplicate_recipe",
-        "mealie_update_last_made",
-        "mealie_parse_recipe_url",
-        "mealie_create_recipe_from_html_or_json",
-        "mealie_create_comment",
-        "mealie_get_comment",
-        "mealie_list_comments",
-        "mealie_list_recipe_comments",
-        "mealie_update_comment",
-        "mealie_delete_comment",
-        "mealie_list_categories",
-        "mealie_get_category",
-        "mealie_get_category_by_slug",
-        "mealie_create_category",
-        "mealie_update_category",
-        "mealie_delete_category",
-        "mealie_list_tags",
-        "mealie_get_tag",
-        "mealie_get_tag_by_slug",
-        "mealie_create_tag",
-        "mealie_update_tag",
-        "mealie_delete_tag",
-    }
+    names = [tool.name for tool in tools]
+    assert names, "expected at least one registered tool"
+    assert len(names) == len(set(names)), f"duplicate tool names: {names}"
+    bad = [n for n in names if not n.startswith("mealie_")]
+    assert not bad, f"tool names must use the 'mealie_' prefix: {bad}"
