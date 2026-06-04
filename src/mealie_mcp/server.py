@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from mealie_mcp.client_factory import get_client
@@ -12,6 +13,7 @@ register_all(mcp, get_client)
 
 
 def main() -> None:
+    load_dotenv()
     mcp.run()
 
 
