@@ -13,6 +13,7 @@ from pathlib import Path
 
 import httpx
 import openapi_python_client
+from dotenv import load_dotenv
 from openapi_python_client.config import Config, ConfigFile, MetaType
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -116,6 +117,8 @@ def _generate() -> None:
 
 
 def main() -> None:
+    load_dotenv()
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--update",
