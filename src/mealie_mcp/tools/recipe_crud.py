@@ -33,9 +33,11 @@ from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
 from mealie_mcp.client.types import UNSET
 from mealie_mcp.client_factory import build_client
 from mealie_mcp.tools._common import (
+    decode,
     expect_dict,
     expect_str,
     parse_order_direction,
+    raise_api_error,
     require_non_empty,
 )
 
@@ -60,11 +62,18 @@ def get_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
 
 
 def delete_recipe(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
-    """Delete a recipe by slug or id. Returns the deleted recipe payload."""
+    """Delete a recipe by slug or id. Returns the deleted payload, or a
+    synthetic ``{"slug_or_id": slug_or_id}`` when Mealie acknowledges with
+    a body that is not a dict (empty body or bare string)."""
     require_non_empty("slug_or_id", slug_or_id)
 
     response = delete_one_api_recipes_slug_delete.sync_detailed(slug_or_id, client=client)
-    return expect_dict("delete_recipe", response)
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error("delete_recipe", int(response.status_code), response.content)
+    body = decode(response.content)
+    if isinstance(body, dict):
+        return body
+    return {"slug_or_id": slug_or_id}
 
 
 def list_recipes(
@@ -200,7 +209,8 @@ def register(mcp: FastMCP) -> None:
             slug_or_id: A recipe slug or UUID.
 
         Returns:
-            The deleted recipe payload as a JSON-compatible dict.
+            The deleted recipe payload when Mealie returns one, otherwise a
+            synthetic ``{"slug_or_id": <slug_or_id>}`` acknowledgement.
         """
         return delete_recipe(build_client(), slug_or_id=slug_or_id)
 
