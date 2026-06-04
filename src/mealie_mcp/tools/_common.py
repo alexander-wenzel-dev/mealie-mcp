@@ -50,6 +50,29 @@ def require_per_page(per_page: int) -> None:
         raise ToolError(f"per_page must be <= {MAX_PER_PAGE} (got {per_page})")
 
 
+def to_unset[T](value: T | None) -> T | Unset:
+    """Translate a caller's optional value into the generated client's UNSET sentinel.
+
+    `None` would otherwise serialise as JSON ``null``, which Mealie rejects on
+    most query parameters. Non-`None` values pass through unchanged.
+    """
+    if value is None:
+        return UNSET
+    return value
+
+
+def ack_delete(action: str, response: Response[Any], ack_id: str) -> dict[str, Any]:
+    """Return the canonical delete acknowledgement after verifying a 200 response.
+
+    The MCP tool contract for every ``mealie_delete_*`` is the same shape
+    regardless of what Mealie chose to return in the body, so callers can rely
+    on a stable output across endpoints.
+    """
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error(action, int(response.status_code), response.content)
+    return {"id": ack_id, "deleted": True}
+
+
 def parse_order_direction(value: str | None) -> OrderDirection | Unset:
     """Coerce a caller-supplied 'asc'/'desc' into the typed enum."""
     if value is None:
