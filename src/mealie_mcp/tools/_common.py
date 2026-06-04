@@ -41,6 +41,15 @@ def require_non_empty(name: str, value: str) -> None:
         raise ToolError(f"{name} must be a non-empty string")
 
 
+MAX_PER_PAGE = 100
+
+
+def require_per_page(per_page: int) -> None:
+    """Raise a `ToolError` if `per_page` exceeds the shared list-tool ceiling."""
+    if per_page > MAX_PER_PAGE:
+        raise ToolError(f"per_page must be <= {MAX_PER_PAGE} (got {per_page})")
+
+
 def parse_order_direction(value: str | None) -> OrderDirection | Unset:
     """Coerce a caller-supplied 'asc'/'desc' into the typed enum."""
     if value is None:

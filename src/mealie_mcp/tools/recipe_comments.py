@@ -23,7 +23,7 @@ from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.recipe_comment_create import RecipeCommentCreate
 from mealie_mcp.client.models.recipe_comment_update import RecipeCommentUpdate
 from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import expect_dict, expect_list, require_non_empty
+from mealie_mcp.tools._common import expect_dict, expect_list, require_non_empty, require_per_page
 
 
 def create_comment(client: AuthenticatedClient, recipe_id: str, text: str) -> dict[str, Any]:
@@ -47,6 +47,7 @@ def get_comment(client: AuthenticatedClient, comment_id: str) -> dict[str, Any]:
 
 def list_comments(client: AuthenticatedClient, page: int = 1, per_page: int = 50) -> dict[str, Any]:
     """List all comments across recipes, paginated. Returns the page payload."""
+    require_per_page(per_page)
     response = get_all_api_comments_get.sync_detailed(client=client, page=page, per_page=per_page)
     return expect_dict("list_comments", response)
 
@@ -114,7 +115,7 @@ def register(mcp: FastMCP) -> None:
 
         Args:
             page: 1-indexed page number. Defaults to 1.
-            per_page: Page size. Defaults to 50.
+            per_page: Page size. Defaults to 50. Capped at 100.
 
         Returns:
             A pagination envelope with ``items`` and pagination metadata.

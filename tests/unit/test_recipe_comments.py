@@ -35,6 +35,12 @@ class TestGetComment:
             recipe_comments.get_comment(client, comment_id="")
 
 
+class TestListComments:
+    def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+            recipe_comments.list_comments(client, per_page=101)
+
+
 class TestListRecipeComments:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="slug must be a non-empty string"):

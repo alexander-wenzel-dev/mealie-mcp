@@ -11,6 +11,7 @@ from fastmcp.exceptions import ToolError
 from mealie_mcp.client.models.order_direction import OrderDirection
 from mealie_mcp.client.types import UNSET, Response
 from mealie_mcp.tools._common import (
+    MAX_PER_PAGE,
     decode,
     expect_dict,
     expect_list,
@@ -18,6 +19,7 @@ from mealie_mcp.tools._common import (
     parse_order_direction,
     raise_api_error,
     require_non_empty,
+    require_per_page,
 )
 
 
@@ -88,6 +90,18 @@ class TestRequireNonEmpty:
 
     def test_accepts_value(self) -> None:
         require_non_empty("name", "x")
+
+
+class TestRequirePerPage:
+    def test_accepts_value_at_max(self) -> None:
+        require_per_page(MAX_PER_PAGE)
+
+    def test_accepts_value_below_max(self) -> None:
+        require_per_page(1)
+
+    def test_rejects_value_above_max(self) -> None:
+        with pytest.raises(ToolError, match=rf"per_page must be <= {MAX_PER_PAGE} \(got 250\)"):
+            require_per_page(250)
 
 
 class TestExpectDict:

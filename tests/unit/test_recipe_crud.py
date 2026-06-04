@@ -29,6 +29,12 @@ class TestCreateRecipe:
             recipe_crud.create_recipe(client, name="   ")
 
 
+class TestListRecipes:
+    def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+            recipe_crud.list_recipes(client, per_page=101)
+
+
 class TestGetRecipe:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):

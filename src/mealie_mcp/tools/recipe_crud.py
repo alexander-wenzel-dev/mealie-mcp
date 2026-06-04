@@ -39,6 +39,7 @@ from mealie_mcp.tools._common import (
     parse_order_direction,
     raise_api_error,
     require_non_empty,
+    require_per_page,
 )
 
 
@@ -87,6 +88,7 @@ def list_recipes(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List recipes, paginated. Returns the pagination envelope."""
+    require_per_page(per_page)
     response = get_all_api_recipes_get.sync_detailed(
         client=client,
         page=page,
@@ -228,7 +230,7 @@ def register(mcp: FastMCP) -> None:
 
         Args:
             page: 1-indexed page number. Defaults to 1.
-            per_page: Page size. Defaults to 50.
+            per_page: Page size. Defaults to 50. Capped at 100.
             search: Optional free-text search.
             categories: Optional list of category slugs to filter by.
             tags: Optional list of tag slugs to filter by.

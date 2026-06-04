@@ -19,6 +19,12 @@ def client() -> AuthenticatedClient:
     return AuthenticatedClient(base_url="https://mealie.example.com", token="t")
 
 
+class TestListTags:
+    def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+            organizer_tags.list_tags(client, per_page=101)
+
+
 class TestGetTag:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
