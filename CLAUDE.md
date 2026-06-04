@@ -90,6 +90,10 @@ uv run pytest             # branch coverage is reported, not gated
 uv run pytest -m live     # run locally before merge, not in CI
 ```
 
+## Independent review before PR
+
+After the definition-of-ready checks pass and before opening the PR, spawn a fresh-eyes verification agent. Hand it the diff and a neutral brief that asks for real flaws only: logical, technical, contract-level. No hints, no leading angles, no list of suspected issues. If the agent surfaces a real flaw, fix it before opening the PR. If it returns only nits or nothing, proceed.
+
 ## Tool patterns
 
 Each MCP tool has two layers. The first is a typed module-level function that takes an `AuthenticatedClient` and the tool inputs, validates them with the shared `require_non_empty` helper, calls the generated client's `sync_detailed` entry point (so the raw `status_code` and `content` are available for error mapping), maps non-success responses through the shared `raise_api_error` helper, decodes successful bodies with the shared `decode` helper, and returns a JSON-compatible value validated with explicit `isinstance` shape guards. This layer is the testable unit. The second is a thin `@mcp.tool()` wrapper inside a `register(mcp)` function; the wrapper calls `build_client()` (the only sanctioned construction path for the authenticated client) and forwards to the typed function. The server wires everything by importing each tool module in `src/mealie_mcp/tools/__init__.py` and calling its `register(mcp)` from a single `register_all` entry point.
