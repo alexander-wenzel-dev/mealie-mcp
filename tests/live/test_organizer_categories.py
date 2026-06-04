@@ -57,7 +57,8 @@ def test_category_lifecycle(
     assert updated["id"] == item_id
     assert updated["name"] == updated_name
 
-    organizer_categories.delete_category(mealie_client, item_id=item_id)
+    ack = organizer_categories.delete_category(mealie_client, item_id=item_id)
+    assert ack == {"id": item_id, "deleted": True}
 
     with pytest.raises(ToolError, match=r"Mealie get_category failed \(404"):
         organizer_categories.get_category(mealie_client, item_id=item_id)

@@ -49,7 +49,8 @@ def test_tag_lifecycle(mealie_client: AuthenticatedClient, created_tag: dict[str
     assert updated["id"] == item_id
     assert updated["name"] == updated_name
 
-    organizer_tags.delete_tag(mealie_client, item_id=item_id)
+    ack = organizer_tags.delete_tag(mealie_client, item_id=item_id)
+    assert ack == {"id": item_id, "deleted": True}
 
     with pytest.raises(ToolError, match=r"Mealie get_tag failed \(404"):
         organizer_tags.get_tag(mealie_client, item_id=item_id)

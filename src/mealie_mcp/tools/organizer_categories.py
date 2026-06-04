@@ -24,7 +24,6 @@ from mealie_mcp.client.models.category_in import CategoryIn
 from mealie_mcp.client.types import UNSET
 from mealie_mcp.client_factory import build_client
 from mealie_mcp.tools._common import (
-    decode,
     expect_dict,
     parse_order_direction,
     raise_api_error,
@@ -94,8 +93,7 @@ def update_category(client: AuthenticatedClient, item_id: str, name: str) -> dic
 
 
 def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
-    """Delete a category by id. Returns the deleted payload, or a synthetic
-    ``{"id": item_id}`` when Mealie acknowledges with an empty body."""
+    """Delete a category by id. Returns ``{"id": item_id, "deleted": True}``."""
     require_non_empty("item_id", item_id)
 
     response = delete_one_api_organizers_categories_item_id_delete.sync_detailed(
@@ -103,10 +101,7 @@ def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]
     )
     if response.status_code != HTTPStatus.OK:
         raise_api_error("delete_category", int(response.status_code), response.content)
-    body = decode(response.content)
-    if isinstance(body, dict):
-        return body
-    return {"id": item_id}
+    return {"id": item_id, "deleted": True}
 
 
 def register(mcp: FastMCP) -> None:
@@ -201,7 +196,6 @@ def register(mcp: FastMCP) -> None:
             item_id: UUID of the category to delete.
 
         Returns:
-            The deleted category payload when Mealie returns one, otherwise
-            a synthetic ``{"id": <item_id>}`` acknowledgement.
+            A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_category(build_client(), item_id=item_id)

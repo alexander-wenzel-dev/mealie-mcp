@@ -42,7 +42,8 @@ def test_recipe_crud_lifecycle(
     assert fetched["slug"] == slug
     assert fetched["name"] == created_recipe["name"]
 
-    recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+    ack = recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+    assert ack == {"id": slug, "deleted": True}
 
     with pytest.raises(ToolError, match=r"Mealie get_recipe failed \(404"):
         recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
