@@ -51,5 +51,5 @@ def test_tag_lifecycle(mealie_client: AuthenticatedClient, created_tag: dict[str
 
     organizer_tags.delete_tag(mealie_client, item_id=item_id)
 
-    with pytest.raises(ToolError, match=r"get_tag failed \(404"):
+    with pytest.raises(ToolError, match=r"Mealie get_tag failed \(404"):
         organizer_tags.get_tag(mealie_client, item_id=item_id)

@@ -44,7 +44,7 @@ def test_recipe_crud_lifecycle(
 
     recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
 
-    with pytest.raises(ToolError, match=r"get_recipe failed \(404"):
+    with pytest.raises(ToolError, match=r"Mealie get_recipe failed \(404"):
         recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
 
 
@@ -76,12 +76,17 @@ def test_duplicate_recipe_creates_new_slug(
 def test_update_last_made_persists_timestamp(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
 ) -> None:
-    timestamp = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC).isoformat()
+    sent = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
     recipe_crud.update_last_made(
-        mealie_client, slug_or_id=created_recipe["slug"], timestamp=timestamp
+        mealie_client, slug_or_id=created_recipe["slug"], timestamp=sent.isoformat()
     )
     refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
-    assert refreshed["lastMade"] is not None
+    returned_iso = refreshed["lastMade"]
+    assert returned_iso is not None
+    returned = dt.datetime.fromisoformat(returned_iso)
+    if returned.tzinfo is None:
+        returned = returned.replace(tzinfo=dt.UTC)
+    assert returned.replace(microsecond=0) == sent
 
 
 @pytest.mark.live
@@ -107,5 +112,5 @@ def test_create_recipe_from_html_or_json(
 
 @pytest.mark.live
 def test_parse_recipe_url_rejects_invalid_url(mealie_client: AuthenticatedClient) -> None:
-    with pytest.raises(ToolError, match=r"parse_recipe_url failed"):
+    with pytest.raises(ToolError, match=r"Mealie parse_recipe_url failed"):
         recipe_crud.parse_recipe_url(mealie_client, url="https://example.com/not-a-recipe")
