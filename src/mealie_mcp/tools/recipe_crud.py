@@ -26,14 +26,18 @@ from mealie_mcp.client.api.recipe_crud import (
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_recipe import CreateRecipe
-from mealie_mcp.client.models.order_direction import OrderDirection
 from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
 from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
-from mealie_mcp.client.types import UNSET, Unset
+from mealie_mcp.client.types import UNSET
 from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import expect_dict, expect_str, require_non_empty
+from mealie_mcp.tools._common import (
+    expect_dict,
+    expect_str,
+    parse_order_direction,
+    require_non_empty,
+)
 
 
 def create_recipe(client: AuthenticatedClient, name: str) -> dict[str, str]:
@@ -74,10 +78,6 @@ def list_recipes(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List recipes, paginated. Returns the pagination envelope."""
-    direction: OrderDirection | Unset = UNSET
-    if order_direction is not None:
-        direction = OrderDirection(order_direction)
-
     response = get_all_api_recipes_get.sync_detailed(
         client=client,
         page=page,
@@ -86,7 +86,7 @@ def list_recipes(
         categories=categories if categories is not None else UNSET,
         tags=tags if tags is not None else UNSET,
         order_by=order_by if order_by is not None else UNSET,
-        order_direction=direction,
+        order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_recipes", response)
 

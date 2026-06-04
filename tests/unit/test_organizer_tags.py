@@ -25,6 +25,12 @@ class TestGetTag:
             organizer_tags.get_tag(client, item_id="")
 
 
+class TestGetTagBySlug:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug must be a non-empty string"):
+            organizer_tags.get_tag_by_slug(client, slug="")
+
+
 class TestCreateTag:
     def test_rejects_empty_name(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="name must be a non-empty string"):

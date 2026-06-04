@@ -25,6 +25,12 @@ class TestGetCategory:
             organizer_categories.get_category(client, item_id="")
 
 
+class TestGetCategoryBySlug:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug must be a non-empty string"):
+            organizer_categories.get_category_by_slug(client, slug="")
+
+
 class TestCreateCategory:
     def test_rejects_empty_name(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="name must be a non-empty string"):

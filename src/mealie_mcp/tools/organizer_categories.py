@@ -16,14 +16,20 @@ from mealie_mcp.client.api.organizer_categories import (
     delete_one_api_organizers_categories_item_id_delete,
     get_all_api_organizers_categories_get,
     get_one_api_organizers_categories_item_id_get,
+    get_one_by_slug_api_organizers_categories_slug_category_slug_get,
     update_one_api_organizers_categories_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.category_in import CategoryIn
-from mealie_mcp.client.models.order_direction import OrderDirection
-from mealie_mcp.client.types import UNSET, Unset
+from mealie_mcp.client.types import UNSET
 from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import expect_dict, raise_api_error, require_non_empty
+from mealie_mcp.tools._common import (
+    decode,
+    expect_dict,
+    parse_order_direction,
+    raise_api_error,
+    require_non_empty,
+)
 
 
 def list_categories(
@@ -35,17 +41,13 @@ def list_categories(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List recipe categories, paginated. Returns the pagination envelope."""
-    direction: OrderDirection | Unset = UNSET
-    if order_direction is not None:
-        direction = OrderDirection(order_direction)
-
     response = get_all_api_organizers_categories_get.sync_detailed(
         client=client,
         page=page,
         per_page=per_page,
         search=search if search is not None else UNSET,
         order_by=order_by if order_by is not None else UNSET,
-        order_direction=direction,
+        order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_categories", response)
 
@@ -56,6 +58,16 @@ def get_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
 
     response = get_one_api_organizers_categories_item_id_get.sync_detailed(item_id, client=client)
     return expect_dict("get_category", response)
+
+
+def get_category_by_slug(client: AuthenticatedClient, slug: str) -> dict[str, Any]:
+    """Fetch a category by slug. Returns the category payload."""
+    require_non_empty("slug", slug)
+
+    response = get_one_by_slug_api_organizers_categories_slug_category_slug_get.sync_detailed(
+        slug, client=client
+    )
+    return expect_dict("get_category_by_slug", response)
 
 
 def create_category(client: AuthenticatedClient, name: str) -> dict[str, Any]:
@@ -79,8 +91,9 @@ def update_category(client: AuthenticatedClient, item_id: str, name: str) -> dic
     return expect_dict("update_category", response)
 
 
-def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, str]:
-    """Delete a category by id. Returns ``{"id": item_id}`` on success."""
+def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
+    """Delete a category by id. Returns the deleted payload, or a synthetic
+    ``{"id": item_id}`` when Mealie acknowledges with an empty body."""
     require_non_empty("item_id", item_id)
 
     response = delete_one_api_organizers_categories_item_id_delete.sync_detailed(
@@ -88,6 +101,9 @@ def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, str]
     )
     if response.status_code != HTTPStatus.OK:
         raise_api_error("delete_category", int(response.status_code), response.content)
+    body = decode(response.content)
+    if isinstance(body, dict):
+        return body
     return {"id": item_id}
 
 
@@ -135,6 +151,21 @@ def register(mcp: FastMCP) -> None:
         """
         return get_category(build_client(), item_id=item_id)
 
+    @mcp.tool(name="mealie_get_category_by_slug")
+    def _get_category_by_slug(slug: str) -> dict[str, Any]:
+        """Fetch a single category from Mealie by slug.
+
+        Useful when you have a category slug from ``mealie_list_recipes``
+        results and need the underlying record (for example to find its id).
+
+        Args:
+            slug: The category slug.
+
+        Returns:
+            The category payload as a JSON-compatible dict.
+        """
+        return get_category_by_slug(build_client(), slug=slug)
+
     @mcp.tool(name="mealie_create_category")
     def _create_category(name: str) -> dict[str, Any]:
         """Create a recipe category in Mealie.
@@ -161,13 +192,14 @@ def register(mcp: FastMCP) -> None:
         return update_category(build_client(), item_id=item_id, name=name)
 
     @mcp.tool(name="mealie_delete_category")
-    def _delete_category(item_id: str) -> dict[str, str]:
+    def _delete_category(item_id: str) -> dict[str, Any]:
         """Delete a category from Mealie by id.
 
         Args:
             item_id: UUID of the category to delete.
 
         Returns:
-            ``{"id": <item_id>}`` confirming the delete.
+            The deleted category payload when Mealie returns one, otherwise
+            a synthetic ``{"id": <item_id>}`` acknowledgement.
         """
         return delete_category(build_client(), item_id=item_id)

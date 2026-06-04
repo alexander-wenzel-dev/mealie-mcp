@@ -16,14 +16,20 @@ from mealie_mcp.client.api.organizer_tags import (
     delete_recipe_tag_api_organizers_tags_item_id_delete,
     get_all_api_organizers_tags_get,
     get_one_api_organizers_tags_item_id_get,
+    get_one_by_slug_api_organizers_tags_slug_tag_slug_get,
     update_one_api_organizers_tags_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.order_direction import OrderDirection
 from mealie_mcp.client.models.tag_in import TagIn
-from mealie_mcp.client.types import UNSET, Unset
+from mealie_mcp.client.types import UNSET
 from mealie_mcp.client_factory import build_client
-from mealie_mcp.tools._common import expect_dict, raise_api_error, require_non_empty
+from mealie_mcp.tools._common import (
+    decode,
+    expect_dict,
+    parse_order_direction,
+    raise_api_error,
+    require_non_empty,
+)
 
 
 def list_tags(
@@ -35,17 +41,13 @@ def list_tags(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List recipe tags, paginated. Returns the pagination envelope."""
-    direction: OrderDirection | Unset = UNSET
-    if order_direction is not None:
-        direction = OrderDirection(order_direction)
-
     response = get_all_api_organizers_tags_get.sync_detailed(
         client=client,
         page=page,
         per_page=per_page,
         search=search if search is not None else UNSET,
         order_by=order_by if order_by is not None else UNSET,
-        order_direction=direction,
+        order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_tags", response)
 
@@ -56,6 +58,16 @@ def get_tag(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
 
     response = get_one_api_organizers_tags_item_id_get.sync_detailed(item_id, client=client)
     return expect_dict("get_tag", response)
+
+
+def get_tag_by_slug(client: AuthenticatedClient, slug: str) -> dict[str, Any]:
+    """Fetch a tag by slug. Returns the tag payload."""
+    require_non_empty("slug", slug)
+
+    response = get_one_by_slug_api_organizers_tags_slug_tag_slug_get.sync_detailed(
+        slug, client=client
+    )
+    return expect_dict("get_tag_by_slug", response)
 
 
 def create_tag(client: AuthenticatedClient, name: str) -> dict[str, Any]:
@@ -79,8 +91,9 @@ def update_tag(client: AuthenticatedClient, item_id: str, name: str) -> dict[str
     return expect_dict("update_tag", response)
 
 
-def delete_tag(client: AuthenticatedClient, item_id: str) -> dict[str, str]:
-    """Delete a tag by id. Returns ``{"id": item_id}`` on success."""
+def delete_tag(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
+    """Delete a tag by id. Returns the deleted payload, or a synthetic
+    ``{"id": item_id}`` when Mealie acknowledges with an empty body."""
     require_non_empty("item_id", item_id)
 
     response = delete_recipe_tag_api_organizers_tags_item_id_delete.sync_detailed(
@@ -88,6 +101,9 @@ def delete_tag(client: AuthenticatedClient, item_id: str) -> dict[str, str]:
     )
     if response.status_code != HTTPStatus.OK:
         raise_api_error("delete_tag", int(response.status_code), response.content)
+    body = decode(response.content)
+    if isinstance(body, dict):
+        return body
     return {"id": item_id}
 
 
@@ -135,6 +151,21 @@ def register(mcp: FastMCP) -> None:
         """
         return get_tag(build_client(), item_id=item_id)
 
+    @mcp.tool(name="mealie_get_tag_by_slug")
+    def _get_tag_by_slug(slug: str) -> dict[str, Any]:
+        """Fetch a single tag from Mealie by slug.
+
+        Useful when you have a tag slug from ``mealie_list_recipes`` results
+        and need the underlying record (for example to find its id).
+
+        Args:
+            slug: The tag slug.
+
+        Returns:
+            The tag payload as a JSON-compatible dict.
+        """
+        return get_tag_by_slug(build_client(), slug=slug)
+
     @mcp.tool(name="mealie_create_tag")
     def _create_tag(name: str) -> dict[str, Any]:
         """Create a recipe tag in Mealie.
@@ -161,13 +192,14 @@ def register(mcp: FastMCP) -> None:
         return update_tag(build_client(), item_id=item_id, name=name)
 
     @mcp.tool(name="mealie_delete_tag")
-    def _delete_tag(item_id: str) -> dict[str, str]:
+    def _delete_tag(item_id: str) -> dict[str, Any]:
         """Delete a tag from Mealie by id.
 
         Args:
             item_id: UUID of the tag to delete.
 
         Returns:
-            ``{"id": <item_id>}`` confirming the delete.
+            The deleted tag payload when Mealie returns one, otherwise a
+            synthetic ``{"id": <item_id>}`` acknowledgement.
         """
         return delete_tag(build_client(), item_id=item_id)

@@ -46,6 +46,10 @@ def test_category_lifecycle(
     )
     assert any(c["id"] == item_id for c in listing["items"])
 
+    matched = next(c for c in listing["items"] if c["id"] == item_id)
+    by_slug = organizer_categories.get_category_by_slug(mealie_client, slug=matched["slug"])
+    assert by_slug["id"] == item_id
+
     updated_name = f"{created_category['name']}-renamed"
     updated = organizer_categories.update_category(
         mealie_client, item_id=item_id, name=updated_name

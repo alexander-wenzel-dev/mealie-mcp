@@ -40,6 +40,10 @@ def test_tag_lifecycle(mealie_client: AuthenticatedClient, created_tag: dict[str
     listing = organizer_tags.list_tags(mealie_client, search=created_tag["name"], per_page=100)
     assert any(t["id"] == item_id for t in listing["items"])
 
+    matched = next(t for t in listing["items"] if t["id"] == item_id)
+    by_slug = organizer_tags.get_tag_by_slug(mealie_client, slug=matched["slug"])
+    assert by_slug["id"] == item_id
+
     updated_name = f"{created_tag['name']}-renamed"
     updated = organizer_tags.update_tag(mealie_client, item_id=item_id, name=updated_name)
     assert updated["id"] == item_id

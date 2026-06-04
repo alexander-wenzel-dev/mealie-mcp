@@ -8,12 +8,14 @@ from http import HTTPStatus
 import pytest
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.types import Response
+from mealie_mcp.client.models.order_direction import OrderDirection
+from mealie_mcp.client.types import UNSET, Response
 from mealie_mcp.tools._common import (
     decode,
     expect_dict,
     expect_list,
     expect_str,
+    parse_order_direction,
     raise_api_error,
     require_non_empty,
 )
@@ -113,3 +115,18 @@ class TestExpectStr:
     def test_raises_on_non_string_body(self) -> None:
         with pytest.raises(ToolError, match="Unexpected act response"):
             expect_str("act", _response(HTTPStatus.OK, b"{}"))
+
+
+class TestParseOrderDirection:
+    def test_none_returns_unset(self) -> None:
+        assert parse_order_direction(None) is UNSET
+
+    def test_asc(self) -> None:
+        assert parse_order_direction("asc") is OrderDirection.ASC
+
+    def test_desc(self) -> None:
+        assert parse_order_direction("desc") is OrderDirection.DESC
+
+    def test_invalid_raises_tool_error(self) -> None:
+        with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
+            parse_order_direction("sideways")

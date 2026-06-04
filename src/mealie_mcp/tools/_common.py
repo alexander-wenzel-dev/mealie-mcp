@@ -8,7 +8,8 @@ from typing import Any
 
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.types import Response
+from mealie_mcp.client.models.order_direction import OrderDirection
+from mealie_mcp.client.types import UNSET, Response, Unset
 
 
 def decode(content: bytes) -> Any:
@@ -38,6 +39,16 @@ def require_non_empty(name: str, value: str) -> None:
     """Raise a `ToolError` if `value` is empty or whitespace."""
     if not value or not value.strip():
         raise ToolError(f"{name} must be a non-empty string")
+
+
+def parse_order_direction(value: str | None) -> OrderDirection | Unset:
+    """Coerce a caller-supplied 'asc'/'desc' into the typed enum."""
+    if value is None:
+        return UNSET
+    try:
+        return OrderDirection(value)
+    except ValueError as exc:
+        raise ToolError(f"order_direction must be 'asc' or 'desc': {exc}") from exc
 
 
 def _expect(action: str, response: Response[Any], status: HTTPStatus) -> Any:
