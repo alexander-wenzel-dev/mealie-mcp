@@ -59,5 +59,5 @@ def test_category_lifecycle(
 
     organizer_categories.delete_category(mealie_client, item_id=item_id)
 
-    with pytest.raises(ToolError, match=r"get_category failed \(404"):
+    with pytest.raises(ToolError, match=r"Mealie get_category failed \(404"):
         organizer_categories.get_category(mealie_client, item_id=item_id)

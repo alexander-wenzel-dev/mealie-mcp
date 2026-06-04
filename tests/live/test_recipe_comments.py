@@ -77,5 +77,5 @@ def test_recipe_comment_lifecycle(
 
     recipe_comments.delete_comment(mealie_client, comment_id=comment_id)
 
-    with pytest.raises(ToolError, match=r"get_comment failed \(404"):
+    with pytest.raises(ToolError, match=r"Mealie get_comment failed \(404"):
         recipe_comments.get_comment(mealie_client, comment_id=comment_id)
