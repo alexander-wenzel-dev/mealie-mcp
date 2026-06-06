@@ -9,6 +9,7 @@ from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.order_by_null_position import OrderByNullPosition
 from ...models.order_direction import OrderDirection
+from ...models.recipe_suggestion_response import RecipeSuggestionResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -117,7 +118,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeSuggestionResponse | None:
+    if response.status_code == 200:
+        response_200 = RecipeSuggestionResponse.from_dict(response.json())
+
+        return response_200
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -130,7 +136,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeSuggestionResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -156,7 +162,7 @@ def sync_detailed(
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeSuggestionResponse]:
     """Suggest Recipes
 
     Args:
@@ -180,7 +186,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | RecipeSuggestionResponse]
     """
 
     kwargs = _get_kwargs(
@@ -224,7 +230,7 @@ def sync(
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeSuggestionResponse | None:
     """Suggest Recipes
 
     Args:
@@ -248,7 +254,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | RecipeSuggestionResponse
     """
 
     return sync_detailed(
@@ -287,7 +293,7 @@ async def asyncio_detailed(
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeSuggestionResponse]:
     """Suggest Recipes
 
     Args:
@@ -311,7 +317,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | RecipeSuggestionResponse]
     """
 
     kwargs = _get_kwargs(
@@ -353,7 +359,7 @@ async def asyncio(
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeSuggestionResponse | None:
     """Suggest Recipes
 
     Args:
@@ -377,7 +383,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | RecipeSuggestionResponse
     """
 
     return (
