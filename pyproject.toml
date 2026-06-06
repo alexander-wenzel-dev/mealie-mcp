@@ -39,6 +39,13 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 
+[tool.uv.sources]
+# Temporary pin to a fork carrying two unmerged generator fixes
+# (openapi-generators/openapi-python-client#1448 and #1449). Drop this
+# block and bump the floor in [dependency-groups].dev once a release
+# containing both lands on PyPI.
+openapi-python-client = { git = "https://github.com/alexander-wenzel-dev/openapi-python-client", branch = "pin/mealie-mcp-combined" }
+
 [tool.ruff]
 line-length = 100
 target-version = "py314"

@@ -919,7 +919,7 @@ requires-dist = [
 dev = [
     { name = "bandit", specifier = ">=1.9.4" },
     { name = "mypy", specifier = ">=2.1.0" },
-    { name = "openapi-python-client", specifier = ">=0.29.0" },
+    { name = "openapi-python-client", git = "https://github.com/alexander-wenzel-dev/openapi-python-client?branch=pin%2Fmealie-mcp-combined" },
     { name = "pip-audit", specifier = ">=2.10.0" },
     { name = "pre-commit", specifier = ">=4.6.0" },
     { name = "pytest", specifier = ">=9.0.3" },
@@ -1025,7 +1025,7 @@ wheels = [
 [[package]]
 name = "openapi-python-client"
 version = "0.29.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/alexander-wenzel-dev/openapi-python-client?branch=pin%2Fmealie-mcp-combined#82ab2f215e4f183cdd0fc4bafe8b315154887217" }
 dependencies = [
     { name = "attrs" },
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -1036,10 +1036,6 @@ dependencies = [
     { name = "ruff" },
     { name = "shellingham" },
     { name = "typer" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/63/f6/67dfe73b5073251b6e2aba3d67191819798dd33dd09fcb2d12242662a960/openapi_python_client-0.29.0.tar.gz", hash = "sha256:4ff439a63765aaef548e69c4eedd86dfad57891dc322709450af0c2c9a72a23e", size = 125697, upload-time = "2026-05-30T20:32:10.533Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/d1/7391a205622c40b8e9d1b79b892b4944d6e3637674b47a56196e2c96c5d1/openapi_python_client-0.29.0-py3-none-any.whl", hash = "sha256:1085864c1e0a42fb50e1f5eb84363b19de07ebfb8a3f82a146c8529b948b8f12", size = 182954, upload-time = "2026-05-30T20:32:09.037Z" },
 ]
 
 [[package]]
