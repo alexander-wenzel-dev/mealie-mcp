@@ -78,6 +78,8 @@ The generator does not runtime-validate response bodies. Its `_parse_response` f
 
 The operator owns the Mealie test instance and the `.env` file. They copy `.env.example` to `.env` and fill in real values. The agent does not provision the instance, create or edit `.env`, ask for credential values, or paste them into the conversation. If `.env` is missing, unit tests still run; live tests fail fast with a clear message. An agent without `.env` runs the definition-of-ready checks up to `uv run pytest`, stops before `pytest -m live`, and reports that live verification is pending.
 
+The live token has admin rights, so admin-only endpoints can be exercised without conditional skips. If a live test needs to check non-admin behaviour, stage a non-admin scenario explicitly rather than gating on token capability.
+
 ## Definition of ready
 
 A task is only ready for review when all of these commands pass.
@@ -107,6 +109,8 @@ Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring 
 Unit tests cover pure logic only. They do not perform HTTP calls, including via mock transports. Per-tool unit tests cover input validation. Shared-helper behaviour in `tools/_common.py` is tested once in `tests/unit/test_common.py`, not re-tested through each tool. `tests/conftest.py` loads `.env` for the whole session.
 
 Live tests are tagged `@pytest.mark.live` and reuse the shared fixtures in `tests/live/conftest.py`: `mealie_client` (session-scoped authenticated client) and `sentinel_name` (per-test unique `mcp-test-` name). They follow a sentinel-staging pattern: create a sentinel resource using `sentinel_name`, exercise the tool, assert on observable effects, then delete the sentinel. Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block so it executes even when the test body fails. Read-only tools still follow the pattern: create the sentinel, perform the read, assert the sentinel appears, delete it. For resources nested under a parent (for example, comments on a recipe), stage the parent sentinel first, then the child sentinel under it; cleanup deletes both.
+
+Live assertions observe a behavioural difference, not just that the call did not error. "No 422" is a smoke check, not a test. If a parameter cannot be exercised against an observable effect (presence, absence, value change, ordering shift), do not ship it; defer the parameter and record the reason in the task file or the PR body under "Risks".
 
 A failing live test is never silenced or marked `xfail` to ship. Fix the tool, fix the test, or descope and surface the decision. After any live test failure, confirm by hand that no `mcp-test-` data remains and delete it before the next run.
 
