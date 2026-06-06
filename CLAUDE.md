@@ -72,7 +72,7 @@ Out of scope: hosting or deploying Mealie itself, any web UI or non-MCP transpor
 
 The Mealie OpenAPI spec is cached at `spec/mealie-openapi.json` and pinned by `[tool.mealie-mcp.spec]` in `pyproject.toml` (version, sha256). `uv run regen-client` uses the cache, verifies the SHA and `info.version` against the lockfile, and regenerates `src/mealie_mcp/client/`. Drift fails the run. `uv run regen-client --update` fetches `$MEALIE_BASE_URL/openapi.json`, refreshes the cache, rewrites the lockfile fields, and regenerates. The generated client folder is committed. `ruff` and `mypy` exclude it.
 
-The generator does not runtime-validate response bodies. Its `_parse_response` functions use `cast(T, response.json())`, which is a type hint with no runtime effect. Keep explicit `isinstance` shape guards on parsed responses at the tool boundary. The current spec also drops the `ShoppingList*` model schemas during generation, a known generator warning that does not affect recipe operations. Separately, openapi-python-client 0.29.0 silently fails on schema names containing dashes (`Recipe-Input`, `Recipe-Output`, `RecipeIngredient-*`, `RecipeCommentOut-*`); the affected models are missing from the generated package and any endpoint that references them is dropped, including the recipe update PUT and PATCH endpoints. The investigation handover lives in `tasks/openapi-bug.md`. If the generator drops models needed for an API group, that group is unimplementable until the upstream issue is fixed; surface it as a blocker rather than hand-writing replacement models.
+The generator does not runtime-validate response bodies. Its `_parse_response` functions use `cast(T, response.json())`, which is a type hint with no runtime effect. Keep explicit `isinstance` shape guards on parsed responses at the tool boundary. `openapi-python-client` is pinned via `[tool.uv.sources]` to a fork branch carrying two unmerged generator fixes (upstream PRs openapi-generators/openapi-python-client#1448 and #1449); without that pin the generator silently drops dashed-schema models (`Recipe-Input`, `Recipe-Output`, `RecipeIngredient-*`, `RecipeCommentOut-*`, `ShoppingList*`) and every endpoint that references them, including the recipe PUT and PATCH and the shopping-list write endpoints. Drop the pin and bump the floor when a release containing both lands. If the generator drops models the pin does not cover, surface it as a blocker rather than hand-writing replacements.
 
 ## Test environment
 
@@ -93,6 +93,8 @@ uv run pytest -m live     # run locally before merge, not in CI
 ## Independent review before PR
 
 After the definition-of-ready checks pass and before opening the PR, spawn a fresh-eyes verification agent. Hand it the diff and a neutral brief that asks for real flaws only: logical, technical, contract-level. No hints, no leading angles, no list of suspected issues. If the agent surfaces a real flaw, fix it before opening the PR. If it returns only nits or nothing, proceed.
+
+Skip the agent when the PR is purely a regenerated artifact tree. The diff is machine output; verification is the def-of-ready run plus a spot-check that expected outputs are present.
 
 ## Tool patterns
 
