@@ -60,8 +60,12 @@ from .cook_book_pagination import CookBookPagination
 from .cookbook_household import CookbookHousehold
 from .create_cook_book import CreateCookBook
 from .create_group_recipe_action import CreateGroupRecipeAction
+from .create_ingredient_food import CreateIngredientFood
 from .create_ingredient_food_alias import CreateIngredientFoodAlias
+from .create_ingredient_food_extras_type_0 import CreateIngredientFoodExtrasType0
+from .create_ingredient_unit import CreateIngredientUnit
 from .create_ingredient_unit_alias import CreateIngredientUnitAlias
+from .create_ingredient_unit_extras_type_0 import CreateIngredientUnitExtrasType0
 from .create_invite_token import CreateInviteToken
 from .create_plan_entry import CreatePlanEntry
 from .create_random_entry import CreateRandomEntry
@@ -110,10 +114,20 @@ from .household_user_summary import HouseholdUserSummary
 from .http_validation_error import HTTPValidationError
 from .image_type import ImageType
 from .ingredient_confidence import IngredientConfidence
+from .ingredient_food import IngredientFood
 from .ingredient_food_alias import IngredientFoodAlias
+from .ingredient_food_extras_type_0 import IngredientFoodExtrasType0
+from .ingredient_food_output import IngredientFoodOutput
+from .ingredient_food_output_extras_type_0 import IngredientFoodOutputExtrasType0
+from .ingredient_food_pagination import IngredientFoodPagination
 from .ingredient_references import IngredientReferences
 from .ingredient_request import IngredientRequest
+from .ingredient_unit import IngredientUnit
 from .ingredient_unit_alias import IngredientUnitAlias
+from .ingredient_unit_extras_type_0 import IngredientUnitExtrasType0
+from .ingredient_unit_output import IngredientUnitOutput
+from .ingredient_unit_output_extras_type_0 import IngredientUnitOutputExtrasType0
+from .ingredient_unit_pagination import IngredientUnitPagination
 from .ingredients_request import IngredientsRequest
 from .logical_operator import LogicalOperator
 from .long_live_token_create_response import LongLiveTokenCreateResponse
@@ -121,6 +135,8 @@ from .long_live_token_in import LongLiveTokenIn
 from .long_live_token_out import LongLiveTokenOut
 from .maintenance_storage_details import MaintenanceStorageDetails
 from .maintenance_summary import MaintenanceSummary
+from .mealie_schema_recipe_recipe_comments_user_base import MealieSchemaRecipeRecipeCommentsUserBase
+from .mealie_schema_user_user_user_base import MealieSchemaUserUserUserBase
 from .merge_food import MergeFood
 from .merge_unit import MergeUnit
 from .multi_purpose_label_create import MultiPurposeLabelCreate
@@ -132,6 +148,7 @@ from .nutrition import Nutrition
 from .order_by_null_position import OrderByNullPosition
 from .order_direction import OrderDirection
 from .pagination_base_household_summary import PaginationBaseHouseholdSummary
+from .pagination_base_ingredient_food import PaginationBaseIngredientFood
 from .pagination_base_read_cook_book import PaginationBaseReadCookBook
 from .pagination_base_recipe_category import PaginationBaseRecipeCategory
 from .pagination_base_recipe_summary import PaginationBaseRecipeSummary
@@ -139,6 +156,7 @@ from .pagination_base_recipe_tag import PaginationBaseRecipeTag
 from .pagination_base_recipe_tool import PaginationBaseRecipeTool
 from .pagination_base_user_out import PaginationBaseUserOut
 from .pagination_base_user_summary import PaginationBaseUserSummary
+from .parsed_ingredient import ParsedIngredient
 from .password_reset_token import PasswordResetToken
 from .plan_entry_pagination import PlanEntryPagination
 from .plan_entry_type import PlanEntryType
@@ -155,19 +173,30 @@ from .read_household_preferences import ReadHouseholdPreferences
 from .read_invite_token import ReadInviteToken
 from .read_plan_entry import ReadPlanEntry
 from .read_webhook import ReadWebhook
+from .recipe import Recipe
 from .recipe_asset import RecipeAsset
 from .recipe_category import RecipeCategory
 from .recipe_category_pagination import RecipeCategoryPagination
 from .recipe_comment_create import RecipeCommentCreate
+from .recipe_comment_out import RecipeCommentOut
+from .recipe_comment_out_output import RecipeCommentOutOutput
+from .recipe_comment_pagination import RecipeCommentPagination
 from .recipe_comment_update import RecipeCommentUpdate
 from .recipe_duplicate import RecipeDuplicate
+from .recipe_extras_type_0 import RecipeExtrasType0
 from .recipe_ingredient import RecipeIngredient
+from .recipe_ingredient_output import RecipeIngredientOutput
 from .recipe_last_made import RecipeLastMade
 from .recipe_note import RecipeNote
+from .recipe_output import RecipeOutput
+from .recipe_output_extras_type_0 import RecipeOutputExtrasType0
 from .recipe_settings import RecipeSettings
+from .recipe_share_token import RecipeShareToken
 from .recipe_share_token_create import RecipeShareTokenCreate
 from .recipe_share_token_summary import RecipeShareTokenSummary
 from .recipe_step import RecipeStep
+from .recipe_suggestion_response import RecipeSuggestionResponse
+from .recipe_suggestion_response_item import RecipeSuggestionResponseItem
 from .recipe_summary import RecipeSummary
 from .recipe_tag import RecipeTag
 from .recipe_tag_pagination import RecipeTagPagination
@@ -198,13 +227,34 @@ from .seeder_config import SeederConfig
 from .set_permissions import SetPermissions
 from .shopping_list_add_recipe_params import ShoppingListAddRecipeParams
 from .shopping_list_add_recipe_params_bulk import ShoppingListAddRecipeParamsBulk
+from .shopping_list_create import ShoppingListCreate
+from .shopping_list_create_extras_type_0 import ShoppingListCreateExtrasType0
+from .shopping_list_item_create import ShoppingListItemCreate
+from .shopping_list_item_create_extras_type_0 import ShoppingListItemCreateExtrasType0
+from .shopping_list_item_out import ShoppingListItemOut
+from .shopping_list_item_out_extras_type_0 import ShoppingListItemOutExtrasType0
+from .shopping_list_item_out_output import ShoppingListItemOutOutput
+from .shopping_list_item_out_output_extras_type_0 import ShoppingListItemOutOutputExtrasType0
+from .shopping_list_item_pagination import ShoppingListItemPagination
 from .shopping_list_item_recipe_ref_create import ShoppingListItemRecipeRefCreate
 from .shopping_list_item_recipe_ref_out import ShoppingListItemRecipeRefOut
 from .shopping_list_item_recipe_ref_update import ShoppingListItemRecipeRefUpdate
+from .shopping_list_item_update import ShoppingListItemUpdate
+from .shopping_list_item_update_bulk import ShoppingListItemUpdateBulk
+from .shopping_list_item_update_bulk_extras_type_0 import ShoppingListItemUpdateBulkExtrasType0
+from .shopping_list_item_update_extras_type_0 import ShoppingListItemUpdateExtrasType0
+from .shopping_list_items_collection_out import ShoppingListItemsCollectionOut
 from .shopping_list_multi_purpose_label_out import ShoppingListMultiPurposeLabelOut
 from .shopping_list_multi_purpose_label_update import ShoppingListMultiPurposeLabelUpdate
+from .shopping_list_out import ShoppingListOut
+from .shopping_list_out_extras_type_0 import ShoppingListOutExtrasType0
+from .shopping_list_pagination import ShoppingListPagination
 from .shopping_list_recipe_ref_out import ShoppingListRecipeRefOut
 from .shopping_list_remove_recipe_params import ShoppingListRemoveRecipeParams
+from .shopping_list_summary import ShoppingListSummary
+from .shopping_list_summary_extras_type_0 import ShoppingListSummaryExtrasType0
+from .shopping_list_update import ShoppingListUpdate
+from .shopping_list_update_extras_type_0 import ShoppingListUpdateExtrasType0
 from .success_response import SuccessResponse
 from .supported_migrations import SupportedMigrations
 from .tag_base import TagBase
@@ -279,8 +329,12 @@ __all__ = (
     "CookbookHousehold",
     "CreateCookBook",
     "CreateGroupRecipeAction",
+    "CreateIngredientFood",
     "CreateIngredientFoodAlias",
+    "CreateIngredientFoodExtrasType0",
+    "CreateIngredientUnit",
     "CreateIngredientUnitAlias",
+    "CreateIngredientUnitExtrasType0",
     "CreateInviteToken",
     "CreatePlanEntry",
     "CreateRandomEntry",
@@ -329,10 +383,20 @@ __all__ = (
     "HouseholdUserSummary",
     "ImageType",
     "IngredientConfidence",
+    "IngredientFood",
     "IngredientFoodAlias",
+    "IngredientFoodExtrasType0",
+    "IngredientFoodOutput",
+    "IngredientFoodOutputExtrasType0",
+    "IngredientFoodPagination",
     "IngredientReferences",
     "IngredientRequest",
+    "IngredientUnit",
     "IngredientUnitAlias",
+    "IngredientUnitExtrasType0",
+    "IngredientUnitOutput",
+    "IngredientUnitOutputExtrasType0",
+    "IngredientUnitPagination",
     "IngredientsRequest",
     "LogicalOperator",
     "LongLiveTokenCreateResponse",
@@ -340,6 +404,8 @@ __all__ = (
     "LongLiveTokenOut",
     "MaintenanceStorageDetails",
     "MaintenanceSummary",
+    "MealieSchemaRecipeRecipeCommentsUserBase",
+    "MealieSchemaUserUserUserBase",
     "MergeFood",
     "MergeUnit",
     "MultiPurposeLabelCreate",
@@ -351,6 +417,7 @@ __all__ = (
     "OrderByNullPosition",
     "OrderDirection",
     "PaginationBaseHouseholdSummary",
+    "PaginationBaseIngredientFood",
     "PaginationBaseReadCookBook",
     "PaginationBaseRecipeCategory",
     "PaginationBaseRecipeSummary",
@@ -358,6 +425,7 @@ __all__ = (
     "PaginationBaseRecipeTool",
     "PaginationBaseUserOut",
     "PaginationBaseUserSummary",
+    "ParsedIngredient",
     "PasswordResetToken",
     "PlanEntryPagination",
     "PlanEntryType",
@@ -374,19 +442,30 @@ __all__ = (
     "ReadInviteToken",
     "ReadPlanEntry",
     "ReadWebhook",
+    "Recipe",
     "RecipeAsset",
     "RecipeCategory",
     "RecipeCategoryPagination",
     "RecipeCommentCreate",
+    "RecipeCommentOut",
+    "RecipeCommentOutOutput",
+    "RecipeCommentPagination",
     "RecipeCommentUpdate",
     "RecipeDuplicate",
+    "RecipeExtrasType0",
     "RecipeIngredient",
+    "RecipeIngredientOutput",
     "RecipeLastMade",
     "RecipeNote",
+    "RecipeOutput",
+    "RecipeOutputExtrasType0",
     "RecipeSettings",
+    "RecipeShareToken",
     "RecipeShareTokenCreate",
     "RecipeShareTokenSummary",
     "RecipeStep",
+    "RecipeSuggestionResponse",
+    "RecipeSuggestionResponseItem",
     "RecipeSummary",
     "RecipeTag",
     "RecipeTagPagination",
@@ -417,13 +496,34 @@ __all__ = (
     "SetPermissions",
     "ShoppingListAddRecipeParams",
     "ShoppingListAddRecipeParamsBulk",
+    "ShoppingListCreate",
+    "ShoppingListCreateExtrasType0",
+    "ShoppingListItemCreate",
+    "ShoppingListItemCreateExtrasType0",
+    "ShoppingListItemOut",
+    "ShoppingListItemOutExtrasType0",
+    "ShoppingListItemOutOutput",
+    "ShoppingListItemOutOutputExtrasType0",
+    "ShoppingListItemPagination",
     "ShoppingListItemRecipeRefCreate",
     "ShoppingListItemRecipeRefOut",
     "ShoppingListItemRecipeRefUpdate",
+    "ShoppingListItemUpdate",
+    "ShoppingListItemUpdateBulk",
+    "ShoppingListItemUpdateBulkExtrasType0",
+    "ShoppingListItemUpdateExtrasType0",
+    "ShoppingListItemsCollectionOut",
     "ShoppingListMultiPurposeLabelOut",
     "ShoppingListMultiPurposeLabelUpdate",
+    "ShoppingListOut",
+    "ShoppingListOutExtrasType0",
+    "ShoppingListPagination",
     "ShoppingListRecipeRefOut",
     "ShoppingListRemoveRecipeParams",
+    "ShoppingListSummary",
+    "ShoppingListSummaryExtrasType0",
+    "ShoppingListUpdate",
+    "ShoppingListUpdateExtrasType0",
     "SuccessResponse",
     "SupportedMigrations",
     "TagBase",

@@ -9,6 +9,7 @@ from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.order_by_null_position import OrderByNullPosition
 from ...models.order_direction import OrderDirection
+from ...models.pagination_base_ingredient_food import PaginationBaseIngredientFood
 from ...types import UNSET, Response, Unset
 
 
@@ -94,7 +95,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | PaginationBaseIngredientFood | None:
+    if response.status_code == 200:
+        response_200 = PaginationBaseIngredientFood.from_dict(response.json())
+
+        return response_200
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -107,7 +113,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginationBaseIngredientFood]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -129,7 +135,7 @@ def sync_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginationBaseIngredientFood]:
     """Get All
 
     Args:
@@ -149,7 +155,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | PaginationBaseIngredientFood]
     """
 
     kwargs = _get_kwargs(
@@ -185,7 +191,7 @@ def sync(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | PaginationBaseIngredientFood | None:
     """Get All
 
     Args:
@@ -205,7 +211,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | PaginationBaseIngredientFood
     """
 
     return sync_detailed(
@@ -236,7 +242,7 @@ async def asyncio_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginationBaseIngredientFood]:
     """Get All
 
     Args:
@@ -256,7 +262,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | PaginationBaseIngredientFood]
     """
 
     kwargs = _get_kwargs(
@@ -290,7 +296,7 @@ async def asyncio(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | PaginationBaseIngredientFood | None:
     """Get All
 
     Args:
@@ -310,7 +316,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | PaginationBaseIngredientFood
     """
 
     return (

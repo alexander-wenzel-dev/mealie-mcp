@@ -7,6 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.recipe_comment_out_output import RecipeCommentOutOutput
 from ...models.recipe_comment_update import RecipeCommentUpdate
 from ...types import UNSET, Response, Unset
 
@@ -38,7 +39,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeCommentOutOutput | None:
+    if response.status_code == 200:
+        response_200 = RecipeCommentOutOutput.from_dict(response.json())
+
+        return response_200
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -51,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeCommentOutOutput]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -66,7 +72,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: RecipeCommentUpdate,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeCommentOutOutput]:
     """Update One
 
     Args:
@@ -79,7 +85,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | RecipeCommentOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -101,7 +107,7 @@ def sync(
     client: AuthenticatedClient,
     body: RecipeCommentUpdate,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeCommentOutOutput | None:
     """Update One
 
     Args:
@@ -114,7 +120,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | RecipeCommentOutOutput
     """
 
     return sync_detailed(
@@ -131,7 +137,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: RecipeCommentUpdate,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | RecipeCommentOutOutput]:
     """Update One
 
     Args:
@@ -144,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | RecipeCommentOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -164,7 +170,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: RecipeCommentUpdate,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | RecipeCommentOutOutput | None:
     """Update One
 
     Args:
@@ -177,7 +183,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | RecipeCommentOutOutput
     """
 
     return (

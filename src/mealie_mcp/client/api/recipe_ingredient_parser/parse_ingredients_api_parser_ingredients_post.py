@@ -7,6 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.ingredients_request import IngredientsRequest
+from ...models.parsed_ingredient import ParsedIngredient
 from ...types import UNSET, Response, Unset
 
 
@@ -34,7 +35,17 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | list[ParsedIngredient] | None:
+    if response.status_code == 200:
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = ParsedIngredient.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
+
+        return response_200
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -47,7 +58,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | list[ParsedIngredient]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,7 +72,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: IngredientsRequest,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | list[ParsedIngredient]]:
     """Parse Ingredients
 
     Args:
@@ -73,7 +84,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | list[ParsedIngredient]]
     """
 
     kwargs = _get_kwargs(
@@ -93,7 +104,7 @@ def sync(
     client: AuthenticatedClient,
     body: IngredientsRequest,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | list[ParsedIngredient] | None:
     """Parse Ingredients
 
     Args:
@@ -105,7 +116,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | list[ParsedIngredient]
     """
 
     return sync_detailed(
@@ -120,7 +131,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: IngredientsRequest,
     accept_language: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError]:
+) -> Response[HTTPValidationError | list[ParsedIngredient]]:
     """Parse Ingredients
 
     Args:
@@ -132,7 +143,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError]
+        Response[HTTPValidationError | list[ParsedIngredient]]
     """
 
     kwargs = _get_kwargs(
@@ -150,7 +161,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: IngredientsRequest,
     accept_language: None | str | Unset = UNSET,
-) -> HTTPValidationError | None:
+) -> HTTPValidationError | list[ParsedIngredient] | None:
     """Parse Ingredients
 
     Args:
@@ -162,7 +173,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError
+        HTTPValidationError | list[ParsedIngredient]
     """
 
     return (
