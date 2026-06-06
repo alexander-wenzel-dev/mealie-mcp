@@ -16,7 +16,7 @@ import pytest
 from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.tools import recipe_crud
+from mealie_mcp.tools import organizer_categories, organizer_tags, recipe_crud
 
 
 @pytest.fixture
@@ -71,6 +71,89 @@ def test_duplicate_recipe_creates_new_slug(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=duplicate["slug"])
+
+
+@pytest.mark.live
+def test_update_recipe_patches_scalars_and_lists(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
+) -> None:
+    slug = created_recipe["slug"]
+    updated = recipe_crud.update_recipe(
+        mealie_client,
+        slug_or_id=slug,
+        description="updated by mcp-test",
+        recipe_yield="6 servings",
+        total_time="55 minutes",
+        prep_time="15 minutes",
+        perform_time="40 minutes",
+        recipe_ingredient=[{"note": "1 cup flour"}, {"note": "2 eggs"}],
+        notes=[{"title": "mcp", "text": "patched note"}],
+        recipe_instructions=[{"text": "Step one."}, {"text": "Step two."}],
+    )
+    assert updated["slug"] == slug
+    assert updated["description"] == "updated by mcp-test"
+
+    refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert refreshed["description"] == "updated by mcp-test"
+    assert refreshed["recipeYield"] == "6 servings"
+    assert refreshed["totalTime"] == "55 minutes"
+    assert refreshed["prepTime"] == "15 minutes"
+    assert refreshed["performTime"] == "40 minutes"
+    assert [ing["note"] for ing in refreshed["recipeIngredient"]] == [
+        "1 cup flour",
+        "2 eggs",
+    ]
+    assert [note["text"] for note in refreshed["notes"]] == ["patched note"]
+    assert [step["text"] for step in refreshed["recipeInstructions"]] == [
+        "Step one.",
+        "Step two.",
+    ]
+
+
+@pytest.mark.live
+def test_update_recipe_reslugs_on_name_change(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    new_name = f"{sentinel_name}-renamed"
+    updated = recipe_crud.update_recipe(
+        mealie_client, slug_or_id=created_recipe["slug"], name=new_name
+    )
+    new_slug = updated["slug"]
+    try:
+        assert new_slug != created_recipe["slug"]
+        assert updated["name"] == new_name
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=new_slug)
+        assert refreshed["name"] == new_name
+    finally:
+        # The recipe lives at the new slug now; the fixture's cleanup at the
+        # original slug is a 404 no-op suppressed by its contextlib.suppress.
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=new_slug)
+
+
+@pytest.mark.live
+def test_update_recipe_attaches_tag_and_category(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    tag = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-tag")
+    category = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-cat")
+    try:
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=created_recipe["slug"],
+            tags=[{"id": tag["id"], "name": tag["name"], "slug": tag["slug"]}],
+            recipe_category=[
+                {"id": category["id"], "name": category["name"], "slug": category["slug"]}
+            ],
+        )
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
+        assert [t["slug"] for t in refreshed["tags"]] == [tag["slug"]]
+        assert [c["slug"] for c in refreshed["recipeCategory"]] == [category["slug"]]
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_tags.delete_tag(mealie_client, item_id=tag["id"])
+        with contextlib.suppress(ToolError):
+            organizer_categories.delete_category(mealie_client, item_id=category["id"])
 
 
 @pytest.mark.live

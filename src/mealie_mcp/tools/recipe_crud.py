@@ -2,7 +2,7 @@
 
 Mirrors `mealie_mcp.client.api.recipe_crud`. Exposes the recipe lifecycle
 operations: list, create, read, duplicate, scrape from URL or raw payload,
-patch the last-made timestamp, and delete.
+patch the last-made timestamp, edit fields, and delete.
 """
 
 from __future__ import annotations
@@ -22,10 +22,12 @@ from mealie_mcp.client.api.recipe_crud import (
     get_all_api_recipes_get,
     get_one_api_recipes_slug_get,
     parse_recipe_url_api_recipes_create_url_post,
+    patch_one_api_recipes_slug_patch,
     update_last_made_api_recipes_slug_last_made_patch,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_recipe import CreateRecipe
+from mealie_mcp.client.models.recipe import Recipe
 from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
@@ -123,6 +125,76 @@ def update_last_made(
         slug_or_id, client=client, body=RecipeLastMade(timestamp=parsed_timestamp)
     )
     return expect_dict("update_last_made", response)
+
+
+_UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
+    "name": "name",
+    "description": "description",
+    "recipe_yield": "recipeYield",
+    "total_time": "totalTime",
+    "prep_time": "prepTime",
+    "perform_time": "performTime",
+    "recipe_ingredient": "recipeIngredient",
+    "recipe_instructions": "recipeInstructions",
+    "notes": "notes",
+    "tags": "tags",
+    "recipe_category": "recipeCategory",
+}
+
+
+def update_recipe(
+    client: AuthenticatedClient,
+    slug_or_id: str,
+    *,
+    name: str | None = None,
+    description: str | None = None,
+    recipe_yield: str | None = None,
+    total_time: str | None = None,
+    prep_time: str | None = None,
+    perform_time: str | None = None,
+    recipe_ingredient: list[dict[str, Any]] | None = None,
+    recipe_instructions: list[dict[str, Any]] | None = None,
+    notes: list[dict[str, Any]] | None = None,
+    tags: list[dict[str, Any]] | None = None,
+    recipe_category: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Patch selected fields on a recipe. Returns the updated recipe payload."""
+    require_non_empty("slug_or_id", slug_or_id)
+
+    supplied: dict[str, Any] = {
+        "name": name,
+        "description": description,
+        "recipe_yield": recipe_yield,
+        "total_time": total_time,
+        "prep_time": prep_time,
+        "perform_time": perform_time,
+        "recipe_ingredient": recipe_ingredient,
+        "recipe_instructions": recipe_instructions,
+        "notes": notes,
+        "tags": tags,
+        "recipe_category": recipe_category,
+    }
+    patch: dict[str, Any] = {
+        _UPDATE_RECIPE_FIELD_MAP[key]: value for key, value in supplied.items() if value is not None
+    }
+    if not patch:
+        raise ToolError("update_recipe requires at least one field to update")
+
+    try:
+        if "recipeInstructions" in patch:
+            # Mealie 500s with a TypeError when a step body omits `ingredientReferences`,
+            # even though the OpenAPI schema marks it optional. Default it to an empty
+            # list so callers don't have to know about the server bug.
+            patch["recipeInstructions"] = [
+                {**item, "ingredientReferences": item.get("ingredientReferences", [])}
+                for item in patch["recipeInstructions"]
+            ]
+        body = Recipe.from_dict(patch)
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise ToolError(f"update_recipe payload invalid: {exc}") from exc
+
+    response = patch_one_api_recipes_slug_patch.sync_detailed(slug_or_id, client=client, body=body)
+    return expect_dict("update_recipe", response)
 
 
 def parse_recipe_url(
@@ -255,6 +327,67 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             The newly created recipe payload as a JSON-compatible dict.
         """
         return duplicate_recipe(get_client(), slug_or_id=slug_or_id, name=name)
+
+    @mcp.tool(name="mealie_update_recipe")
+    def _update_recipe(
+        slug_or_id: str,
+        name: str | None = None,
+        description: str | None = None,
+        recipe_yield: str | None = None,
+        total_time: str | None = None,
+        prep_time: str | None = None,
+        perform_time: str | None = None,
+        recipe_ingredient: list[dict[str, Any]] | None = None,
+        recipe_instructions: list[dict[str, Any]] | None = None,
+        notes: list[dict[str, Any]] | None = None,
+        tags: list[dict[str, Any]] | None = None,
+        recipe_category: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Edit fields on an existing Mealie recipe.
+
+        Only the fields supplied are sent; omitted fields are left unchanged.
+        At least one field beyond ``slug_or_id`` must be provided. List fields
+        replace the existing value wholesale; there is no per-item merge.
+
+        Args:
+            slug_or_id: Recipe slug or UUID.
+            name: New human-readable recipe name. Changing the name causes
+                Mealie to reslug the recipe; subsequent calls must use the
+                returned slug.
+            description: New free-text description.
+            recipe_yield: Human-readable yield (e.g. ``"4 servings"``).
+            total_time: Human-readable total time (e.g. ``"45 minutes"``).
+            prep_time: Human-readable preparation time.
+            perform_time: Human-readable active cooking time.
+            recipe_ingredient: Full ingredient list as Mealie ingredient dicts.
+                Each item accepts keys like ``note``, ``quantity``, ``unit``,
+                ``food``, ``title``, ``display``, ``originalText``.
+            recipe_instructions: Full step list. Each item must have ``text``
+                and may include ``title`` and ``summary``.
+            notes: Full notes list. Each item must have ``title`` and ``text``.
+            tags: Full tag list. Each item must have ``name`` and ``slug`` of
+                an existing tag.
+            recipe_category: Full category list. Each item must have ``name``
+                and ``slug`` of an existing category.
+
+        Returns:
+            The updated recipe payload as a JSON-compatible dict.
+        """
+        return update_recipe(
+            get_client(),
+            slug_or_id=slug_or_id,
+            name=name,
+            description=description,
+            recipe_yield=recipe_yield,
+            total_time=total_time,
+            prep_time=prep_time,
+            perform_time=perform_time,
+            recipe_ingredient=recipe_ingredient,
+            recipe_instructions=recipe_instructions,
+            notes=notes,
+            tags=tags,
+            recipe_category=recipe_category,
+        )
 
     @mcp.tool(name="mealie_update_last_made")
     def _update_last_made(slug_or_id: str, timestamp: str) -> dict[str, Any]:

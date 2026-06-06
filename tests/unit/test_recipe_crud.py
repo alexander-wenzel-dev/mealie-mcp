@@ -67,6 +67,16 @@ class TestUpdateLastMade:
             recipe_crud.update_last_made(client, slug_or_id="abc", timestamp="yesterday")
 
 
+class TestUpdateRecipe:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):
+            recipe_crud.update_recipe(client, slug_or_id="", name="x")
+
+    def test_rejects_empty_patch(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="at least one field"):
+            recipe_crud.update_recipe(client, slug_or_id="abc")
+
+
 class TestParseRecipeUrl:
     def test_rejects_empty_url(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="url must be a non-empty string"):
