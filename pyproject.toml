@@ -7,7 +7,7 @@ requires-python = ">=3.14"
 license = { text = "MIT" }
 authors = [{ name = "Alexander Wenzel" }]
 dependencies = [
-    "fastmcp>=3.3.1",
+    "fastmcp>=3.4.2",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.2",
 ]
@@ -29,7 +29,7 @@ packages = ["src/mealie_mcp"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.15",
+    "ruff>=0.15.16",
     "mypy>=2.1.0",
     "pytest>=9.0.3",
     "pre-commit>=4.6.0",
