@@ -32,7 +32,7 @@ IMAGE = "ghcr.io/mealie-recipes/mealie"
 ADMIN_EMAIL = "changeme@example.com"
 ADMIN_PASSWORD = "MyPassword"
 
-READY_TIMEOUT_S = 120
+READY_TIMEOUT_S = 300
 READY_INTERVAL_S = 2
 HTTP_REQUEST_TIMEOUT_S = 5
 
@@ -71,8 +71,21 @@ def resolve_tag(version: str) -> str:
     if version != "pinned":
         return version
     pyproject = REPO_ROOT / "pyproject.toml"
+    if not pyproject.is_file():
+        die(
+            f"pyproject.toml not found at {pyproject}. "
+            "Run from a checkout or extracted archive of mealie-mcp, or "
+            "symlink the script into your PATH rather than copying it."
+        )
     with pyproject.open("rb") as f:
         data = tomllib.load(f)
+    project_name = data.get("project", {}).get("name")
+    if project_name != "mealie-mcp":
+        die(
+            f"{pyproject} is not the mealie-mcp pyproject "
+            f"(found project.name={project_name!r}). "
+            "Run from a checkout or extracted archive of mealie-mcp."
+        )
     try:
         return str(data["tool"]["mealie-mcp"]["spec"]["version"])
     except KeyError:
