@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Boot a local Mealie container and emit env vars for live tests.
+
+Stdout is exactly two lines, suitable for redirection into `.env`:
+
+    MEALIE_BASE_URL=http://localhost:<port>
+    MEALIE_API_TOKEN=<token>
+
+Progress and diagnostics go to stderr.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+import time
+import tomllib
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+IMAGE = "ghcr.io/mealie-recipes/mealie"
+
+# Mealie seeds the first admin from `_DEFAULT_EMAIL` and `_DEFAULT_PASSWORD`
+# in `mealie/core/settings/settings.py`. Both are private Pydantic settings
+# (single-underscore prefix) and are not overridable via container env vars.
+# If a future release changes either constant, /api/auth/token returns 401
+# and these values need to be updated to match upstream.
+ADMIN_EMAIL = "changeme@example.com"
+ADMIN_PASSWORD = "MyPassword"
+
+READY_TIMEOUT_S = 120
+READY_INTERVAL_S = 2
+HTTP_REQUEST_TIMEOUT_S = 5
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def log(msg: str) -> None:
+    print(msg, file=sys.stderr, flush=True)
+
+
+def die(msg: str, code: int = 1) -> None:
+    log(f"error: {msg}")
+    sys.exit(code)
+
+
+def run_docker(*args: str, capture: bool = False) -> str:
+    """Run `docker <args>`. When capture is False, both streams go to stderr
+    so docker output never leaks into this script's stdout (the env-var
+    contract)."""
+    try:
+        result = subprocess.run(
+            ["docker", *args],
+            stdout=subprocess.PIPE if capture else sys.stderr,
+            stderr=subprocess.PIPE if capture else sys.stderr,
+            text=True,
+            check=True,
+        )
+    except FileNotFoundError:
+        die("docker not found on PATH")
+    except subprocess.CalledProcessError as e:
+        die(f"docker {' '.join(args)} failed with exit {e.returncode}")
+    return result.stdout if capture else ""
+
+
+def resolve_tag(version: str) -> str:
+    if version != "pinned":
+        return version
+    pyproject = REPO_ROOT / "pyproject.toml"
+    with pyproject.open("rb") as f:
+        data = tomllib.load(f)
+    try:
+        return str(data["tool"]["mealie-mcp"]["spec"]["version"])
+    except KeyError:
+        die(f"[tool.mealie-mcp.spec].version not found in {pyproject}")
+
+
+def container_exists(name: str) -> bool:
+    output = run_docker("ps", "-a", "--format", "{{.Names}}", capture=True)
+    return name in output.split()
+
+
+def start_container(name: str, port: int, tag: str) -> None:
+    log(f"starting {IMAGE}:{tag} as '{name}' on port {port}")
+    run_docker(
+        "run",
+        "-d",
+        "--rm",
+        "--name",
+        name,
+        "-p",
+        f"{port}:9000",
+        f"{IMAGE}:{tag}",
+        capture=True,
+    )
+
+
+def wait_ready(base_url: str, name: str) -> None:
+    log(f"waiting for {base_url}/api/app/about (timeout {READY_TIMEOUT_S}s)")
+    deadline = time.monotonic() + READY_TIMEOUT_S
+    last_error: str | None = None
+    while time.monotonic() < deadline:
+        try:
+            with urllib.request.urlopen(
+                f"{base_url}/api/app/about", timeout=HTTP_REQUEST_TIMEOUT_S
+            ) as resp:
+                if resp.status == 200:
+                    log("mealie ready")
+                    return
+                last_error = f"status {resp.status}"
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            last_error = str(e)
+        time.sleep(READY_INTERVAL_S)
+    log(f"readiness timeout (last: {last_error}); recent container logs:")
+    # Tolerate failure here: under --rm, a container that crashed during
+    # boot has already been removed and `docker logs` returns non-zero.
+    # We still want to surface the readiness-timeout message either way.
+    subprocess.run(
+        ["docker", "logs", "--tail", "50", name],
+        stdout=sys.stderr,
+        stderr=sys.stderr,
+        check=False,
+    )
+    die("mealie did not become ready in time")
+
+
+def mint_token(base_url: str) -> str:
+    log("minting admin token")
+    body = urllib.parse.urlencode(
+        {"username": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    ).encode()
+    req = urllib.request.Request(
+        f"{base_url}/api/auth/token",
+        data=body,
+        method="POST",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=HTTP_REQUEST_TIMEOUT_S) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as e:
+        die(
+            f"/api/auth/token returned {e.code}; upstream seeded admin may "
+            "have changed (see mealie/core/settings/settings.py)"
+        )
+    except urllib.error.URLError as e:
+        die(f"/api/auth/token request failed: {e}")
+    token = payload.get("access_token") if isinstance(payload, dict) else None
+    if not isinstance(token, str) or not token:
+        die("auth response had no access_token field")
+    return token
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="mealie-up",
+        description=(
+            "Boot a local Mealie container and emit MEALIE_BASE_URL and "
+            "MEALIE_API_TOKEN to stdout, suitable for redirection into .env. "
+            "Progress goes to stderr."
+        ),
+    )
+    parser.add_argument(
+        "--version",
+        default="pinned",
+        help=(
+            "Image version: 'pinned' (reads [tool.mealie-mcp.spec].version "
+            "from pyproject.toml), 'latest', 'nightly', or an explicit tag "
+            "such as 'v3.19.2'. Default: pinned."
+        ),
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=9000,
+        help="Host port to bind the Mealie API on. Default: 9000.",
+    )
+    parser.add_argument(
+        "--name",
+        default="mealie-mcp-dev",
+        help="Docker container name. Default: mealie-mcp-dev.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    tag = resolve_tag(args.version)
+
+    if container_exists(args.name):
+        die(
+            f"container '{args.name}' already exists; "
+            f"remove it with: docker rm -f {args.name}"
+        )
+
+    start_container(args.name, args.port, tag)
+    base_url = f"http://localhost:{args.port}"
+    wait_ready(base_url, args.name)
+    token = mint_token(base_url)
+
+    sys.stdout.write(
+        f"MEALIE_BASE_URL={base_url}\nMEALIE_API_TOKEN={token}\n"
+    )
+    sys.stdout.flush()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
