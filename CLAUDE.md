@@ -94,11 +94,13 @@ uv run pytest             # branch coverage is reported, not gated
 uv run pytest -m live     # run locally before merge, not in CI
 ```
 
+Skip these checks when the diff is Markdown only. There is no executable surface to verify.
+
 ## Independent review before PR
 
 After the definition-of-ready checks pass and before opening the PR, spawn a fresh-eyes verification agent. Hand it the diff and a neutral brief that asks for real flaws only: logical, technical, contract-level. No hints, no leading angles, no list of suspected issues. If the agent surfaces a real flaw, fix it before opening the PR. If it returns only nits or nothing, proceed.
 
-Skip the agent when the PR is purely a regenerated artifact tree. The diff is machine output; verification is the def-of-ready run plus a spot-check that expected outputs are present.
+Skip the agent when the PR is purely a regenerated artifact tree. The diff is machine output; verification is the def-of-ready run plus a spot-check that expected outputs are present. Also skip the agent for a Markdown-only diff. No logic to review.
 
 ## Tool patterns
 
