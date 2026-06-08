@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Print the pinned Mealie spec version from pyproject.toml on stdout.
+
+Reads `[tool.mealie-mcp.spec].version` from the repo's pyproject.toml.
+Used by the CI workflow's resolve step and by `scripts/mealie-up` so the
+pinned tag has one source of truth.
+
+Progress and diagnostics go to stderr; the version string is the only
+thing on stdout.
+"""
+
+from __future__ import annotations
+
+import sys
+import tomllib
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def die(msg: str, code: int = 1) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def main() -> int:
+    pyproject = REPO_ROOT / "pyproject.toml"
+    if not pyproject.is_file():
+        die(
+            f"pyproject.toml not found at {pyproject}. "
+            "Run from a checkout or extracted archive of mealie-mcp."
+        )
+    with pyproject.open("rb") as f:
+        data = tomllib.load(f)
+    project_name = data.get("project", {}).get("name")
+    if project_name != "mealie-mcp":
+        die(
+            f"{pyproject} is not the mealie-mcp pyproject "
+            f"(found project.name={project_name!r})."
+        )
+    try:
+        version = data["tool"]["mealie-mcp"]["spec"]["version"]
+    except KeyError:
+        die(f"[tool.mealie-mcp.spec].version not found in {pyproject}")
+    if not isinstance(version, str):
+        die(
+            f"[tool.mealie-mcp.spec].version must be a string, "
+            f"got {type(version).__name__}"
+        )
+    print(version)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
