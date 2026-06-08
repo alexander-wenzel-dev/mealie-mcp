@@ -14,6 +14,8 @@ YAGNI and KISS. Build what the task requires now. Resist abstractions, configura
 
 Committed prose uses simple technical English, short sentences, and no em dashes. Code comments and docstrings describe behaviour or a non-obvious why. They do not restate durable rules from this file, name this file, or reference the current task.
 
+Names for tests, modules, functions, and sections describe what the thing is or verifies, not the procedure or the current task's framing. A name should still read correctly when the original context is gone.
+
 ## Project
 
 Build a Python MCP server that wraps the Mealie REST API. The server exposes Mealie operations as MCP tools.
@@ -102,7 +104,7 @@ Skip the agent when the PR is purely a regenerated artifact tree. The diff is ma
 
 Each MCP tool has two layers. The first is a typed module-level function that takes an `AuthenticatedClient` and the tool inputs, validates them with the shared `require_non_empty` helper, calls the generated client's `sync_detailed` entry point (so the raw `status_code` and `content` are available for error mapping), maps non-success responses through the shared `raise_api_error` helper, decodes successful bodies with the shared `decode` helper, and returns a JSON-compatible value validated with explicit `isinstance` shape guards. This layer is the testable unit. The second is a thin `@mcp.tool()` wrapper inside a `register(mcp, get_client)` function; the wrapper calls `get_client()` (the process-scoped singleton provider from `mealie_mcp.client_factory`) and forwards to the typed function. Tool modules in `src/mealie_mcp/tools/` are auto-discovered by `register_all`; a new group is a single new file with a `register` callable.
 
-Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring the layout of `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. Shared helpers live in `src/mealie_mcp/tools/_common.py`; do not re-implement validation, error mapping, or body decoding inline. Use `to_unset(value)` to translate optional caller arguments into the generated client's `UNSET` sentinel. Use `ack_delete(action, response, ack_id)` for every delete tool so the MCP contract returns the canonical ``{"id": <ack_id>, "deleted": True}`` shape. Compare status codes with `HTTPStatus` constants and cast `response.status_code` to `int` when forwarding it to `raise_api_error`, since the generator types `status_code` as the `HTTPStatus` enum.
+Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring the layout of `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. Test files follow the same grouping: `tests/unit/test_<group>.py` and `tests/live/test_<group>.py`. Shared helpers live in `src/mealie_mcp/tools/_common.py`; do not re-implement validation, error mapping, or body decoding inline. Use `to_unset(value)` to translate optional caller arguments into the generated client's `UNSET` sentinel. Use `ack_delete(action, response, ack_id)` for every delete tool so the MCP contract returns the canonical ``{"id": <ack_id>, "deleted": True}`` shape. Compare status codes with `HTTPStatus` constants and cast `response.status_code` to `int` when forwarding it to `raise_api_error`, since the generator types `status_code` as the `HTTPStatus` enum.
 
 ## Test conventions
 
