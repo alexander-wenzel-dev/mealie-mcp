@@ -6,6 +6,10 @@ The durable working procedure for every agent in this repo.
 
 Transient content belongs in a task file under `tasks/`. Remove obsolete sections in the same commit that obsoletes them. Do not add rules any competent agent would already follow, and do not repeat a rule across sections.
 
+## Operating contexts
+
+This repo is worked on in two contexts: a Claude Code session (CLI or hosted worker) and the cloud agent (`.github/workflows/claude-*.yml`). Detection: if `GITHUB_ACTIONS=true` you are the cloud agent, otherwise the session. All sections below apply to both contexts unless tagged otherwise.
+
 ## Philosophy
 
 YAGNI and KISS. Build what the task requires now. Resist abstractions, configuration, and fallbacks for cases that may never come.
@@ -80,12 +84,12 @@ The generator does not runtime-validate response bodies. Its `_parse_response` f
 
 The operator owns the Mealie test instance and the `.env` file. They copy `.env.example` to `.env` and fill in real values. The agent does not provision the instance, create or edit `.env`, ask for credential values, or paste them into the conversation. Unit tests run regardless of `.env` presence.
 
-The agent picks a live-test path by precondition, in this order:
+When live tests are part of the work, the agent picks a path by precondition, in this order:
 
-1. `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment. Run `pytest -m live` directly. Mealie is provided by the surrounding context (cloud agent CI runs land here). Do not bootstrap and do not read `.env`.
-2. `.env` is present. Run `pytest -m live` against the operator's pointed Mealie. Never bootstrap when `.env` is present, even if the bootstrap would also succeed; the operator's pointed target is the source of truth.
-3. `.env` is absent, `docker info` exits 0, and `./scripts/mealie-up` succeeds. Bootstrap Mealie exactly once per session, export the two emitted lines into the process environment (not into a `.env` file; the no-write rule still holds), run the full `pytest -m live` suite against the single persistent container, and call `docker rm -f mealie-mcp-dev` as the final step regardless of test outcome. Never tear down and re-bootstrap between test cases. First boot takes ~110-115s on a typical box (full schema, seed admin, default group and household, seed data, scheduler init); `mealie-up` uses `--rm` for clean test state, so every bootstrap pays that tax in full. If a test case needs a clean Mealie, write it with sentinel staging and teardown, not container restart.
-4. None of the above. Stop before live tests, run def-of-ready up to `uv run pytest`, and report that live verification is pending via the cloud agent's CI run.
+1. (cloud context) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
+2. (session) `.env` is present. Run `pytest -m live` against the operator's pointed Mealie. Never bootstrap when `.env` is present, even if the bootstrap would also succeed; the operator's pointed target is the source of truth.
+3. (session) `.env` is absent, `docker info` exits 0, and `./scripts/mealie-up` succeeds. Bootstrap Mealie exactly once per session, export the two emitted lines into the process environment (not into a `.env` file; the no-write rule still holds), run the full `pytest -m live` suite against the single persistent container, and call `docker rm -f mealie-mcp-dev` as the final step regardless of test outcome. Never tear down and re-bootstrap between test cases. First boot takes ~110-115s on a typical box (full schema, seed admin, default group and household, seed data, scheduler init); `mealie-up` uses `--rm` for clean test state, so every bootstrap pays that tax in full. If a test case needs a clean Mealie, write it with sentinel staging and teardown, not container restart.
+4. (session) None of the above. Stop before live tests, run def-of-ready up to `uv run pytest`, and report that live verification is pending via the cloud agent's CI run.
 
 The live token has admin rights, so admin-only endpoints can be exercised without conditional skips. If a live test needs to check non-admin behaviour, stage a non-admin scenario explicitly rather than gating on token capability.
 
