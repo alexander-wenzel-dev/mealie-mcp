@@ -43,7 +43,7 @@ jobs:
         id: audit
         run: |
           set +e
-          uv run pip-audit > audit-output.txt 2>&1
+          uv run pip-audit --skip-editable > audit-output.txt 2>&1
           STATUS=$?
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           if [ "$STATUS" -gt 1 ]; then
