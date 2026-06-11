@@ -1,0 +1,54 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: claude-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  review:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          use_commit_signing: true
+          use_sticky_comment: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are an independent reviewer for this repo. Read the diff and apply the repo's own conventions to identify genuine issues only:
+            - Logic bugs, contract violations, race conditions
+            - Convention deviations from this repo's style, naming, tool patterns, or test conventions
+            - Missing required tests for new tools
+            - Hand-written code where a shared helper exists
+
+            No nits. No stylistic preferences not in the repo's conventions.
+
+            Use gh pr comment for top-level feedback.
+            Use mcp__github_inline_comment__create_inline_comment (with confirmed: true) to highlight specific code issues.
+            Only post GitHub comments. Do not submit review text as conversation messages.
+          claude_args: |
+            --model claude-sonnet-4-6
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Read,Glob,Grep"

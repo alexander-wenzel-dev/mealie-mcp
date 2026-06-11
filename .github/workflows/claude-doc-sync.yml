@@ -1,0 +1,48 @@
+name: Claude Spec Doc Sync
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'spec/mealie-openapi.json'
+
+concurrency:
+  group: claude-doc-sync-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  sync:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          use_commit_signing: true
+          use_sticky_comment: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            This PR modifies the pinned Mealie OpenAPI spec at spec/mealie-openapi.json. Check repo documentation for drift caused by the spec change. Look at user-facing markdown files at the repo root.
+
+            Edit docs only if a clear drift exists. Do not touch generated code or tool modules. Commit any doc edits to this PR's branch.
+
+            If no drift, post a `gh pr comment` saying the spec change has no documentation implications.
+          claude_args: |
+            --model claude-sonnet-4-6
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
