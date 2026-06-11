@@ -1,4 +1,4 @@
-name: claude
+name: Claude On-Demand
 
 on:
   issues:
@@ -10,98 +10,31 @@ on:
   pull_request_review:
     types: [submitted]
   workflow_dispatch:
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
-  actions: read
+    inputs:
+      prompt:
+        description: Task for Claude when triggered manually.
+        required: true
+        type: string
 
 concurrency:
-  group: claude-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  group: claude-on-demand-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  resolve:
+  coworker:
     if: >
       github.actor == github.repository_owner &&
       (
         github.event_name == 'workflow_dispatch' ||
-        (github.event_name == 'issues' && (
-          (github.event.action == 'labeled' && github.event.label.name == 'claude') ||
-          github.event.action == 'assigned'
-        )) ||
+        (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'claude') ||
         (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
         (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
         (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude'))
       )
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.read.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: read
-        run: echo "tag=$(./scripts/resolve-spec-tag)" >> "$GITHUB_OUTPUT"
-
-  claude:
-    needs: resolve
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    services:
-      mealie:
-        image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve.outputs.tag }}
-        ports:
-          - 9000:9000
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/api/app/about"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 60
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Read Python version
-        id: pyver
-        run: echo "version=$(cat .python-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-
-      - name: Set up Python
-        run: uv python install ${{ steps.pyver.outputs.version }}
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - name: Mint Mealie admin token
-        run: |
-          set -euo pipefail
-          TOKEN=$(curl -sS -X POST http://localhost:9000/api/auth/token \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            --data-urlencode "username=changeme@example.com" \
-            --data-urlencode "password=MyPassword" \
-            | jq -r '.access_token')
-          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "Failed to mint Mealie admin token" >&2
-            exit 1
-          fi
-          echo "::add-mask::$TOKEN"
-          {
-            echo "MEALIE_BASE_URL=http://localhost:9000"
-            echo "MEALIE_API_TOKEN=$TOKEN"
-          } >> "$GITHUB_ENV"
-
-      - name: Run Claude Code
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          additional_permissions: |
-            actions: read
-          claude_args: |
-            --allowedTools "Bash,Edit,Read,Write,Glob,Grep,WebFetch,WebSearch,mcp__github_inline_comment__create_inline_comment,mcp__github_ci__get_ci_status,mcp__github_ci__get_workflow_run_details,mcp__github_ci__download_job_log"
+    uses: ./.github/workflows/claude-task-with-mealie.yml
+    with:
+      prompt: ${{ inputs.prompt || '' }}
+      model: claude-opus-4-7
+      allowed-tools: Bash,Edit,Read,Write,Glob,Grep,WebFetch,WebSearch,mcp__github_inline_comment__create_inline_comment,mcp__github_ci__get_ci_status,mcp__github_ci__get_workflow_run_details,mcp__github_ci__download_job_log
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

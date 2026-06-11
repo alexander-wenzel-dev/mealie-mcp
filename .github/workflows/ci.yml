@@ -14,6 +14,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  resolve-spec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      tag: ${{ steps.read.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: read
+        run: echo "tag=$(./scripts/resolve-spec-tag)" >> "$GITHUB_OUTPUT"
+
   definition-of-ready:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -25,7 +35,7 @@ jobs:
         run: echo "version=$(cat .python-version)" >> "$GITHUB_OUTPUT"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -53,3 +63,44 @@ jobs:
 
       - name: pip-audit
         run: uv run pip-audit
+
+  live-tests:
+    needs: resolve-spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mealie:
+        image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve-spec.outputs.tag }}
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/api/app/about"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 60
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read Python version
+        id: pyver
+        run: echo "version=$(cat .python-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        run: uv python install ${{ steps.pyver.outputs.version }}
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Mint Mealie admin token
+        uses: ./.github/actions/mealie-token
+        with:
+          base-url: http://localhost:9000
+
+      - name: pytest live
+        run: uv run pytest -m live

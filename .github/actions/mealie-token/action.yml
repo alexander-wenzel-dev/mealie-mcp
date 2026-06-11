@@ -1,0 +1,38 @@
+name: Mealie Token
+description: Mint an admin token from a running Mealie instance and export MEALIE_BASE_URL and MEALIE_API_TOKEN to subsequent steps. The token is registered as a masked log secret.
+
+inputs:
+  base-url:
+    description: Base URL of the running Mealie instance.
+    required: false
+    default: http://localhost:9000
+  admin-username:
+    description: Admin username for Mealie.
+    required: false
+    default: changeme@example.com
+  admin-password:
+    description: Admin password for Mealie.
+    required: false
+    default: MyPassword
+
+runs:
+  using: composite
+  steps:
+    - name: Mint admin token
+      shell: bash
+      run: |
+        set -euo pipefail
+        TOKEN=$(curl -sS --max-time 10 -X POST "${{ inputs.base-url }}/api/auth/token" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          --data-urlencode "username=${{ inputs.admin-username }}" \
+          --data-urlencode "password=${{ inputs.admin-password }}" \
+          | jq -r '.access_token')
+        if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+          echo "Failed to mint Mealie admin token" >&2
+          exit 1
+        fi
+        echo "::add-mask::$TOKEN"
+        {
+          echo "MEALIE_BASE_URL=${{ inputs.base-url }}"
+          echo "MEALIE_API_TOKEN=$TOKEN"
+        } >> "$GITHUB_ENV"

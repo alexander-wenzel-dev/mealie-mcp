@@ -1,0 +1,79 @@
+name: Claude Task (with Mealie)
+
+on:
+  workflow_call:
+    inputs:
+      prompt:
+        description: Prompt for Claude. Leave empty for interactive tag mode.
+        required: false
+        type: string
+        default: ''
+      allowed-tools:
+        description: Comma-separated allowedTools list passed to Claude Code.
+        required: true
+        type: string
+      model:
+        description: Claude model id.
+        required: false
+        type: string
+        default: claude-sonnet-4-6
+    secrets:
+      claude-oauth-token:
+        required: true
+
+permissions: {}
+
+jobs:
+  resolve-spec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      tag: ${{ steps.read.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: read
+        run: echo "tag=$(./scripts/resolve-spec-tag)" >> "$GITHUB_OUTPUT"
+
+  live:
+    needs: resolve-spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    services:
+      mealie:
+        image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve-spec.outputs.tag }}
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/api/app/about"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Mint Mealie admin token
+        uses: ./.github/actions/mealie-token
+        with:
+          base-url: http://localhost:9000
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
+          prompt: ${{ inputs.prompt }}
+          track_progress: true
+          use_commit_signing: true
+          additional_permissions: |
+            actions: read
+          claude_args: |
+            --model ${{ inputs.model }}
+            --allowedTools "${{ inputs.allowed-tools }}"
