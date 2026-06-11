@@ -71,13 +71,22 @@ def create_food(client: AuthenticatedClient, name: str) -> dict[str, Any]:
 
 
 def update_food(client: AuthenticatedClient, item_id: str, name: str) -> dict[str, Any]:
-    """Rename an existing food. Returns the updated food payload."""
+    """Rename an existing food. Returns the updated food payload.
+
+    Mealie's PUT replaces the resource rather than patching it, so fields
+    absent from the request body reset to their schema defaults. The current
+    food is fetched and the merged payload is sent so untouched fields are
+    preserved.
+    """
     require_non_empty("item_id", item_id)
     require_non_empty("name", name)
 
-    response = update_one_api_foods_item_id_put.sync_detailed(
-        item_id, client=client, body=CreateIngredientFood(id=item_id, name=name)
-    )
+    existing = get_food(client, item_id=item_id)
+    body = CreateIngredientFood.from_dict(existing)
+    body.additional_properties = {}
+    body.name = name
+
+    response = update_one_api_foods_item_id_put.sync_detailed(item_id, client=client, body=body)
     return expect_dict("update_food", response)
 
 
