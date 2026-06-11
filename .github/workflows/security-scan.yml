@@ -1,0 +1,99 @@
+name: security-scan
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: security-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      ISSUE_TITLE: Dependency vulnerability scan findings
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Read Python version
+        id: pyver
+        run: echo "version=$(cat .python-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        run: uv python install ${{ steps.pyver.outputs.version }}
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run pip-audit
+        id: audit
+        run: |
+          set +e
+          uv run pip-audit > audit-output.txt 2>&1
+          STATUS=$?
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -gt 1 ]; then
+            cat audit-output.txt >&2
+            exit "$STATUS"
+          fi
+
+      - name: Find rolling issue
+        id: rolling
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NUMBER=$(gh issue list \
+            --label security \
+            --state open \
+            --limit 100 \
+            --json number,title \
+            --jq '[.[] | select(.title == env.ISSUE_TITLE)] | .[0].number // empty')
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update rolling issue
+        if: success() && steps.audit.outputs.status == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ROLLING_NUMBER: ${{ steps.rolling.outputs.number }}
+        run: |
+          set -euo pipefail
+          {
+            printf '@%s dependency scan reported findings.\n\n' "$OWNER"
+            printf 'Run: %s\n\n' "$RUN_URL"
+            printf '```\n'
+            cat audit-output.txt
+            printf '\n```\n'
+          } > issue-body.md
+          if [ -n "$ROLLING_NUMBER" ]; then
+            gh issue comment "$ROLLING_NUMBER" --body-file issue-body.md
+          else
+            gh issue create --title "$ISSUE_TITLE" --label security --body-file issue-body.md
+          fi
+
+      - name: Close rolling issue if no findings
+        if: success() && steps.audit.outputs.status == '0' && steps.rolling.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ROLLING_NUMBER: ${{ steps.rolling.outputs.number }}
+        run: |
+          set -euo pipefail
+          gh issue comment "$ROLLING_NUMBER" --body "No findings in the latest scan: $RUN_URL"
+          gh issue close "$ROLLING_NUMBER"
