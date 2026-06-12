@@ -11,6 +11,14 @@ on:
         description: PR number to review.
         required: true
         type: string
+      model:
+        description: Claude model to use for the review.
+        required: false
+        default: claude-sonnet-4-6
+        type: choice
+        options:
+          - claude-sonnet-4-6
+          - claude-opus-4-8
 
 concurrency:
   group: claude-pr-review-${{ github.event.pull_request.number || inputs.pull-request-number }}
@@ -57,5 +65,5 @@ jobs:
             Use mcp__github_inline_comment__create_inline_comment (with confirmed: true) to highlight specific code issues.
             Only post GitHub comments. Do not submit review text as conversation messages.
           claude_args: |
-            --model claude-sonnet-4-6
+            --model ${{ inputs.model || 'claude-sonnet-4-6' }}
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Read,Glob,Grep"
