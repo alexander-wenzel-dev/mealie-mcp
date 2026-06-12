@@ -127,7 +127,7 @@ Live tests are tagged `@pytest.mark.live` and reuse the shared fixtures in `test
 
 Live assertions observe a behavioural difference, not just that the call did not error. A seed value equal to the schema default exercises nothing; choose seeds and assertions so a regression in the underlying bug class would fail the test, not just the literal example a rule names. "No 422" is a smoke check, not a test. If a parameter cannot be exercised against an observable effect (presence, absence, value change, ordering shift), do not ship it; defer the parameter and record the reason in the task file or the PR body under "Risks".
 
-If an update tool's body model carries fields the tool does not expose, the live test sets a non-default value on one such field, runs the update, and asserts the value survived. Non-`UNSET` defaults in the body model serialise into the request and silently clobber server-side state otherwise.
+If an update tool's body model carries fields the tool does not expose, the live test sets non-default values on at least two such fields, runs the update, and asserts they survived. Mealie's PUT-replace semantics resets any field absent from the request body to its schema default, and non-`UNSET` defaults in the body model also serialise into the request, so both UNSET and non-`UNSET` defaults are clobber-prone. Apply fetch-then-merge in the tool implementation accordingly.
 
 A failing live test is never silenced or marked `xfail` to ship. Fix the tool, fix the test, or descope and surface the decision. After any live test failure, confirm by hand that no `mcp-test-` data remains and delete it before the next run.
 
