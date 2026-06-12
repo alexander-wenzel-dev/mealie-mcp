@@ -8,13 +8,12 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
-import json
 from collections.abc import Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.api.recipes_units import create_one_api_units_post
+from mealie_mcp.client.api.recipes_units import update_one_api_units_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_ingredient_unit import CreateIngredientUnit
 from mealie_mcp.tools import recipes_units
@@ -26,17 +25,21 @@ SEED_ABBREVIATION = "mcp-test-abbr"
 def created_unit(
     mealie_client: AuthenticatedClient, sentinel_name: str
 ) -> Iterator[dict[str, str]]:
-    """Create a sentinel unit with a non-default abbreviation.
+    """Stage a sentinel unit via `create_unit`, then seed a non-default field.
 
-    Seeding a non-default body field lets the lifecycle test verify that
-    `update_unit` preserves untouched fields when only `name` is changed.
+    Staging through the tool gives `create_unit` live coverage. The non-default
+    `abbreviation` is seeded with a direct PUT so the lifecycle test can verify
+    that `update_unit` preserves untouched fields when only `name` is changed.
     """
-    response = create_one_api_units_post.sync_detailed(
+    created = recipes_units.create_unit(mealie_client, name=sentinel_name)
+    item_id = created["id"]
+    assert created["name"] == sentinel_name
+
+    update_one_api_units_item_id_put.sync_detailed(
+        item_id,
         client=mealie_client,
-        body=CreateIngredientUnit(name=sentinel_name, abbreviation=SEED_ABBREVIATION),
+        body=CreateIngredientUnit(id=item_id, name=sentinel_name, abbreviation=SEED_ABBREVIATION),
     )
-    unit = json.loads(response.content)
-    item_id = unit["id"]
     try:
         yield {"id": item_id, "name": sentinel_name, "abbreviation": SEED_ABBREVIATION}
     finally:

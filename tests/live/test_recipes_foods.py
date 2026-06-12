@@ -8,13 +8,12 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
-import json
 from collections.abc import Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.api.recipes_foods import create_one_api_foods_post
+from mealie_mcp.client.api.recipes_foods import update_one_api_foods_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_ingredient_food import CreateIngredientFood
 from mealie_mcp.tools import recipes_foods
@@ -26,17 +25,21 @@ SEED_DESCRIPTION = "mcp-test-description"
 def created_food(
     mealie_client: AuthenticatedClient, sentinel_name: str
 ) -> Iterator[dict[str, str]]:
-    """Create a sentinel food with a non-default description.
+    """Stage a sentinel food via `create_food`, then seed a non-default field.
 
-    Seeding a non-default body field lets the lifecycle test verify that
-    `update_food` preserves untouched fields when only `name` is changed.
+    Staging through the tool gives `create_food` live coverage. The non-default
+    `description` is seeded with a direct PUT so the lifecycle test can verify
+    that `update_food` preserves untouched fields when only `name` is changed.
     """
-    response = create_one_api_foods_post.sync_detailed(
+    created = recipes_foods.create_food(mealie_client, name=sentinel_name)
+    item_id = created["id"]
+    assert created["name"] == sentinel_name
+
+    update_one_api_foods_item_id_put.sync_detailed(
+        item_id,
         client=mealie_client,
-        body=CreateIngredientFood(name=sentinel_name, description=SEED_DESCRIPTION),
+        body=CreateIngredientFood(id=item_id, name=sentinel_name, description=SEED_DESCRIPTION),
     )
-    food = json.loads(response.content)
-    item_id = food["id"]
     try:
         yield {"id": item_id, "name": sentinel_name, "description": SEED_DESCRIPTION}
     finally:
