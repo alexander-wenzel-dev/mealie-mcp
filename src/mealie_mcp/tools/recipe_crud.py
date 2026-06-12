@@ -78,6 +78,14 @@ def list_recipes(
     search: str | None = None,
     categories: list[str] | None = None,
     tags: list[str] | None = None,
+    tools: list[str] | None = None,
+    foods: list[str] | None = None,
+    households: list[str] | None = None,
+    cookbook: str | None = None,
+    require_all_categories: bool = False,
+    require_all_tags: bool = False,
+    require_all_tools: bool = False,
+    require_all_foods: bool = False,
     order_by: str | None = None,
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
@@ -90,6 +98,14 @@ def list_recipes(
         search=to_unset(search),
         categories=to_unset(categories),
         tags=to_unset(tags),
+        tools=to_unset(tools),
+        foods=to_unset(foods),
+        households=to_unset(households),
+        cookbook=to_unset(cookbook),
+        require_all_categories=require_all_categories,
+        require_all_tags=require_all_tags,
+        require_all_tools=require_all_tools,
+        require_all_foods=require_all_foods,
         order_by=to_unset(order_by),
         order_direction=parse_order_direction(order_direction),
     )
@@ -287,10 +303,22 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         search: str | None = None,
         categories: list[str] | None = None,
         tags: list[str] | None = None,
+        tools: list[str] | None = None,
+        foods: list[str] | None = None,
+        households: list[str] | None = None,
+        cookbook: str | None = None,
+        require_all_categories: bool = False,
+        require_all_tags: bool = False,
+        require_all_tools: bool = False,
+        require_all_foods: bool = False,
         order_by: str | None = None,
         order_direction: Literal["asc", "desc"] | None = None,
     ) -> dict[str, Any]:
         """List recipes from Mealie, paginated and optionally filtered.
+
+        By default a recipe matches when it carries any one of the supplied
+        ``categories``/``tags``/``tools``/``foods`` values; set the matching
+        ``require_all_*`` flag to require every supplied value instead.
 
         Args:
             page: 1-indexed page number. Defaults to 1.
@@ -298,6 +326,20 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             search: Optional free-text search.
             categories: Optional list of category slugs to filter by.
             tags: Optional list of tag slugs to filter by.
+            tools: Optional list of tool (equipment) slugs to filter by.
+            foods: Optional list of food ids to filter by. Foods have no slug,
+                so this filter takes the food id (a UUID).
+            households: Optional list of household slugs to filter by.
+            cookbook: Optional cookbook slug or id. Restricts results to the
+                recipes that cookbook's saved filter selects.
+            require_all_categories: Require every value in ``categories`` rather
+                than any. Defaults to False.
+            require_all_tags: Require every value in ``tags`` rather than any.
+                Defaults to False.
+            require_all_tools: Require every value in ``tools`` rather than any.
+                Defaults to False.
+            require_all_foods: Require every value in ``foods`` rather than any.
+                Defaults to False.
             order_by: Optional column name to sort on.
             order_direction: ``"asc"`` or ``"desc"``.
 
@@ -311,6 +353,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             search=search,
             categories=categories,
             tags=tags,
+            tools=tools,
+            foods=foods,
+            households=households,
+            cookbook=cookbook,
+            require_all_categories=require_all_categories,
+            require_all_tags=require_all_tags,
+            require_all_tools=require_all_tools,
+            require_all_foods=require_all_foods,
             order_by=order_by,
             order_direction=order_direction,
         )
