@@ -5,9 +5,15 @@ on:
     types: [opened, synchronize]
     paths-ignore:
       - '**.md'
+  workflow_dispatch:
+    inputs:
+      pull-request-number:
+        description: PR number to review.
+        required: true
+        type: string
 
 concurrency:
-  group: claude-pr-review-${{ github.event.pull_request.number }}
+  group: claude-pr-review-${{ github.event.pull_request.number || inputs.pull-request-number }}
   cancel-in-progress: true
 
 permissions: {}
@@ -26,6 +32,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', inputs.pull-request-number) || github.ref }}
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@0f97b95b6536c26e5f6bd90faec370d41695beca # v1.0.144
@@ -36,7 +43,7 @@ jobs:
           use_sticky_comment: true
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR NUMBER: ${{ github.event.pull_request.number || inputs.pull-request-number }}
 
             You are an independent reviewer for this repo. Read the diff and apply the repo's own conventions to identify genuine issues only:
             - Logic bugs, contract violations, race conditions
