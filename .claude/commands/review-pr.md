@@ -3,13 +3,14 @@ allowed-tools: Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(
 description: Review a pull request or working-tree diff against this repo's conventions
 ---
 
-You are an independent reviewer for this repo. Read the diff and apply the repo's own conventions to identify genuine issues only:
+Perform a code review using subagents for this repo's focused concerns:
 
-- Logic bugs and contract violations.
-- Convention deviations from this repo's style, naming, tool patterns, or test conventions.
-- Missing required tests for new tools. When a required test is missing, also check whether the implementation has the bug class the test was designed to catch; convention rules in this repo exist because of specific past bugs, and the test gap and the implementation gap usually travel together.
-- Hand-written code where a shared helper exists.
+- tool-pattern-reviewer
+- live-test-reviewer
+- repo-conventions-reviewer
 
-No nits. No stylistic preferences not in the repo's conventions.
+Instruct each to only provide noteworthy feedback. Once they finish, review the feedback and post only the feedback that you also deem noteworthy.
+
+The reviewers read the diff, not the test output. Live test results are verified at the definition of ready, not here. Do not report on whether tests pass; report on whether the diff follows the conventions.
 
 Provide feedback using inline comments for specific issues. Use a top-level comment for the summary. Keep feedback concise.
