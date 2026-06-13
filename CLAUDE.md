@@ -115,25 +115,22 @@ Skip the agent when the PR is purely a regenerated artifact tree. The diff is ma
 
 ## Tool patterns
 
-Each MCP tool has two layers. The first is a typed module-level function that takes an `AuthenticatedClient` and the tool inputs, validates them with the shared `require_non_empty` helper, calls the generated client's `sync_detailed` entry point (so the raw `status_code` and `content` are available for error mapping), maps non-success responses through the shared `raise_api_error` helper, decodes successful bodies with the shared `decode` helper, and returns a JSON-compatible value validated with explicit `isinstance` shape guards. This layer is the testable unit. The second is a thin `@mcp.tool()` wrapper inside a `register(mcp, get_client)` function; the wrapper calls `get_client()` (the process-scoped singleton provider from `mealie_mcp.client_factory`) and forwards to the typed function. Tool modules in `src/mealie_mcp/tools/` are auto-discovered by `register_all`; a new group is a single new file with a `register` callable.
+- Each MCP tool is a typed module-level function plus a thin `@mcp.tool()` wrapper inside a `register(mcp, get_client)` function. The typed function is the testable unit; the wrapper calls `get_client()` and forwards.
+- Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. Test files mirror the same grouping under `tests/unit/` and `tests/live/`. `register_all` auto-discovers a new module.
+- Shared helpers in `src/mealie_mcp/tools/_common.py` cover validation (`require_non_empty`), optional-argument translation (`to_unset`), error mapping (`raise_api_error`), body decoding (`decode`), and the delete contract (`ack_delete`). Do not re-implement these inline.
 
-Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring the layout of `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. Test files follow the same grouping: `tests/unit/test_<group>.py` and `tests/live/test_<group>.py`. Shared helpers live in `src/mealie_mcp/tools/_common.py`; do not re-implement validation, error mapping, or body decoding inline. Use `to_unset(value)` to translate optional caller arguments into the generated client's `UNSET` sentinel. Use `ack_delete(action, response, ack_id)` for every delete tool so the MCP contract returns the canonical ``{"id": <ack_id>, "deleted": True}`` shape. Compare status codes with `HTTPStatus` constants and cast `response.status_code` to `int` when forwarding it to `raise_api_error`, since the generator types `status_code` as the `HTTPStatus` enum.
+The detailed implementation rubric lives in `.claude/rules/tools.md` and loads on demand when files under `src/mealie_mcp/tools/` are read.
 
 ## Test conventions
 
-Unit tests cover pure logic only. They do not perform HTTP calls, including via mock transports. Per-tool unit tests cover input validation. Shared-helper behaviour in `tools/_common.py` is tested once in `tests/unit/test_common.py`, not re-tested through each tool. `tests/conftest.py` loads `.env` for the whole session.
+- Unit tests cover pure logic only. No HTTP, no mock transports. Per-tool unit tests cover input validation. Shared-helper behaviour is tested once in `tests/unit/test_common.py`. `tests/conftest.py` loads `.env` for the whole session.
+- Live tests are tagged `@pytest.mark.live`, use `mealie_client` and `sentinel_name` fixtures from `tests/live/conftest.py`, and follow sentinel staging with `try`/`finally` cleanup that runs even when the body fails.
+- Live assertions observe a behavioural difference (presence, absence, value change, ordering shift). "No 422" is a smoke check, not a test. If a parameter cannot be exercised against an observable effect, defer it and record why in the PR Risks.
+- Every new tool ships with at least one unit test and at least one live test. Failing live tests are not silenced or `xfail`ed to ship.
 
-Live tests are tagged `@pytest.mark.live` and reuse the shared fixtures in `tests/live/conftest.py`: `mealie_client` (session-scoped authenticated client) and `sentinel_name` (per-test unique `mcp-test-` name). They follow a sentinel-staging pattern: create a sentinel resource using `sentinel_name`, exercise the tool, assert on observable effects, then delete the sentinel. Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block so it executes even when the test body fails. Read-only tools still follow the pattern: create the sentinel, perform the read, assert the sentinel appears, delete it. For resources nested under a parent (for example, comments on a recipe), stage the parent sentinel first, then the child sentinel under it; cleanup deletes both.
+The detailed live-test rubric lives in `.claude/rules/live-tests.md` and loads on demand when files under `tests/live/` are read.
 
-Live assertions observe a behavioural difference, not just that the call did not error. A seed value equal to the schema default exercises nothing; choose seeds and assertions so a regression in the underlying bug class would fail the test, not just the literal example a rule names. "No 422" is a smoke check, not a test. If a parameter cannot be exercised against an observable effect (presence, absence, value change, ordering shift), do not ship it; defer the parameter and record the reason in the task file or the PR body under "Risks".
-
-If an update tool's body model carries fields the tool does not expose, the live test sets non-default values on at least two such fields, runs the update, and asserts they survived. Mealie's PUT-replace semantics resets any field absent from the request body to its schema default, and non-`UNSET` defaults in the body model also serialise into the request, so both UNSET and non-`UNSET` defaults are clobber-prone. Apply fetch-then-merge in the tool implementation accordingly.
-
-A failing live test is never silenced or marked `xfail` to ship. Fix the tool, fix the test, or descope and surface the decision. After any live test failure, confirm by hand that no `mcp-test-` data remains and delete it before the next run.
-
-Every new tool ships with at least one unit test and at least one live test.
-
-`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. Per-tool dispatch code is exercised by live tests, not unit tests, so the unit number alone is a partial view. The real guardrail is the "at least one unit test and one live test per tool" rule above; the coverage report is for visibility.
+`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. Per-tool dispatch code is exercised by live tests, not unit tests.
 
 ## Security rules
 
