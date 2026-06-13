@@ -29,19 +29,6 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
           use_commit_signing: true
-          prompt: |
-            REPO: ${{ github.repository }}
-            ISSUE NUMBER: ${{ github.event.issue.number }}
-            TITLE: ${{ github.event.issue.title }}
-            AUTHOR: ${{ github.event.issue.user.login }}
-
-            A new issue was opened. Read its body with `gh issue view ${{ github.event.issue.number }} --json body --jq .body`. Title and author are already provided above.
-
-            Classify and apply labels. List available labels with `gh label list`. Apply labels with `gh issue edit ${{ github.event.issue.number }} --add-label <name>`.
-
-            Search for likely duplicates with `gh search issues --repo ${{ github.repository }} <terms>`. If a clear duplicate exists, post a comment via gh issue comment linking the original.
-
-            If the issue is too vague to classify, post a comment asking for the missing information instead of guessing.
+          prompt: "/triage-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }} TITLE: ${{ github.event.issue.title }} AUTHOR: ${{ github.event.issue.user.login }}"
           claude_args: |
             --model claude-sonnet-4-6
-            --allowedTools "Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*),Bash(gh search issues:*),Read,Glob,Grep"
