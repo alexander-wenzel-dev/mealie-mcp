@@ -12,7 +12,11 @@ permissions: {}
 
 jobs:
   triage:
-    if: github.actor == github.repository_owner && toJSON(github.event.issue.labels) == '[]'
+    if: >
+      github.actor == github.repository_owner &&
+      toJSON(github.event.issue.labels) == '[]' &&
+      !contains(github.event.issue.body, '@claude') &&
+      !contains(github.event.issue.title, '@claude')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

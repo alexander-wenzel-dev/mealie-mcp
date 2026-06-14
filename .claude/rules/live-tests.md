@@ -35,7 +35,7 @@ One-field seeding lets the bug class slip through. The matching tool implementat
 
 Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block, so it executes when the test body fails.
 
-Cleanup calls in `finally` blocks suppress their own exceptions, e.g. `with contextlib.suppress(ToolError): recipe_crud.delete_recipe(...)`. A raised cleanup error masks the real test failure with a misleading traceback.
+Cleanup calls in `finally` blocks suppress their own exceptions, e.g. `with contextlib.suppress(ToolError): recipe_crud.delete_recipe(...)`. `contextlib` is stdlib; `ToolError` is `fastmcp.exceptions.ToolError`. A raised cleanup error masks the real test failure with a misleading traceback.
 
 Lookups that "must find" an item use `next((... for ... in ...), None)` followed by `assert ... is not None, f"<explanatory message>"`. A bare `next()` raises `StopIteration`, which surfaces as a confusing test error rather than the explanatory assertion that locates the missing item.
 
