@@ -17,6 +17,11 @@ on:
         required: false
         type: string
         default: claude-sonnet-4-6
+      auto-pr:
+        description: Open the PR and dispatch the review after Claude finishes.
+        required: false
+        type: boolean
+        default: false
     secrets:
       claude-oauth-token:
         required: true
@@ -43,7 +48,7 @@ jobs:
       pull-requests: write
       issues: write
       id-token: write
-      actions: read
+      actions: write
     services:
       mealie:
         image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve-spec.outputs.tag }}
@@ -66,14 +71,47 @@ jobs:
           base-url: http://localhost:9000
 
       - name: Run Claude Code
+        id: claude
         uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
+        env:
+          APPEND_SYSTEM_PROMPT: "${{ inputs.auto-pr && format('Before you push the branch for this issue, write the conventional-commit PR title (single line, no surrounding quotes or markdown) to {0}/pr-title.txt and the full PR body markdown to {0}/pr-body.md. The PR body must follow the structure CLAUDE.md requires: link to the task file by slug if one exists, a \"Tools added\" or \"Changes\" bullet list with name and one line each, a \"How tested\" block with the tail of `pytest` (tee output to {0}/pytest.log) and `pytest -m live` (tee output to {0}/pytest-live.log) so the tails are real not paraphrased, and a \"Risks\" block (even if it says \"none\"). Skip these files if you produced no branch.', runner.temp) || '' }}"
         with:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
           prompt: ${{ inputs.prompt }}
           track_progress: true
           use_commit_signing: true
+          # Claude's sub-token stays read on actions; the post-step dispatches via the job-level actions: write.
           additional_permissions: |
             actions: read
           claude_args: |
             --model ${{ inputs.model }}
             --allowedTools "${{ inputs.allowed-tools }}"
+
+      - name: Open PR and dispatch review
+        if: inputs.auto-pr && steps.claude.outputs.branch_name != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.claude.outputs.branch_name }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          title_file="$RUNNER_TEMP/pr-title.txt"
+          body_file="$RUNNER_TEMP/pr-body.md"
+          if [[ ! -s "$title_file" || ! -s "$body_file" ]]; then
+            echo "::error::Claude did not produce $title_file and $body_file; cannot open PR."
+            exit 1
+          fi
+          title=$(head -n1 "$title_file" | tr -d '\r' | sed 's/^[[:space:]]\+//;s/[[:space:]]\+$//')
+          if [[ -z "$title" ]]; then
+            echo "::error::pr-title.txt first line is empty after trimming whitespace."
+            exit 1
+          fi
+          pr_url=$(gh pr create \
+            --base "$BASE" \
+            --head "$BRANCH" \
+            --title "$title" \
+            --body-file "$body_file")
+          pr_number=$(gh pr view "$pr_url" --json number -q .number)
+          echo "Opened $pr_url"
+          gh workflow run claude-pr-review.yml \
+            -F pull-request-number="$pr_number"
