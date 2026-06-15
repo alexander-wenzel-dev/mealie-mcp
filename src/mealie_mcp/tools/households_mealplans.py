@@ -267,7 +267,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Only the fields supplied are changed; omitted fields keep their current
         value and the entry's recipe link is preserved. At least one field
-        beyond ``item_id`` must be provided.
+        beyond ``item_id`` must be provided. The recipe link is read-only
+        through this tool; change it by deleting the entry and creating a new
+        one with the desired ``recipe_id``.
 
         Args:
             item_id: Integer id of the meal plan entry.

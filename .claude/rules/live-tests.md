@@ -13,7 +13,7 @@ Live tests use `mealie_client` and `sentinel_name` from `tests/live/conftest.py`
 
 For nested resources (e.g. comments on a recipe), stage the parent sentinel first, then the child under it. Cleanup deletes the child before the parent so the parent delete does not orphan.
 
-When a test stages more than one sentinel resource, every persisted user-visible field that could collide between concurrent runs derives from `sentinel_name`, not a hardcoded literal. The cleanup may key on `id`, but two overlapping runs would still write the same literal value into the operator's Mealie.
+When a test stages more than one sentinel resource, every persisted free-text label or note field (title, description, note, content, etc.) derives from `sentinel_name`, not a hardcoded literal. The cleanup may key on `id`, but two overlapping runs would still write the same literal value into the operator's Mealie. Structural fields like dates, enum slots, and foreign-key ids do not need to derive from `sentinel_name`; they identify the entry, not the run that wrote it.
 
 ## Behavioural assertions, not smoke checks
 
