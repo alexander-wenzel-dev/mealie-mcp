@@ -13,6 +13,8 @@ Live tests use `mealie_client` and `sentinel_name` from `tests/live/conftest.py`
 
 For nested resources (e.g. comments on a recipe), stage the parent sentinel first, then the child under it. Cleanup deletes the child before the parent so the parent delete does not orphan.
 
+When a test stages more than one sentinel resource, every persisted user-visible field that could collide between concurrent runs derives from `sentinel_name`, not a hardcoded literal. The cleanup may key on `id`, but two overlapping runs would still write the same literal value into the operator's Mealie.
+
 ## Behavioural assertions, not smoke checks
 
 Assertions observe a behavioural difference: presence vs absence, value change, ordering shift. A seed value equal to the schema default exercises nothing. Pick seeds and assertions so a regression in the underlying bug class would fail the test, not just the literal example a rule names. "No 422" is a smoke check, not a test.

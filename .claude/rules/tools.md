@@ -47,3 +47,5 @@ Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring 
 ## Fetch-then-merge for PUT-replace bodies
 
 Mealie's update endpoints PUT-replace the resource. If the tool exposes only some body fields, and the body model carries other fields (whether they default to `UNSET` or to a concrete value), the implementation must fetch the current resource, merge the caller's edits, and send the full body. Without fetch-then-merge, unexposed fields silently reset to schema defaults on every update, because non-`UNSET` defaults serialise into the request and `UNSET` defaults still expose the field to PUT-replace.
+
+Values pulled from the fetched resource into the merged body go through `to_unset(current.get(key))`, not `current.get(key, UNSET)`. `dict.get` only returns the default when the key is absent, so a `"key": null` response yields `None`, which serialises as JSON `null` rather than omitting the field.
