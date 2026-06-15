@@ -78,6 +78,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.claude-oauth-token }}
           prompt: ${{ inputs.prompt }}
+          label_trigger: ${{ inputs.auto-pr && 'claude-auto-pr' || 'claude' }}
           track_progress: true
           use_commit_signing: true
           # Claude's sub-token stays read on actions; the post-step dispatches via the job-level actions: write.
@@ -86,6 +87,12 @@ jobs:
           claude_args: |
             --model ${{ inputs.model }}
             --allowedTools "${{ inputs.allowed-tools }}"
+
+      - name: Flag missing branch on auto-pr
+        if: inputs.auto-pr && steps.claude.outputs.branch_name == ''
+        run: |
+          echo "::error::auto-pr requested but Claude produced no branch. The action likely found no matching trigger (check label_trigger vs the firing label) or exited before pushing. See the Run Claude Code step logs."
+          exit 1
 
       - name: Open PR and dispatch review
         if: inputs.auto-pr && steps.claude.outputs.branch_name != ''
