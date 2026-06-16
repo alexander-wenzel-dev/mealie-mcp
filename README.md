@@ -51,14 +51,18 @@ claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEA
 
 The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added as the project grows.
 
-| Group                  | Coverage                                                                  |
-| ---------------------- | ------------------------------------------------------------------------- |
-| `recipe_crud`          | Create, read, list, duplicate, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes. |
-| `recipe_comments`      | Create, read, list, update, and delete recipe comments.                   |
-| `organizer_categories` | Create, read by id or slug, list, update, and delete recipe categories.   |
-| `organizer_tags`       | Create, read by id or slug, list, update, and delete recipe tags.         |
-| `recipes_foods`        | Create, read, list, update, and delete ingredient foods.                  |
-| `recipes_units`        | Create, read, list, update, and delete ingredient units.                  |
+| Group                            | Coverage                                                                                                               |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes.   |
+| `recipe_comments`                | Create, read, list, update, and delete recipe comments.                                                                |
+| `organizer_categories`           | Create, read by id or slug, list, update, and delete recipe categories.                                                |
+| `organizer_tags`                 | Create, read by id or slug, list, update, and delete recipe tags.                                                      |
+| `organizer_tools`                | Create, read by id or slug, list, update, and delete recipe tools.                                                     |
+| `recipes_foods`                  | Create, read, list, update, and delete ingredient foods.                                                               |
+| `recipes_units`                  | Create, read, list, update, and delete ingredient units.                                                               |
+| `households_mealplans`           | Create, read, list, update, and delete meal plan entries.                                                              |
+| `households_shopping_lists`      | Create, read, list, update, and delete shopping lists.                                                                 |
+| `households_shopping_list_items` | Add, update, and delete shopping list items.                                                                           |
 
 ## Regenerate the API client
 
