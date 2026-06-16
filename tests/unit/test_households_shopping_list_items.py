@@ -44,7 +44,7 @@ class TestUpdateShoppingListItem:
             households_shopping_list_items.update_shopping_list_item(client, item_id="abc")
 
 
-class TestRemoveShoppingListItem:
+class TestDeleteShoppingListItem:
     def test_rejects_blank_item_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
-            households_shopping_list_items.remove_shopping_list_item(client, item_id="   ")
+            households_shopping_list_items.delete_shopping_list_item(client, item_id="   ")

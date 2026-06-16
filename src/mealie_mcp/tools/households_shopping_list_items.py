@@ -99,10 +99,8 @@ def update_shopping_list_item(
         item_id, client=client
     )
     current = expect_dict("update_shopping_list_item", fetched)
-    try:
-        body = ShoppingListItemUpdate.from_dict(current)
-    except (AttributeError, KeyError, TypeError, ValueError) as exc:
-        raise ToolError(f"update_shopping_list_item payload invalid: {exc}") from exc
+    body = ShoppingListItemUpdate.from_dict(current)
+    body.additional_properties = {}
     if note is not None:
         body.note = note
     if quantity is not None:
@@ -117,13 +115,13 @@ def update_shopping_list_item(
     return _single_item("update_shopping_list_item", response, "updatedItems")
 
 
-def remove_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
-    """Remove a shopping list item by id. Returns ``{"id": item_id, "deleted": True}``."""
+def delete_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
+    """Delete a shopping list item by id. Returns ``{"id": item_id, "deleted": True}``."""
     require_non_empty("item_id", item_id)
     response = delete_one_api_households_shopping_items_item_id_delete.sync_detailed(
         item_id, client=client
     )
-    return ack_delete("remove_shopping_list_item", response, item_id)
+    return ack_delete("delete_shopping_list_item", response, item_id)
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -186,14 +184,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             checked=checked,
         )
 
-    @mcp.tool(name="mealie_remove_shopping_list_item")
-    def _remove_shopping_list_item(item_id: str) -> dict[str, Any]:
-        """Remove an item from a shopping list by id.
+    @mcp.tool(name="mealie_delete_shopping_list_item")
+    def _delete_shopping_list_item(item_id: str) -> dict[str, Any]:
+        """Delete an item from a shopping list by id.
 
         Args:
-            item_id: UUID of the shopping list item to remove.
+            item_id: UUID of the shopping list item to delete.
 
         Returns:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
-        return remove_shopping_list_item(get_client(), item_id=item_id)
+        return delete_shopping_list_item(get_client(), item_id=item_id)
