@@ -12,7 +12,6 @@ from http import HTTPStatus
 from typing import Any, Literal
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.households_shopping_lists import (
     create_one_api_households_shopping_lists_post,
@@ -74,18 +73,24 @@ def get_shopping_list(client: AuthenticatedClient, list_id: str) -> dict[str, An
 def update_shopping_list(client: AuthenticatedClient, list_id: str, name: str) -> dict[str, Any]:
     """Rename a shopping list. Returns the updated list payload.
 
-    The endpoint PUT-replaces the list, so the current list is fetched and only
-    the name is changed on top of it. Rebuilding the body from the fetched list
-    carries over its items, extras, and recipe links; omitting them would reset
-    each to its schema default, which empties the list.
+    Mealie's PUT replaces the resource rather than patching it, so fields
+    absent from the request body reset to their schema defaults. The current
+    list is fetched and the merged payload is sent so untouched items, extras,
+    and recipe links survive. The prefetch is routed through
+    ``expect_dict("update_shopping_list", ...)`` so any failure surfaces under
+    the caller's tool name.
     """
+    require_non_empty("list_id", list_id)
     require_non_empty("name", name)
-    current = get_shopping_list(client, list_id)
-    try:
-        body = ShoppingListUpdate.from_dict(current)
-    except (AttributeError, KeyError, TypeError, ValueError) as exc:
-        raise ToolError(f"update_shopping_list payload invalid: {exc}") from exc
+
+    prefetch = get_one_api_households_shopping_lists_item_id_get.sync_detailed(
+        list_id, client=client
+    )
+    existing = expect_dict("update_shopping_list", prefetch)
+    body = ShoppingListUpdate.from_dict(existing)
+    body.additional_properties = {}
     body.name = name
+
     response = update_one_api_households_shopping_lists_item_id_put.sync_detailed(
         list_id, client=client, body=body
     )
