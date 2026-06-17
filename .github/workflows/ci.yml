@@ -22,7 +22,7 @@ jobs:
       - id: read
         run: echo "tag=$(./scripts/resolve-spec-tag)" >> "$GITHUB_OUTPUT"
 
-  definition-of-ready:
+  merge-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

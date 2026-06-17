@@ -6,9 +6,9 @@ The durable working procedure for every agent in this repo.
 
 Transient content belongs in a task file under `tasks/`. Remove obsolete sections in the same commit that obsoletes them. Do not add rules any competent agent would already follow, and do not repeat a rule across sections.
 
-## Operating contexts
+## Operating modes
 
-This repo is worked on in two contexts: a Claude Code session (CLI or hosted worker) and the cloud agent (`.github/workflows/claude-*.yml`). Detection: if `GITHUB_ACTIONS=true` you are the cloud agent, otherwise the session. All sections below apply to both contexts unless tagged otherwise.
+This repo is worked on in two modes. Interactive: a human drives a Claude Code session (the CLI or the hosted web worker) and can intervene mid-run. Autonomous: a GitHub Actions workflow (`.github/workflows/claude-*.yml`) runs Claude with no human in the loop until it finishes. Detection: if `GITHUB_ACTIONS=true` you are autonomous, otherwise interactive. All sections below apply to both modes unless tagged otherwise.
 
 ## Philosophy
 
@@ -86,16 +86,16 @@ The operator owns the Mealie test instance and the `.env` file. They copy `.env.
 
 When live tests are part of the work, the agent picks a path by precondition, in this order:
 
-1. (cloud context) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
-2. (session) `.env` is present. Run `pytest -m live` against the operator's pointed Mealie. Never bootstrap when `.env` is present, even if the bootstrap would also succeed; the operator's pointed target is the source of truth.
-3. (session) `.env` is absent, `docker info` exits 0, and `./scripts/mealie-up` succeeds. Bootstrap Mealie exactly once per session, export the two emitted lines into the process environment (not into a `.env` file; the no-write rule still holds), run the full `pytest -m live` suite against the single persistent container, and call `docker rm -f mealie-mcp-dev` as the final step regardless of test outcome. Never tear down and re-bootstrap between test cases. First boot takes ~110-115s on a typical box (full schema, seed admin, default group and household, seed data, scheduler init); `mealie-up` uses `--rm` for clean test state, so every bootstrap pays that tax in full. If a test case needs a clean Mealie, write it with sentinel staging and teardown, not container restart.
-4. (session) None of the above. Stop before live tests, run def-of-ready up to `uv run pytest`, and report that live verification is pending via the cloud agent's CI run.
+1. (autonomous) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
+2. (interactive) `.env` is present. Run `pytest -m live` against the operator's pointed Mealie. Never bootstrap when `.env` is present, even if the bootstrap would also succeed; the operator's pointed target is the source of truth.
+3. (interactive) `.env` is absent, `docker info` exits 0, and `./scripts/mealie-up` succeeds. Bootstrap Mealie exactly once per session, export the two emitted lines into the process environment (not into a `.env` file; the no-write rule still holds), run the full `pytest -m live` suite against the single persistent container, and call `docker rm -f mealie-mcp-dev` as the final step regardless of test outcome. Never tear down and re-bootstrap between test cases. First boot takes ~110-115s on a typical box (full schema, seed admin, default group and household, seed data, scheduler init); `mealie-up` uses `--rm` for clean test state, so every bootstrap pays that tax in full. If a test case needs a clean Mealie, write it with sentinel staging and teardown, not container restart.
+4. (interactive) None of the above, for example the hosted web worker, which has no `.env` and no Docker. Stop before live tests, run the merge gate up to `uv run pytest`, and report that live verification is pending until CI runs.
 
 The live token has admin rights, so admin-only endpoints can be exercised without conditional skips. If a live test needs to check non-admin behaviour, stage a non-admin scenario explicitly rather than gating on token capability.
 
-## Definition of ready
+## Merge gate
 
-A task is only ready for review when all of these commands pass.
+A change is ready to merge only when all of these commands pass.
 
 ```
 uv run ruff format --check .
@@ -138,7 +138,7 @@ Never commit `.env` or any file that contains real tokens, hostnames, IPs, or us
 
 Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. Commit in small steps and keep generated artifacts isolated in their own commit.
 
-Push as soon as the definition-of-ready checks are green locally, then open a PR against `main`. PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". Mark ready for review only after CI is green.
+Push as soon as the merge-gate checks are green locally, then open a PR against `main`. PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". Mark ready for review only after CI is green.
 
 ## Blockers
 
