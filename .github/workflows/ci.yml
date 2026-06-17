@@ -50,6 +50,9 @@ jobs:
       - name: ruff check
         run: uv run ruff check .
 
+      - name: actionlint
+        run: uv run pre-commit run actionlint --all-files --color always
+
       - name: mypy
         run: uv run mypy src
 
