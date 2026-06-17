@@ -1,4 +1,4 @@
-name: Claude Task (with Mealie)
+name: Claude Agent Run
 
 on:
   workflow_call:

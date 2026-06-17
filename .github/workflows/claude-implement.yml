@@ -1,4 +1,4 @@
-name: Claude On-Demand
+name: Claude Implement
 
 on:
   issues:
@@ -17,7 +17,7 @@ on:
         type: string
 
 concurrency:
-  group: claude-on-demand-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  group: claude-implement-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
       pull-requests: write
       issues: write
       id-token: write
-    uses: ./.github/workflows/claude-task-with-mealie.yml
+    uses: ./.github/workflows/claude-agent-run.yml
     with:
       prompt: ${{ inputs.prompt || '' }}
       model: claude-opus-4-8
