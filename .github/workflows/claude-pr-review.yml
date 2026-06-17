@@ -52,9 +52,6 @@ jobs:
         uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Dispatched runs come from claude-task-with-mealie.yml via `gh workflow run`, which
-          # GitHub records as github-actions[bot]. The pull_request path stays bot-locked.
-          allowed_bots: ${{ github.event_name == 'workflow_dispatch' && 'github-actions[bot]' || '' }}
           track_progress: ${{ github.event_name == 'pull_request' }}
           use_commit_signing: true
           use_sticky_comment: ${{ github.event_name == 'pull_request' }}
