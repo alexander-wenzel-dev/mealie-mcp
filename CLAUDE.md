@@ -95,7 +95,9 @@ The live token has admin rights, so admin-only endpoints can be exercised withou
 
 ## Merge gate
 
-A change is ready to merge only when all of these commands pass.
+A change is ready to merge only when the checks that cover what it changed pass. Run the group whose files the change touches, or both when it touches both.
+
+Python under `src/` or `tests/`:
 
 ```
 uv run ruff format --check .
@@ -105,7 +107,13 @@ uv run pytest             # branch coverage is reported, not gated
 uv run pytest -m live
 ```
 
-Skip these checks when the diff is Markdown only. There is no executable surface to verify.
+Workflows under `.github/`:
+
+```
+uv run pre-commit run actionlint --all-files
+```
+
+A docs or Markdown diff changes no executable surface and needs neither group.
 
 ## Review
 
