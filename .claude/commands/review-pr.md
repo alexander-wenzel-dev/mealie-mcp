@@ -3,16 +3,16 @@ allowed-tools: Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(
 description: Review a pull request or working-tree diff against this repo's conventions
 ---
 
-Perform a code review using subagents for this repo's focused concerns:
+Perform a code review against this repo's conventions using focused subagents, choosing which to run by what the diff changes:
 
-- tool-pattern-reviewer
-- live-test-reviewer
-- repo-conventions-reviewer
+- repo-conventions-reviewer — always. Security, writing style, commit and PR-body conventions, and unit-test conventions apply to any code or config change.
+- tool-pattern-reviewer — only when the diff touches `src/mealie_mcp/tools/`.
+- live-test-reviewer — only when the diff touches `tests/live/`.
 
-Fetch the diff with `gh pr diff` (CI) or `git diff origin/main...HEAD` (local) and include it when instructing each subagent. The subagents only have `Glob, Grep, Read` and cannot fetch the diff themselves; without it they default to reading current file state and may flag pre-existing issues as PR concerns.
+Fetch the diff with `gh pr diff` (CI) or `git diff origin/main...HEAD` (local), then decide which subagents apply from the changed paths. Include the diff when instructing each subagent: they only have `Glob, Grep, Read` and cannot fetch it themselves, so without it they default to reading current file state and may flag pre-existing issues as PR concerns.
 
 Instruct each to only provide noteworthy feedback. Once they finish, review the feedback and post only the feedback that you also deem noteworthy.
 
-The reviewers read the diff, not the test output. Live test results are verified at the definition of ready, not here. Do not report on whether tests pass; report on whether the diff follows the conventions.
+The reviewers read the diff, not the test output. Test results are verified by CI, not here. Do not report on whether tests pass; report on whether the diff follows the conventions.
 
 Provide feedback using inline comments for specific issues. Use a top-level comment for the summary. Keep feedback concise.

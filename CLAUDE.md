@@ -107,11 +107,9 @@ uv run pytest -m live
 
 Skip these checks when the diff is Markdown only. There is no executable surface to verify.
 
-## Independent review before PR
+## Review
 
-After the definition-of-ready checks pass and before opening the PR, spawn a fresh-eyes agent and instruct it to run `/review-pr` against the diff. If it surfaces a real flaw, fix it before opening the PR. If it returns only nits or nothing, proceed.
-
-Skip the agent when the PR is purely a regenerated artifact tree. The diff is machine output; verification is the def-of-ready run plus a spot-check that expected outputs are present. Also skip the agent for a Markdown-only diff. No logic to review.
+Review is CI's job: `claude-pr-review.yml` reviews every PR against this repo's conventions. Do not spawn a review agent locally before pushing. Running `/review-pr` against the working tree is an optional self-check, never a required step.
 
 ## Tool patterns
 
