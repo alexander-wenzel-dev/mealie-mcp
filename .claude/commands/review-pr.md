@@ -5,9 +5,9 @@ description: Review a pull request or working-tree diff against this repo's conv
 
 Perform a code review against this repo's conventions using focused subagents, choosing which to run by what the diff changes:
 
-- repo-conventions-reviewer — always. Security, writing style, commit and PR-body conventions, and unit-test conventions apply to any code or config change.
-- tool-pattern-reviewer — only when the diff touches `src/mealie_mcp/tools/`.
-- live-test-reviewer — only when the diff touches `tests/live/`.
+- repo-conventions-reviewer: always. Security, writing style, commit and PR-body conventions, and unit-test conventions apply to any code or config change.
+- tool-pattern-reviewer: only when the diff touches `src/mealie_mcp/tools/`.
+- live-test-reviewer: only when the diff touches `tests/live/`.
 
 Fetch the diff with `gh pr diff` (CI) or `git diff origin/main...HEAD` (local), then decide which subagents apply from the changed paths. Include the diff when instructing each subagent: they only have `Glob, Grep, Read` and cannot fetch it themselves, so without it they default to reading current file state and may flag pre-existing issues as PR concerns.
 
