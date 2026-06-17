@@ -43,6 +43,7 @@ jobs:
       pull-requests: write
       issues: write
       id-token: write
+      actions: read
     services:
       mealie:
         image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve-spec.outputs.tag }}
@@ -72,6 +73,9 @@ jobs:
           label_trigger: claude
           track_progress: true
           use_commit_signing: true
+          # actions: read lets Claude read CI status and job logs via the github_ci tools.
+          additional_permissions: |
+            actions: read
           claude_args: |
             --model ${{ inputs.model }}
             --allowedTools "${{ inputs.allowed-tools }}"
