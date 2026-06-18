@@ -5,7 +5,7 @@ paths:
 
 # Tool implementation rubric
 
-Detailed rules for MCP tool work in this repo. The generated client under `src/mealie_mcp/client/` is out of scope: it is regenerated from the OpenAPI spec and not hand-edited.
+The generated client under `src/mealie_mcp/client/` is out of scope: it is regenerated from the OpenAPI spec and not hand-edited.
 
 ## Two-layer structure
 
@@ -20,21 +20,27 @@ Do not collapse the layers, put business logic in the wrapper, or call the gener
 
 Input validation uses `require_non_empty` from `_common.py`. Inline `if not value: raise ...` for the same shape is a deviation.
 
-## Generated client call
+## Calling the generated client
 
-Tools call the generated client's `sync_detailed` entry point, not the higher-level wrappers. `sync_detailed` exposes `status_code` and `content`, which the error-mapping and decoding helpers require. A call to a non-`sync_detailed` variant loses error access.
+Tools call the generated client's `sync_detailed` entry point, not the higher-level wrappers. `sync_detailed` exposes `status_code` and `content`, which the decoding helpers require.
 
-## Error mapping
+## Decoding the response
 
-Non-success responses go through `raise_api_error` from `_common.py`. Status codes are compared with `HTTPStatus` constants. `response.status_code` is cast to `int` when forwarded to `raise_api_error`, since the generator types `status_code` as the `HTTPStatus` enum and `raise_api_error` expects `int`.
+Successful bodies go through the `expect_*` helpers in `_common.py`: `expect_dict`, `expect_list`, `expect_str`. Each takes the action name and the response, checks the status code (default `200`, pass `HTTPStatus.CREATED` and the like when the endpoint differs), decodes the body, asserts its shape with `isinstance`, and raises a `ToolError` otherwise. The generator's `_parse_response` uses `cast(T, response.json())`, a type hint with no runtime effect, so the `isinstance` guard these helpers apply is what stops an unexpected wire shape from propagating as a typed value.
 
-## Body decoding and shape guards
-
-Successful bodies are decoded with `decode` from `_common.py`. Decoded values get explicit `isinstance` shape guards before being returned. The generator's `_parse_response` uses `cast(T, response.json())`, which is a type hint with no runtime effect. Without the `isinstance` guard, an unexpected wire shape silently propagates as a typed value.
+`expect_*` folds in the status check, so a tool that uses them does not call `raise_api_error` itself. Reach for the lower-level `decode` plus `raise_api_error` only when unwrapping a non-standard envelope, for example pulling a single item out of a collection response. Pass `int(response.status_code)` to `raise_api_error`, since the generator types `status_code` as the `HTTPStatus` enum.
 
 ## Optional argument forwarding
 
-Optional caller arguments translate to the generated client's `UNSET` sentinel via `to_unset(value)`. Passing `None` directly to a generated-client parameter typed as `T | Unset` is wrong because the generator serialises `None` differently from `UNSET`.
+Optional caller arguments translate to the generated client's `UNSET` sentinel via `to_unset(value)`. Passing `None` directly to a generated-client parameter typed as `T | Unset` is wrong because the generator serialises `None` as JSON `null`, which Mealie rejects on most query parameters.
+
+## List tools
+
+A paginated list tool follows a fixed shape: default `page=1, per_page=50`, call `require_per_page(per_page)` first (the shared ceiling is 100), forward optional `order_by` through `to_unset` and `order_direction` through `parse_order_direction`, and return the raw pagination envelope via `expect_dict`. See `list_shopping_lists` in `households_shopping_lists.py`.
+
+## Building a body from caller input
+
+When a tool builds a generated-client body from caller-supplied data with `Model.from_dict(...)`, wrap the call in `try/except (AttributeError, KeyError, TypeError, ValueError)` and re-raise as `ToolError`, so malformed input surfaces as a clean tool error rather than a stack trace. See `update_recipe` in `recipe_crud.py`.
 
 ## Delete contract
 
@@ -46,6 +52,17 @@ Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring 
 
 ## Fetch-then-merge for PUT-replace bodies
 
-Mealie's update endpoints PUT-replace the resource. If the tool exposes only some body fields, and the body model carries other fields (whether they default to `UNSET` or to a concrete value), the implementation must fetch the current resource, merge the caller's edits, and send the full body. Without fetch-then-merge, unexposed fields silently reset to schema defaults on every update, because non-`UNSET` defaults serialise into the request and `UNSET` defaults still expose the field to PUT-replace.
+Mealie's update endpoints PUT-replace the resource: any field absent from the request body resets to its schema default on the server. So an update tool that exposes only some fields must send the full current resource with the caller's edits applied, never a sparse body.
 
-Values pulled from the fetched resource into the merged body go through `to_unset(current.get(key))`, not `current.get(key, UNSET)`. `dict.get` only returns the default when the key is absent, so a `"key": null` response yields `None`, which serialises as JSON `null` rather than omitting the field.
+The pattern, from `update_shopping_list` in `households_shopping_lists.py`:
+
+```python
+existing = expect_dict("update_x", prefetch)   # route the prefetch through the tool's own action name
+body = SomeUpdate.from_dict(existing)
+body.additional_properties = {}                # drop keys the model does not declare
+body.<field> = <new value>
+```
+
+`from_dict` carries every key of the fetched resource, including server-only keys the update model does not declare, into `additional_properties`; clearing it stops those keys being echoed back on the PUT. Assign only the fields the tool exposes; everything else round-trips from `existing` and survives the replace.
+
+A tool that builds a sparse body instead silently resets every unexposed field. The live test for the tool must prove the merge holds; see the clobber rule in the live-test rubric.
