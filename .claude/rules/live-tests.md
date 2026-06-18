@@ -5,8 +5,6 @@ paths:
 
 # Live test rubric
 
-Detailed rules for live tests in this repo.
-
 ## Sentinel staging
 
 Live tests use `mealie_client` and `sentinel_name` from `tests/live/conftest.py`. Each test creates a sentinel resource named with `sentinel_name`, exercises the tool, asserts on observable effects, then deletes the sentinel. Read-only tools follow the same shape: create, read, assert the sentinel appears, delete.
@@ -23,7 +21,7 @@ If a parameter cannot be exercised against an observable effect, it should not s
 
 ## Body-fields PUT-replace clobber
 
-Mealie's update endpoints PUT-replace the resource. Any field absent from the request body resets to its schema default on the server. Non-`UNSET` defaults in the body model serialise into the request, and `UNSET`-defaulted fields are still exposed to the PUT-replace, so both are clobber-prone.
+Mealie's update endpoints PUT-replace the resource: any field absent from the request body resets to its schema default on the server. An update tool that exposes only some of its body fields is clobber-prone on the rest; the tool guards against this with fetch-then-merge (see the tool rubric), and the live test must prove the guard holds.
 
 If an update tool's body model carries fields the tool does not expose, the live test must:
 
@@ -31,7 +29,7 @@ If an update tool's body model carries fields the tool does not expose, the live
 2. Run the update through the tool.
 3. Fetch the resource and assert both values survived.
 
-One-field seeding lets the bug class slip through. The matching tool implementation must apply fetch-then-merge in the tool body.
+One-field seeding lets the bug class slip through.
 
 ## Cleanup hygiene
 
@@ -39,7 +37,7 @@ Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block, so it e
 
 Cleanup calls in `finally` blocks suppress their own exceptions, e.g. `with contextlib.suppress(ToolError): recipe_crud.delete_recipe(...)`. `contextlib` is stdlib; `ToolError` is `fastmcp.exceptions.ToolError`. A raised cleanup error masks the real test failure with a misleading traceback.
 
-Lookups that "must find" an item use `next((... for ... in ...), None)` followed by `assert ... is not None, f"<explanatory message>"`. A bare `next()` raises `StopIteration`, which surfaces as a confusing test error rather than the explanatory assertion that locates the missing item.
+For a lookup that must find an item, prefer `next((... for ... in ...), None)` with a following `assert ... is not None, f"<explanatory message>"` over a bare `next(...)`. If the lookup ever misses, the assertion names the missing item; a bare `next()` instead raises `StopIteration`, a confusing error that hides what was not found.
 
 After any live-test failure, the operator confirms no `mcp-test-` data remains and deletes it before the next run. Tests should not rely on prior-run residue.
 
