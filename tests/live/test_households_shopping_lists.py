@@ -24,7 +24,7 @@ from mealie_mcp.client.models.shopping_list_update import ShoppingListUpdate
 from mealie_mcp.client.models.shopping_list_update_extras_type_0 import (
     ShoppingListUpdateExtrasType0,
 )
-from mealie_mcp.tools import households_shopping_list_items, households_shopping_lists
+from mealie_mcp.tools import households_shopping_list_items, households_shopping_lists, recipe_crud
 from mealie_mcp.tools._common import expect_dict
 
 
@@ -118,3 +118,103 @@ def test_shopping_list_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_shopping_list failed \(404"):
         households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+
+
+def _staged_recipe(
+    client: AuthenticatedClient, sentinel_name: str, *, suffix: str
+) -> tuple[str, str]:
+    """Create a sentinel recipe with one ingredient. Returns ``(slug, recipe_id)``."""
+    slug = recipe_crud.create_recipe(client, name=f"{sentinel_name}-{suffix}")["slug"]
+    recipe_crud.update_recipe(
+        client,
+        slug_or_id=slug,
+        recipe_ingredient=[{"note": f"{sentinel_name}-{suffix}-ing"}],
+    )
+    recipe_id = recipe_crud.get_recipe(client, slug_or_id=slug)["id"]
+    return slug, recipe_id
+
+
+def _recipe_ref(shopping_list: dict[str, object], recipe_id: str) -> dict[str, object] | None:
+    """The shopping list's recipe reference for ``recipe_id``, or ``None``."""
+    references = shopping_list["recipeReferences"]
+    assert isinstance(references, list)
+    return next((ref for ref in references if ref["recipeId"] == recipe_id), None)
+
+
+@pytest.mark.live
+def test_add_recipe_to_list_scales_reference(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    slug, recipe_id = _staged_recipe(mealie_client, sentinel_name, suffix="single")
+    try:
+        updated = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id, scale=2.0
+        )
+        # The recipe lands on the list as both a reference and concrete items.
+        ref = _recipe_ref(updated, recipe_id)
+        assert ref is not None, f"recipe {recipe_id} not referenced after add"
+        # scale=2.0 rides through to the reference quantity, not the default 1.0.
+        assert ref["recipeQuantity"] == 2.0
+        assert isinstance(updated["listItems"], list)
+        assert len(updated["listItems"]) >= 1
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
+def test_add_recipes_to_list_adds_each_with_its_scale(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    first_slug, first_id = _staged_recipe(mealie_client, sentinel_name, suffix="bulk-a")
+    second_slug, second_id = _staged_recipe(mealie_client, sentinel_name, suffix="bulk-b")
+    try:
+        updated = households_shopping_lists.add_recipes_to_shopping_list(
+            mealie_client,
+            list_id=list_id,
+            recipes=[
+                {"recipe_id": first_id},
+                {"recipe_id": second_id, "scale": 3.0},
+            ],
+        )
+        first_ref = _recipe_ref(updated, first_id)
+        second_ref = _recipe_ref(updated, second_id)
+        assert first_ref is not None, f"recipe {first_id} not referenced after bulk add"
+        assert second_ref is not None, f"recipe {second_id} not referenced after bulk add"
+        # Per-entry scale is honoured independently: default 1.0 vs explicit 3.0.
+        assert first_ref["recipeQuantity"] == 1.0
+        assert second_ref["recipeQuantity"] == 3.0
+    finally:
+        for slug in (first_slug, second_slug):
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
+def test_remove_recipe_from_list_drops_reference(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    slug, recipe_id = _staged_recipe(mealie_client, sentinel_name, suffix="remove")
+    try:
+        added = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id
+        )
+        assert _recipe_ref(added, recipe_id) is not None, "recipe missing after add"
+
+        removed = households_shopping_lists.remove_recipe_from_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id
+        )
+        # Removing the full amount that was added drops the reference entirely.
+        assert _recipe_ref(removed, recipe_id) is None
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
