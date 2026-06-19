@@ -146,7 +146,11 @@ Never commit `.env` or any file that contains real tokens, hostnames, IPs, or us
 
 Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. Commit in small steps and keep generated artifacts isolated in their own commit.
 
-Push as soon as the merge-gate checks are green locally, then open a PR against `main`. PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". Mark ready for review only after CI is green.
+Push as soon as the merge-gate checks are green. The PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". The body contract binds when the PR is marked ready for review.
+
+(interactive) Open the PR against `main` with that body and mark it ready only after CI is green.
+
+(autonomous) You do not open the PR. Push the branch and end your final comment with the full PR body, in the format above and carrying the real merge-gate output tails, wrapped in a fenced block (outer fence longer than any inside) so the operator can copy the raw Markdown and paste it when opening the PR from the compare link. When your comment's free text would otherwise repeat the PR body, trim it to what the PR body leaves out.
 
 ## Blockers
 
