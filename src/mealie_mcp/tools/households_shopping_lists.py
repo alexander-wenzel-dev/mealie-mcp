@@ -189,6 +189,8 @@ def _to_bulk_param(entry: dict[str, Any]) -> ShoppingListAddRecipeParamsBulk:
         raise ToolError("each recipe must include a recipe_id string")
     require_non_empty("recipe_id", recipe_id)
     scale = entry.get("scale", 1.0)
+    if not isinstance(scale, (int, float)):
+        raise ToolError("each recipe's scale must be a number")
     return ShoppingListAddRecipeParamsBulk(recipe_id=recipe_id, recipe_increment_quantity=scale)
 
 

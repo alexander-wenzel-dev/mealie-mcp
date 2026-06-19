@@ -218,3 +218,32 @@ def test_remove_recipe_from_list_drops_reference(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
+def test_remove_recipe_from_list_decrements_reference(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    slug, recipe_id = _staged_recipe(mealie_client, sentinel_name, suffix="decrement")
+    try:
+        added = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id, scale=2.0
+        )
+        added_ref = _recipe_ref(added, recipe_id)
+        assert added_ref is not None, "recipe missing after add"
+        assert added_ref["recipeQuantity"] == 2.0
+
+        removed = households_shopping_lists.remove_recipe_from_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id, scale=1.0
+        )
+        # Removing less than was added keeps the reference and decrements its
+        # quantity by the removed amount, rather than dropping it.
+        remaining_ref = _recipe_ref(removed, recipe_id)
+        assert remaining_ref is not None, "reference dropped on partial removal"
+        assert remaining_ref["recipeQuantity"] == 1.0
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)

@@ -89,6 +89,18 @@ class TestAddRecipesToShoppingList:
                 client, list_id="abc", recipes=[{"recipe_id": "  "}]
             )
 
+    def test_rejects_non_object_entry(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="each recipe must be an object with a recipe_id"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="abc", recipes=[42]
+            )
+
+    def test_rejects_non_numeric_scale(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="each recipe's scale must be a number"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="abc", recipes=[{"recipe_id": "r1", "scale": "two"}]
+            )
+
 
 class TestRemoveRecipeFromShoppingList:
     def test_rejects_blank_list_id(self, client: AuthenticatedClient) -> None:
