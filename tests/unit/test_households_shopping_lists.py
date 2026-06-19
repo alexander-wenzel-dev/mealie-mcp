@@ -48,3 +48,57 @@ class TestDeleteShoppingList:
     def test_rejects_blank_list_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="list_id must be a non-empty string"):
             households_shopping_lists.delete_shopping_list(client, list_id="   ")
+
+
+class TestAddRecipeToShoppingList:
+    def test_rejects_blank_list_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="list_id must be a non-empty string"):
+            households_shopping_lists.add_recipe_to_shopping_list(
+                client, list_id="", recipe_id="r1"
+            )
+
+    def test_rejects_blank_recipe_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a non-empty string"):
+            households_shopping_lists.add_recipe_to_shopping_list(
+                client, list_id="abc", recipe_id="   "
+            )
+
+
+class TestAddRecipesToShoppingList:
+    def test_rejects_blank_list_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="list_id must be a non-empty string"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="", recipes=[{"recipe_id": "r1"}]
+            )
+
+    def test_rejects_empty_recipes(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipes must be a non-empty list"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="abc", recipes=[]
+            )
+
+    def test_rejects_entry_without_recipe_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="each recipe must include a recipe_id string"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="abc", recipes=[{"scale": 2.0}]
+            )
+
+    def test_rejects_blank_recipe_id_in_entry(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a non-empty string"):
+            households_shopping_lists.add_recipes_to_shopping_list(
+                client, list_id="abc", recipes=[{"recipe_id": "  "}]
+            )
+
+
+class TestRemoveRecipeFromShoppingList:
+    def test_rejects_blank_list_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="list_id must be a non-empty string"):
+            households_shopping_lists.remove_recipe_from_shopping_list(
+                client, list_id="   ", recipe_id="r1"
+            )
+
+    def test_rejects_blank_recipe_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a non-empty string"):
+            households_shopping_lists.remove_recipe_from_shopping_list(
+                client, list_id="abc", recipe_id=""
+            )
