@@ -1,10 +1,26 @@
 # mealie-mcp
 
+[![CI](https://github.com/alexander-wenzel-dev/mealie-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/alexander-wenzel-dev/mealie-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+
 An MCP server for the Mealie recipe manager.
 
 The server wraps the Mealie REST API and exposes its operations as MCP tools, so an MCP-capable assistant like Claude can read, create, and manage recipes on a Mealie instance you control.
 
 Status: early development. Not yet published to PyPI.
+
+## What it looks like
+
+Once registered, you talk to your Mealie instance in plain language:
+
+> _"Scrape this recipe from &lt;url&gt; and tag it as 'weeknight'."_
+>
+> _"Add the ingredients of my Lasagna recipe to this week's shopping list."_
+>
+> _"What did I rate the Thai curry, and mark it as a favorite."_
+
+The assistant picks the matching tools and calls them against your instance.
 
 ## Requirements
 
@@ -51,6 +67,9 @@ claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEA
 
 The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added as the project grows.
 
+<details>
+<summary>All tool groups</summary>
+
 | Group                            | Coverage                                                                                                               |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes.   |
@@ -63,6 +82,9 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 | `households_mealplans`           | Create, read, list, update, and delete meal plan entries.                                                              |
 | `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients.                       |
 | `households_shopping_list_items` | Add, update, and delete shopping list items.                                                                           |
+| `users_ratings`                  | List a user's ratings and favorites, set a recipe rating, and add or remove favorites.                                 |
+
+</details>
 
 ## Regenerate the API client
 
