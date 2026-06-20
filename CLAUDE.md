@@ -86,7 +86,7 @@ The operator owns the Mealie test instance and the `.env` file. They copy `.env.
 
 When live tests are part of the work, the agent picks a path by precondition, in this order:
 
-1. (autonomous) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
+1. (autonomous) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment if `GITHUB_ACTIONS=true` is set. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
 2. (interactive) `.env` is present. Run `pytest -m live` against the operator's pointed Mealie. Never bootstrap when `.env` is present, even if the bootstrap would also succeed; the operator's pointed target is the source of truth.
 3. (interactive) `.env` is absent, `docker info` exits 0, and `./scripts/mealie-up` succeeds. Bootstrap Mealie exactly once per session, export the two emitted lines into the process environment (not into a `.env` file; the no-write rule still holds), run the full `pytest -m live` suite against the single persistent container, and call `docker rm -f mealie-mcp-dev` as the final step regardless of test outcome. Never tear down and re-bootstrap between test cases. First boot takes ~110-115s on a typical box (full schema, seed admin, default group and household, seed data, scheduler init); `mealie-up` uses `--rm` for clean test state, so every bootstrap pays that tax in full. If a test case needs a clean Mealie, write it with sentinel staging and teardown, not container restart.
 4. (interactive) None of the above, for example the hosted web worker, which has no `.env` and no Docker. Stop before live tests, run the merge gate up to `uv run pytest`, and report that live verification is pending until CI runs.
@@ -117,7 +117,7 @@ A docs or Markdown diff changes no executable surface and needs neither group.
 
 ## Review
 
-Review is CI's job: `claude-pr-review.yml` reviews every PR against this repo's conventions. Do not spawn a review agent locally before pushing. Running `/review-pr` against the working tree is an optional self-check, never a required step.
+Review is CI's job. Do not spawn a review agent locally before pushing. Running `/review-pr` against the working tree is an optional self-check, never a required step.
 
 ## Tool patterns
 
@@ -148,9 +148,9 @@ Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<ty
 
 Push as soon as the merge-gate checks are green. The PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". The body contract binds when the PR is marked ready for review.
 
-(interactive) Open the PR against `main` with that body and mark it ready only after CI is green.
+(interactive) You have already run the merge gate locally, so open the PR against `main` ready for review with that body. CI re-runs the same checks as a backstop; do not wait on it to mark the PR ready.
 
-(autonomous) You do not open the PR. Push the branch and end your final comment with the full PR body, in the format above and carrying the real merge-gate output tails, wrapped in a fenced block (outer fence longer than any inside) so the operator can copy the raw Markdown and paste it when opening the PR from the compare link. When your comment's free text would otherwise repeat the PR body, trim it to what the PR body leaves out.
+(autonomous) You do not open the PR. Push the branch and end your final comment with the full PR body in a fenced block, so the operator can paste it when opening the PR. Keep the rest of the comment to what the PR body does not cover.
 
 ## Blockers
 
