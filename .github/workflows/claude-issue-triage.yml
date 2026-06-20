@@ -28,10 +28,18 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Run Claude Code
+        env:
+          # Triage runs in agent mode and posts its classification with
+          # gh issue comment/edit; GH_TOKEN authorises those calls.
+          GH_TOKEN: ${{ github.token }}
         uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          track_progress: true
           prompt: "/triage-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }} TITLE: ${{ github.event.issue.title }} AUTHOR: ${{ github.event.issue.user.login }}"
+          # No track_progress: that mode derives an implementation checklist from
+          # the issue and drives the agent to build it. Triage only classifies.
+          # Tools are pinned to the read-and-label surface the skill needs, so the
+          # run cannot edit code or open a PR even if it tried.
           claude_args: |
             --model claude-sonnet-4-6
+            --allowedTools "Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*),Bash(gh search issues:*),Read,Glob,Grep"
