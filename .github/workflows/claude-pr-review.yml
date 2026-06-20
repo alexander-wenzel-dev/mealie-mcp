@@ -1,10 +1,8 @@
 name: Claude PR Review
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths-ignore:
-      - '**.md'
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       pull-request-number:
@@ -21,15 +19,20 @@ on:
           - claude-opus-4-8
 
 concurrency:
-  group: claude-pr-review-${{ github.event.pull_request.number || inputs.pull-request-number }}
+  group: claude-pr-review-${{ github.event.issue.number || inputs.pull-request-number }}
   cancel-in-progress: true
 
 permissions: {}
 
 jobs:
   review:
+    # Owner-gated, manual only: a /review-pr comment on the PR, or a manual
+    # dispatch. Never fires automatically.
     if: >
-      (github.event_name == 'pull_request' && github.event.pull_request.user.login == github.repository_owner) ||
+      (github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        github.event.comment.user.login == github.repository_owner &&
+        contains(github.event.comment.body, '/review-pr')) ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -37,27 +40,30 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
+    env:
+      PR_NUMBER: ${{ github.event.issue.number || inputs.pull-request-number }}
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', inputs.pull-request-number) || github.ref }}
+          ref: refs/pull/${{ env.PR_NUMBER }}/head
 
       - name: Run Claude Code
         env:
-          # gh CLI fallback for the workflow_dispatch path: claude-code-action runs in agent
-          # mode there, with no sticky tracking comment, so Claude posts the summary itself.
+          # The dispatch path runs in agent mode (no tracking comment), so Claude
+          # posts the review itself with gh pr comment. GH_TOKEN authorises that.
           GH_TOKEN: ${{ github.token }}
         uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          track_progress: ${{ github.event_name == 'pull_request' }}
-          use_commit_signing: true
-          use_sticky_comment: ${{ github.event_name == 'pull_request' }}
+          # A /review-pr comment gets a fresh live tracking comment (tag mode);
+          # dispatch runs agent mode. use_sticky_comment stays off so a new
+          # comment is posted each run and prior reviews are kept.
+          track_progress: ${{ github.event_name != 'workflow_dispatch' }}
           prompt: >-
-            /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ github.event.pull_request.number || inputs.pull-request-number }}
-            ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || '' }}
+            /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ env.PR_NUMBER }}
+            ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || 'Put the review summary in your tracking comment by updating it; do not open a separate top-level comment.' }}
           claude_args: |
             --model ${{ inputs.model || 'claude-sonnet-4-6' }}
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Task,Read,Glob,Grep,WebFetch,WebSearch,Write"
