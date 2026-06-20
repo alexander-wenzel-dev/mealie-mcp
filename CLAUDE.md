@@ -150,7 +150,7 @@ Push as soon as the merge-gate checks are green. The PR title is the conventiona
 
 (interactive) You have already run the merge gate locally, so open the PR against `main` ready for review with that body. CI re-runs the same checks as a backstop; do not wait on it to mark the PR ready.
 
-(autonomous) You do not open the PR. Push the branch and end your final comment with the full PR body in a fenced block, so the operator can paste it when opening the PR. Keep the rest of the comment to what the PR body does not cover.
+(autonomous) You do not open the PR. Push the branch and end your final comment with the full PR body inside one fenced block, so the operator copies it in a single click. The body itself contains triple-backtick fences for the How tested output, so wrap it in a four-backtick fence. A three-backtick wrapper is closed by the first inner fence, and the remainder renders as loose text. Keep the rest of the comment to what the PR body does not cover.
 
 ## Blockers
 
