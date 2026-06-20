@@ -19,8 +19,12 @@ on:
           - claude-opus-4-8
 
 concurrency:
+  # Any issue_comment on the PR enters this group, regardless of author, and the
+  # group is evaluated before the job if-gate. Cancelling here would let any
+  # commenter, or the review's own tracking comment, kill an in-flight review.
+  # Queue instead so a running review always finishes.
   group: claude-pr-review-${{ github.event.issue.number || inputs.pull-request-number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions: {}
 
