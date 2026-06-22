@@ -74,6 +74,7 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes.   |
 | `recipe_comments`                | Create, read, list, update, and delete recipe comments.                                                                |
+| `recipe_timeline`                | Create, read, list, update, and delete a recipe's timeline events, its cooking journal.                                |
 | `organizer_categories`           | Create, read by id or slug, list, update, and delete recipe categories.                                                |
 | `organizer_tags`                 | Create, read by id or slug, list, update, and delete recipe tags.                                                      |
 | `organizer_tools`                | Create, read by id or slug, list, update, and delete recipe tools.                                                     |
@@ -85,6 +86,12 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 | `users_ratings`                  | List a user's ratings and favorites, set a recipe rating, and add or remove favorites.                                 |
 
 </details>
+
+### Filtering and ordering
+
+List tools take `page` and `per_page`, and where the Mealie endpoint supports it, `order_by` and `order_direction`.
+
+Mealie's generic `queryFilter` expression is deliberately not exposed. It is an untyped filter string that is error prone for an assistant to build and a poor fit for typed tool inputs. Tools that need to scope a list use explicit parameters instead. The recipe timeline list, for example, filters by recipe id internally rather than asking the caller for a filter expression.
 
 ## Regenerate the API client
 
