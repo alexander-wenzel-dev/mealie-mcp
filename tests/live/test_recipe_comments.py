@@ -8,7 +8,9 @@ even when the test body fails so no `mcp-test-` data lingers.
 from __future__ import annotations
 
 import contextlib
+import time
 from collections.abc import Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -80,3 +82,61 @@ def test_recipe_comment_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_comment failed \(404"):
         recipe_comments.get_comment(mealie_client, comment_id=comment_id)
+
+
+def _relative_order(listing: dict[str, Any], *ids: str) -> list[str]:
+    """The given ids in the order they appear in a comments listing.
+
+    Keys on the known ids so comments outside this test do not affect the
+    result. Asserts both ids are present before reporting their order.
+    """
+    items = listing["items"]
+    assert isinstance(items, list)
+    positions = {item["id"]: index for index, item in enumerate(items)}
+    for comment_id in ids:
+        assert comment_id in positions, f"comment {comment_id} not found in listing"
+    return sorted(ids, key=lambda comment_id: positions[comment_id])
+
+
+@pytest.mark.live
+def test_list_comments_order_direction_flips_relative_order(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """``order_direction`` reverses the relative order of two comments.
+
+    Two sentinel comments are created in sequence with a one second gap so
+    their server-assigned ``createdAt`` differ. Listing ascending then
+    descending by ``createdAt`` must flip their relative order. The assertion
+    keys on the two known ids so unrelated comments do not affect it.
+    """
+    recipe_id = created_recipe["id"]
+    first = recipe_comments.create_comment(
+        mealie_client, recipe_id=recipe_id, text=f"{sentinel_name}-order-a"
+    )
+    time.sleep(1.0)
+    second = recipe_comments.create_comment(
+        mealie_client, recipe_id=recipe_id, text=f"{sentinel_name}-order-b"
+    )
+    try:
+        ascending = _relative_order(
+            recipe_comments.list_comments(
+                mealie_client, per_page=100, order_by="createdAt", order_direction="asc"
+            ),
+            first["id"],
+            second["id"],
+        )
+        descending = _relative_order(
+            recipe_comments.list_comments(
+                mealie_client, per_page=100, order_by="createdAt", order_direction="desc"
+            ),
+            first["id"],
+            second["id"],
+        )
+        assert ascending == [first["id"], second["id"]]
+        assert descending == [second["id"], first["id"]]
+    finally:
+        for comment_id in (first["id"], second["id"]):
+            with contextlib.suppress(ToolError):
+                recipe_comments.delete_comment(mealie_client, comment_id=comment_id)

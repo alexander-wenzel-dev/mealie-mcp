@@ -7,7 +7,7 @@ update, and delete for comments, plus the recipe-scoped listing.
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 
@@ -27,8 +27,10 @@ from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     expect_list,
+    parse_order_direction,
     require_non_empty,
     require_per_page,
+    to_unset,
 )
 
 
@@ -51,10 +53,22 @@ def get_comment(client: AuthenticatedClient, comment_id: str) -> dict[str, Any]:
     return expect_dict("get_comment", response)
 
 
-def list_comments(client: AuthenticatedClient, page: int = 1, per_page: int = 50) -> dict[str, Any]:
+def list_comments(
+    client: AuthenticatedClient,
+    page: int = 1,
+    per_page: int = 50,
+    order_by: str | None = None,
+    order_direction: Literal["asc", "desc"] | None = None,
+) -> dict[str, Any]:
     """List all comments across recipes, paginated. Returns the page payload."""
     require_per_page(per_page)
-    response = get_all_api_comments_get.sync_detailed(client=client, page=page, per_page=per_page)
+    response = get_all_api_comments_get.sync_detailed(
+        client=client,
+        page=page,
+        per_page=per_page,
+        order_by=to_unset(order_by),
+        order_direction=parse_order_direction(order_direction),
+    )
     return expect_dict("list_comments", response)
 
 
@@ -116,17 +130,30 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         return get_comment(get_client(), comment_id=comment_id)
 
     @mcp.tool(name="mealie_list_comments")
-    def _list_comments(page: int = 1, per_page: int = 50) -> dict[str, Any]:
+    def _list_comments(
+        page: int = 1,
+        per_page: int = 50,
+        order_by: str | None = None,
+        order_direction: Literal["asc", "desc"] | None = None,
+    ) -> dict[str, Any]:
         """List all comments across all recipes, paginated.
 
         Args:
             page: 1-indexed page number. Defaults to 1.
             per_page: Page size. Defaults to 50. Capped at 100.
+            order_by: Optional column name to sort on (e.g. ``"createdAt"``).
+            order_direction: ``"asc"`` or ``"desc"``.
 
         Returns:
             A pagination envelope with ``items`` and pagination metadata.
         """
-        return list_comments(get_client(), page=page, per_page=per_page)
+        return list_comments(
+            get_client(),
+            page=page,
+            per_page=per_page,
+            order_by=order_by,
+            order_direction=order_direction,
+        )
 
     @mcp.tool(name="mealie_list_recipe_comments")
     def _list_recipe_comments(slug: str) -> list[Any]:
