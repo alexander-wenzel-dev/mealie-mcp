@@ -72,7 +72,7 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 
 | Group                            | Coverage                                                                                                               |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, and delete recipes.   |
+| `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, suggest recipes from the foods on hand, and delete recipes. |
 | `recipe_comments`                | Create, read, list, update, and delete recipe comments.                                                                |
 | `recipe_timeline`                | Create, read, list, update, and delete a recipe's timeline events, its cooking journal.                                |
 | `organizer_categories`           | Create, read by id or slug, list, update, and delete recipe categories.                                                |
