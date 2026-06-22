@@ -35,6 +35,12 @@ class TestListRecipes:
             recipe_crud.list_recipes(client, per_page=101)
 
 
+class TestSuggestRecipes:
+    def test_rejects_invalid_order_direction(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
+            recipe_crud.suggest_recipes(client, order_direction="sideways")
+
+
 class TestGetRecipe:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):

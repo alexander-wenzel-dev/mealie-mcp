@@ -23,6 +23,7 @@ from mealie_mcp.client.api.recipe_crud import (
     get_one_api_recipes_slug_get,
     parse_recipe_url_api_recipes_create_url_post,
     patch_one_api_recipes_slug_patch,
+    suggest_recipes_api_recipes_suggestions_get,
     update_last_made_api_recipes_slug_last_made_patch,
 )
 from mealie_mcp.client.client import AuthenticatedClient
@@ -110,6 +111,34 @@ def list_recipes(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_recipes", response)
+
+
+def suggest_recipes(
+    client: AuthenticatedClient,
+    foods: list[str] | None = None,
+    tools: list[str] | None = None,
+    limit: int = 10,
+    max_missing_foods: int = 5,
+    max_missing_tools: int = 5,
+    include_foods_on_hand: bool = True,
+    include_tools_on_hand: bool = True,
+    order_by: str | None = None,
+    order_direction: Literal["asc", "desc"] | None = None,
+) -> dict[str, Any]:
+    """Suggest recipes matching the supplied foods and tools. Returns the items envelope."""
+    response = suggest_recipes_api_recipes_suggestions_get.sync_detailed(
+        client=client,
+        foods=to_unset(foods),
+        tools=to_unset(tools),
+        limit=limit,
+        max_missing_foods=max_missing_foods,
+        max_missing_tools=max_missing_tools,
+        include_foods_on_hand=include_foods_on_hand,
+        include_tools_on_hand=include_tools_on_hand,
+        order_by=to_unset(order_by),
+        order_direction=parse_order_direction(order_direction),
+    )
+    return expect_dict("suggest_recipes", response)
 
 
 def duplicate_recipe(
@@ -361,6 +390,58 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             require_all_tags=require_all_tags,
             require_all_tools=require_all_tools,
             require_all_foods=require_all_foods,
+            order_by=order_by,
+            order_direction=order_direction,
+        )
+
+    @mcp.tool(name="mealie_suggest_recipes")
+    def _suggest_recipes(
+        foods: list[str] | None = None,
+        tools: list[str] | None = None,
+        limit: int = 10,
+        max_missing_foods: int = 5,
+        max_missing_tools: int = 5,
+        include_foods_on_hand: bool = True,
+        include_tools_on_hand: bool = True,
+        order_by: str | None = None,
+        order_direction: Literal["asc", "desc"] | None = None,
+    ) -> dict[str, Any]:
+        """Suggest recipes you can make from a set of foods on hand.
+
+        Mealie ranks recipes by how well their ingredients match the supplied
+        ``foods`` (and optionally ``tools``), tolerating a bounded number of
+        missing items. Use this for "what can I make from what I have" rather
+        than browsing the full recipe list.
+
+        Args:
+            foods: Optional list of food ids (UUIDs) on hand. Foods have no
+                slug, so this takes the food id.
+            tools: Optional list of tool (equipment) ids (UUIDs) on hand.
+            limit: Maximum number of suggestions to return. Defaults to 10.
+            max_missing_foods: Largest number of unmatched foods a recipe may
+                require and still be suggested. Defaults to 5.
+            max_missing_tools: Largest number of unmatched tools a recipe may
+                require and still be suggested. Defaults to 5.
+            include_foods_on_hand: Include the supplied foods when scoring.
+                Defaults to True.
+            include_tools_on_hand: Include the supplied tools when scoring.
+                Defaults to True.
+            order_by: Optional column name to sort on.
+            order_direction: ``"asc"`` or ``"desc"``.
+
+        Returns:
+            A dict with ``items``, each carrying the matched ``recipe`` summary
+            plus its ``missingFoods`` and ``missingTools``.
+        """
+        return suggest_recipes(
+            get_client(),
+            foods=foods,
+            tools=tools,
+            limit=limit,
+            max_missing_foods=max_missing_foods,
+            max_missing_tools=max_missing_tools,
+            include_foods_on_hand=include_foods_on_hand,
+            include_tools_on_hand=include_tools_on_hand,
             order_by=order_by,
             order_direction=order_direction,
         )

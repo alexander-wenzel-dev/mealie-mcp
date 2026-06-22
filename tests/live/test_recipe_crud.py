@@ -335,6 +335,44 @@ def test_list_recipes_filters_by_foods(
 
 
 @pytest.mark.live
+def test_suggest_recipes_matches_on_food(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    food = recipes_foods.create_food(mealie_client, name=f"{sentinel_name}-food")
+    with_food = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-with")["slug"]
+    try:
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=with_food,
+            recipe_ingredient=[
+                {"note": "from mcp-test", "food": {"id": food["id"], "name": food["name"]}}
+            ],
+        )
+
+        suggested = recipe_crud.suggest_recipes(mealie_client, foods=[food["id"]], limit=100)
+        matched = {item["recipe"]["slug"] for item in suggested["items"]}
+        assert with_food in matched
+
+        # An unrelated, never-attached food must not surface the sentinel,
+        # proving the suggestion filters rather than returning everything.
+        other_food = recipes_foods.create_food(mealie_client, name=f"{sentinel_name}-other")
+        try:
+            unrelated = recipe_crud.suggest_recipes(
+                mealie_client, foods=[other_food["id"]], limit=100
+            )
+            unrelated_slugs = {item["recipe"]["slug"] for item in unrelated["items"]}
+            assert with_food not in unrelated_slugs
+        finally:
+            with contextlib.suppress(ToolError):
+                recipes_foods.delete_food(mealie_client, item_id=other_food["id"])
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=with_food)
+        with contextlib.suppress(ToolError):
+            recipes_foods.delete_food(mealie_client, item_id=food["id"])
+
+
+@pytest.mark.live
 def test_list_recipes_filters_by_households(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
 ) -> None:
