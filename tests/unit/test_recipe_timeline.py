@@ -28,6 +28,14 @@ class TestListRecipeTimelineEvents:
         with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
             recipe_timeline.list_recipe_timeline_events(client, recipe_id="abc", per_page=101)
 
+    def test_rejects_bad_order_direction(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
+            recipe_timeline.list_recipe_timeline_events(
+                client,
+                recipe_id="abc",
+                order_direction="sideways",  # type: ignore[arg-type]
+            )
+
 
 class TestCreateTimelineEvent:
     def test_rejects_empty_recipe_id(self, client: AuthenticatedClient) -> None:

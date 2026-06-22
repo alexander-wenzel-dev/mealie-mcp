@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -104,6 +105,9 @@ def test_recipe_timeline_event_lifecycle(
     assert updated["id"] == event_id
     assert updated["eventMessage"] == new_message
     assert updated["subject"] == created_event["subject"]
+    # event_type is immutable and absent from the update model, so it must
+    # survive a message-only edit rather than reset under the PUT-replace.
+    assert updated["eventType"] == "info"
 
     refetched = recipe_timeline.get_timeline_event(mealie_client, event_id=event_id)
     assert refetched["eventMessage"] == new_message
@@ -114,3 +118,77 @@ def test_recipe_timeline_event_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_timeline_event failed \(404"):
         recipe_timeline.get_timeline_event(mealie_client, event_id=event_id)
+
+
+def _event_order(listing: dict[str, Any], *ids: str) -> list[str]:
+    """The given event ids in the order they appear in a timeline listing.
+
+    Keys on the known ids so the recipe's auto-created `system` event and any
+    other events do not affect the result. Asserts both ids are present before
+    reporting their order.
+    """
+    items = listing["items"]
+    assert isinstance(items, list)
+    positions = {item["id"]: index for index, item in enumerate(items)}
+    for event_id in ids:
+        assert event_id in positions, f"event {event_id} not found in listing"
+    return sorted(ids, key=lambda event_id: positions[event_id])
+
+
+@pytest.mark.live
+def test_list_recipe_timeline_events_order_direction_flips_relative_order(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """``order_direction`` reverses the relative order of two events by timestamp.
+
+    Two events are staged with distinct explicit timestamps. Listing ascending
+    then descending by ``timestamp`` must flip their relative order. The
+    assertion keys on the two known ids so the recipe's auto-created `system`
+    event does not affect it.
+    """
+    recipe_id = created_recipe["id"]
+    earlier = recipe_timeline.create_timeline_event(
+        mealie_client,
+        recipe_id=recipe_id,
+        subject=f"{sentinel_name}-earlier",
+        event_type="info",
+        timestamp="2020-01-01T00:00:00",
+    )
+    later = recipe_timeline.create_timeline_event(
+        mealie_client,
+        recipe_id=recipe_id,
+        subject=f"{sentinel_name}-later",
+        event_type="info",
+        timestamp="2020-06-01T00:00:00",
+    )
+    try:
+        ascending = _event_order(
+            recipe_timeline.list_recipe_timeline_events(
+                mealie_client,
+                recipe_id=recipe_id,
+                per_page=100,
+                order_by="timestamp",
+                order_direction="asc",
+            ),
+            earlier["id"],
+            later["id"],
+        )
+        descending = _event_order(
+            recipe_timeline.list_recipe_timeline_events(
+                mealie_client,
+                recipe_id=recipe_id,
+                per_page=100,
+                order_by="timestamp",
+                order_direction="desc",
+            ),
+            earlier["id"],
+            later["id"],
+        )
+        assert ascending == [earlier["id"], later["id"]]
+        assert descending == [later["id"], earlier["id"]]
+    finally:
+        for event_id in (earlier["id"], later["id"]):
+            with contextlib.suppress(ToolError):
+                recipe_timeline.delete_timeline_event(mealie_client, event_id=event_id)

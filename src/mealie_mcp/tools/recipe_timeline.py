@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
@@ -32,6 +32,7 @@ from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    parse_order_direction,
     require_non_empty,
     require_per_page,
     to_unset,
@@ -61,7 +62,12 @@ def _parse_timestamp(value: str) -> dt.datetime:
 
 
 def list_recipe_timeline_events(
-    client: AuthenticatedClient, recipe_id: str, page: int = 1, per_page: int = 50
+    client: AuthenticatedClient,
+    recipe_id: str,
+    page: int = 1,
+    per_page: int = 50,
+    order_by: str | None = None,
+    order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List a recipe's timeline events, paginated. Returns the pagination envelope."""
     require_non_empty("recipe_id", recipe_id)
@@ -72,6 +78,8 @@ def list_recipe_timeline_events(
         query_filter=f'recipe_id="{recipe_id}"',
         page=page,
         per_page=per_page,
+        order_by=to_unset(order_by),
+        order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_recipe_timeline_events", response)
 
@@ -165,7 +173,11 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
     @mcp.tool(name="mealie_list_recipe_timeline_events")
     def _list_recipe_timeline_events(
-        recipe_id: str, page: int = 1, per_page: int = 50
+        recipe_id: str,
+        page: int = 1,
+        per_page: int = 50,
+        order_by: str | None = None,
+        order_direction: Literal["asc", "desc"] | None = None,
     ) -> dict[str, Any]:
         """List the timeline events attached to a single recipe, paginated.
 
@@ -173,12 +185,19 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             recipe_id: UUID of the recipe whose events to list.
             page: 1-indexed page number. Defaults to 1.
             per_page: Page size. Defaults to 50. Capped at 100.
+            order_by: Optional column name to sort on (e.g. ``"timestamp"``).
+            order_direction: ``"asc"`` or ``"desc"``.
 
         Returns:
             A pagination envelope with ``items`` and pagination metadata.
         """
         return list_recipe_timeline_events(
-            get_client(), recipe_id=recipe_id, page=page, per_page=per_page
+            get_client(),
+            recipe_id=recipe_id,
+            page=page,
+            per_page=per_page,
+            order_by=order_by,
+            order_direction=order_direction,
         )
 
     @mcp.tool(name="mealie_create_timeline_event")
