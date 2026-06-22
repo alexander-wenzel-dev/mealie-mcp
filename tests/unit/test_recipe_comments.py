@@ -40,6 +40,14 @@ class TestListComments:
         with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
             recipe_comments.list_comments(client, per_page=101)
 
+    def test_rejects_bad_order_direction(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
+            recipe_comments.list_comments(
+                client,
+                order_by="createdAt",
+                order_direction="sideways",  # type: ignore[arg-type]
+            )
+
 
 class TestListRecipeComments:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
