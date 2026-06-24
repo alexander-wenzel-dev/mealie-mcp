@@ -34,6 +34,7 @@ class AdminAboutInfo:
         recipe_scraper_version (str):
         default_group_slug (None | str | Unset):
         default_household_slug (None | str | Unset):
+        allowed_iframe_hosts (list[str] | Unset):
         db_url (None | str | Unset):
     """
 
@@ -56,6 +57,7 @@ class AdminAboutInfo:
     recipe_scraper_version: str
     default_group_slug: None | str | Unset = UNSET
     default_household_slug: None | str | Unset = UNSET
+    allowed_iframe_hosts: list[str] | Unset = UNSET
     db_url: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -106,6 +108,10 @@ class AdminAboutInfo:
         else:
             default_household_slug = self.default_household_slug
 
+        allowed_iframe_hosts: list[str] | Unset = UNSET
+        if not isinstance(self.allowed_iframe_hosts, Unset):
+            allowed_iframe_hosts = self.allowed_iframe_hosts
+
         db_url: None | str | Unset
         if isinstance(self.db_url, Unset):
             db_url = UNSET
@@ -139,6 +145,8 @@ class AdminAboutInfo:
             field_dict["defaultGroupSlug"] = default_group_slug
         if default_household_slug is not UNSET:
             field_dict["defaultHouseholdSlug"] = default_household_slug
+        if allowed_iframe_hosts is not UNSET:
+            field_dict["allowedIframeHosts"] = allowed_iframe_hosts
         if db_url is not UNSET:
             field_dict["dbUrl"] = db_url
 
@@ -199,6 +207,8 @@ class AdminAboutInfo:
 
         default_household_slug = _parse_default_household_slug(d.pop("defaultHouseholdSlug", UNSET))
 
+        allowed_iframe_hosts = cast(list[str], d.pop("allowedIframeHosts", UNSET))
+
         def _parse_db_url(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -228,6 +238,7 @@ class AdminAboutInfo:
             recipe_scraper_version=recipe_scraper_version,
             default_group_slug=default_group_slug,
             default_household_slug=default_household_slug,
+            allowed_iframe_hosts=allowed_iframe_hosts,
             db_url=db_url,
         )
 
