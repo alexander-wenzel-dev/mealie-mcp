@@ -26,7 +26,7 @@ exactly two `KEY=value` lines.
   to verify behaviour against an unreleased fix before bumping the spec
   floor.
 - Any other value is passed through as an explicit image tag, for
-  example `v3.19.2` or `v3.20.0`.
+  example `v3.20.0`.
 
 ### Populating `.env`
 
