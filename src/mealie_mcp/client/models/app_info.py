@@ -26,6 +26,7 @@ class AppInfo:
         token_time (int):
         default_group_slug (None | str | Unset):
         default_household_slug (None | str | Unset):
+        allowed_iframe_hosts (list[str] | Unset):
     """
 
     production: bool
@@ -39,6 +40,7 @@ class AppInfo:
     token_time: int
     default_group_slug: None | str | Unset = UNSET
     default_household_slug: None | str | Unset = UNSET
+    allowed_iframe_hosts: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,6 +74,10 @@ class AppInfo:
         else:
             default_household_slug = self.default_household_slug
 
+        allowed_iframe_hosts: list[str] | Unset = UNSET
+        if not isinstance(self.allowed_iframe_hosts, Unset):
+            allowed_iframe_hosts = self.allowed_iframe_hosts
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -91,6 +97,8 @@ class AppInfo:
             field_dict["defaultGroupSlug"] = default_group_slug
         if default_household_slug is not UNSET:
             field_dict["defaultHouseholdSlug"] = default_household_slug
+        if allowed_iframe_hosts is not UNSET:
+            field_dict["allowedIframeHosts"] = allowed_iframe_hosts
 
         return field_dict
 
@@ -133,6 +141,8 @@ class AppInfo:
 
         default_household_slug = _parse_default_household_slug(d.pop("defaultHouseholdSlug", UNSET))
 
+        allowed_iframe_hosts = cast(list[str], d.pop("allowedIframeHosts", UNSET))
+
         app_info = cls(
             production=production,
             version=version,
@@ -145,6 +155,7 @@ class AppInfo:
             token_time=token_time,
             default_group_slug=default_group_slug,
             default_household_slug=default_household_slug,
+            allowed_iframe_hosts=allowed_iframe_hosts,
         )
 
         app_info.additional_properties = d
