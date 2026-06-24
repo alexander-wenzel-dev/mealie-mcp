@@ -226,15 +226,6 @@ def update_recipe(
         raise ToolError("update_recipe requires at least one field to update")
 
     try:
-        if "recipeInstructions" in patch:
-            # Mealie 500s with a TypeError when a step body omits `ingredientReferences`,
-            # even though the OpenAPI schema marks it optional. Fixed upstream in
-            # mealie-recipes/mealie#7732; drop this once a release containing the fix
-            # is pinned in the spec lockfile.
-            patch["recipeInstructions"] = [
-                {**item, "ingredientReferences": item.get("ingredientReferences", [])}
-                for item in patch["recipeInstructions"]
-            ]
         body = Recipe.from_dict(patch)
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"update_recipe payload invalid: {exc}") from exc
