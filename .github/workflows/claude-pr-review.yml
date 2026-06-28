@@ -58,7 +58,7 @@ jobs:
           # The dispatch path runs in agent mode (no tracking comment), so Claude
           # posts the review itself with gh pr comment. GH_TOKEN authorises that.
           GH_TOKEN: ${{ github.token }}
-        uses: anthropics/claude-code-action@2fee15510437d71399d9139ed60433470484a8fb # v1.0.153
+        uses: anthropics/claude-code-action@a92e7c70a4da9793dc164451d829089dc057a464 # v1.0.159
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # A /review-pr comment gets a fresh live tracking comment (tag mode);
