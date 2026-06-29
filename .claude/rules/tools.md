@@ -38,6 +38,10 @@ Optional caller arguments translate to the generated client's `UNSET` sentinel v
 
 A paginated list tool follows a fixed shape: default `page=1, per_page=50`, call `require_per_page(per_page)` first (the shared ceiling is 100), forward optional `order_by` through `to_unset` and `order_direction` through `parse_order_direction`, and return the raw pagination envelope via `expect_dict`. See `list_shopping_lists` in `households_shopping_lists.py`.
 
+## Scoping a list
+
+Do not expose Mealie's generic `queryFilter` expression as a tool input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it. When such a parameter is an opaque key, a slug or an id rather than a display name, the docstring says so, since a display name silently returns no matches.
+
 ## Building a body from caller input
 
 When a tool builds a generated-client body from caller-supplied data with `Model.from_dict(...)`, wrap the call in `try/except (AttributeError, KeyError, TypeError, ValueError)` and re-raise as `ToolError`, so malformed input surfaces as a clean tool error rather than a stack trace. See `update_recipe` in `recipe_crud.py`.
