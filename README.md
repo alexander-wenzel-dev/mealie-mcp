@@ -4,23 +4,31 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 
-An MCP server for the Mealie recipe manager.
+Talk to your Mealie recipe manager in plain language. This MCP server lets an assistant like Claude read, create, and manage recipes, meal plans, and shopping lists on a Mealie instance you control.
 
-The server wraps the Mealie REST API and exposes its operations as MCP tools, so an MCP-capable assistant like Claude can read, create, and manage recipes on a Mealie instance you control.
+> Built on a typed client generated straight from Mealie's own API, so the tools match what Mealie actually ships and stay correct as Mealie evolves.
+
+- **Generated, not hand-typed** - request and response shapes come from Mealie's OpenAPI spec
+- **Version-pinned** - a Mealie upgrade is regenerate-and-review, not a manual audit
+- **Verified live** - every tool is tested against a real Mealie, behavioural not smoke
 
 Status: early development. Not yet published to PyPI.
 
 ## What it looks like
 
-Once registered, you talk to your Mealie instance in plain language:
+Once registered, you ask in plain language and the assistant picks the matching tools:
 
 > _"Scrape this recipe from &lt;url&gt; and tag it as 'weeknight'."_
 >
 > _"Add the ingredients of my Lasagna recipe to this week's shopping list."_
 >
-> _"What did I rate the Thai curry, and mark it as a favorite."_
-
-The assistant picks the matching tools and calls them against your instance.
+> _"What can I cook from the chicken, spinach, and feta I have on hand?"_
+>
+> _"Mark the Thai curry as a favorite and rate it four stars."_
+>
+> _"Put mushroom risotto on the meal plan for Sunday dinner."_
+>
+> _"Log that I made the focaccia today."_
 
 ## Requirements
 
@@ -87,12 +95,6 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 
 </details>
 
-### Filtering and ordering
-
-List tools take `page` and `per_page`, and where the Mealie endpoint supports it, `order_by` and `order_direction`.
-
-Mealie's generic `queryFilter` expression is deliberately not exposed. It is an untyped filter string that is error prone for an assistant to build and a poor fit for typed tool inputs. Tools that need to scope a list use explicit parameters instead. The recipe timeline list, for example, filters by recipe id internally rather than asking the caller for a filter expression.
-
 ## Regenerate the API client
 
 The Mealie OpenAPI spec is cached at `spec/mealie-openapi.json` and pinned in `pyproject.toml`. Regenerate the typed client from the cached spec:
@@ -106,7 +108,23 @@ uv run regen-client --update   # refetch from $MEALIE_BASE_URL/openapi.json and 
 
 ```sh
 uv run pytest          # unit tests
-uv run pytest -m live  # live tests, require a local .env
+uv run pytest -m live  # live tests, need a running Mealie
+```
+
+Unit tests need nothing extra. Live tests run against a real Mealie instance.
+
+To stand one up locally, `scripts/mealie-up` boots a container, mints an admin token, and prints `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` to stdout for `.env`:
+
+```sh
+./scripts/mealie-up > .env.new && mv .env.new .env
+```
+
+The staging file avoids truncating a working `.env` if the script fails. The variable names are also listed in `.env.example`. By default the script boots the Mealie version pinned in `pyproject.toml`, the same version the generated client and CI are built against, so the live suite stays reproducible. See [`scripts/README.md`](scripts/README.md) for version options and how to stop the container.
+
+Then run the live suite:
+
+```sh
+uv run pytest -m live
 ```
 
 ## License

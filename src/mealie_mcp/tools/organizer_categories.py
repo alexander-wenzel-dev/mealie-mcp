@@ -115,6 +115,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     ) -> dict[str, Any]:
         """List recipe categories from Mealie, paginated.
 
+        Use this to find a category slug. The recipe list filter and the
+        by-slug read tool match categories by slug, not display name, and a
+        display name returns no matches.
+
         Args:
             page: 1-indexed page number. Defaults to 1.
             per_page: Page size. Defaults to 50. Capped at 100.
