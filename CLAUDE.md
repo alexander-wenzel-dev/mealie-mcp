@@ -57,9 +57,13 @@ Out of scope: hosting or deploying Mealie itself, any web UI or non-MCP transpor
 ├── .env.example
 ├── .gitignore
 ├── .pre-commit-config.yaml
+├── .claude/
+│   ├── rules/            # path-scoped implementation rubrics
+│   ├── agents/           # review subagent definitions
+│   └── commands/         # slash-command skills
 ├── .github/
-│   └── workflows/
-│       └── ci.yml
+│   └── workflows/        # ci.yml plus the claude-*.yml automation
+├── scripts/              # mealie-up, resolve-spec-tag
 ├── spec/
 │   └── mealie-openapi.json
 ├── src/
@@ -67,7 +71,10 @@ Out of scope: hosting or deploying Mealie itself, any web UI or non-MCP transpor
 │       ├── __init__.py
 │       ├── server.py
 │       ├── config.py
-│       └── client/        # generated, not hand edited
+│       ├── client_factory.py
+│       ├── client/        # generated, not hand edited
+│       ├── _scripts/      # regen-client operator script
+│       └── tools/         # one module per Mealie OpenAPI tag
 ├── tests/
 │   ├── unit/
 │   └── live/
