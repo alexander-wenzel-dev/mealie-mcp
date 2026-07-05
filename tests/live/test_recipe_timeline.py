@@ -10,7 +10,7 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
@@ -192,3 +192,24 @@ def test_list_recipe_timeline_events_order_direction_flips_relative_order(
         for event_id in (earlier["id"], later["id"]):
             with contextlib.suppress(ToolError):
                 recipe_timeline.delete_timeline_event(mealie_client, event_id=event_id)
+
+
+@pytest.mark.live
+def test_create_timeline_event_round_trips_through_wrapper(
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    subject = f"{sentinel_name}-subject"
+    created = call_tool(
+        "mealie_create_timeline_event",
+        {"recipe_id": created_recipe["id"], "subject": subject},
+    )
+    assert isinstance(created, dict)
+    event_id = created["id"]
+    try:
+        assert created["subject"] == subject
+        assert created["recipeId"] == created_recipe["id"]
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_timeline_event", {"event_id": event_id})

@@ -7,14 +7,17 @@ file the operator manages out of band).
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import os
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
+from fastmcp import Client
 
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client_factory import get_client, reset_client
+from mealie_mcp.server import mcp
 
 
 @pytest.fixture(scope="session")
@@ -35,3 +38,24 @@ def sentinel_name() -> str:
     """Unique recipe name with the `mcp-test-` prefix and ISO timestamp."""
     stamp = dt.datetime.now(tz=dt.UTC).strftime("%Y%m%dT%H%M%S%f")
     return f"mcp-test-{stamp}"
+
+
+@pytest.fixture
+def call_tool() -> Callable[[str, dict[str, object]], object]:
+    """Drive a tool through its `@mcp.tool()` wrapper on an in-memory client.
+
+    Returns the tool's `data` payload. A direct call to the typed function skips
+    argument forwarding, the FastMCP-derived input schema, and output
+    serialization; this crosses all three so a wrapper that forwards to the wrong
+    parameter or mis-serializes its result is caught.
+    """
+
+    def _call(tool_name: str, arguments: dict[str, object]) -> object:
+        async def run() -> object:
+            async with Client(mcp) as client:
+                result = await client.call_tool(tool_name, arguments)
+            return result.data
+
+        return asyncio.run(run())
+
+    return _call
