@@ -12,7 +12,7 @@ fails so no `mcp-test-` data lingers.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
@@ -158,3 +158,26 @@ def test_update_preserves_public_and_position(
     # schema defaults (public=False, position=1); fetch-then-merge preserves them.
     assert after["public"] is True
     assert after["position"] == 99
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("mealie_client")
+def test_create_cookbook_round_trips_through_wrapper(
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    description = f"{sentinel_name}-desc"
+    created = call_tool(
+        "mealie_create_cookbook", {"name": sentinel_name, "description": description}
+    )
+    assert isinstance(created, dict)
+    item_id = created["id"]
+    try:
+        # name and description are both str; fetching both back catches a swap.
+        fetched = call_tool("mealie_get_cookbook", {"item_id": item_id})
+        assert isinstance(fetched, dict)
+        assert fetched["name"] == sentinel_name
+        assert fetched["description"] == description
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_cookbook", {"item_id": item_id})

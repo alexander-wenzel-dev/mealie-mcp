@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import contextlib
 import datetime as dt
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -123,3 +123,30 @@ def test_mealplan_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_mealplan failed \(404"):
         households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_create_mealplan_round_trips_through_wrapper(
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    plan_date = dt.date(2030, 1, 2).isoformat()
+    created = call_tool(
+        "mealie_create_mealplan",
+        {
+            "date": plan_date,
+            "recipe_id": created_recipe["id"],
+            "title": sentinel_name,
+            "entry_type": "dinner",
+        },
+    )
+    assert isinstance(created, dict)
+    item_id = created["id"]
+    try:
+        assert created["title"] == sentinel_name
+        assert created["recipeId"] == created_recipe["id"]
+        assert created["date"] == plan_date
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_mealplan", {"item_id": item_id})

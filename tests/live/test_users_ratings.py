@@ -8,7 +8,7 @@ deletes the recipe even when the body fails, which also clears its rating.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -69,3 +69,14 @@ def test_rating_and_favorite_lifecycle(
 
     after_removal = users_ratings.list_favorites(mealie_client)
     assert all(r["recipeId"] != recipe_id for r in after_removal)
+
+
+@pytest.mark.live
+def test_set_recipe_rating_round_trips_through_wrapper(
+    created_recipe: dict[str, str],
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    slug = created_recipe["slug"]
+    ack = call_tool("mealie_set_recipe_rating", {"slug": slug, "rating": 4.5})
+    # The wrapper serializes the synthesized ack; the recipe fixture clears the rating on teardown.
+    assert ack == {"slug": slug, "rating": 4.5}

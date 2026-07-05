@@ -13,7 +13,7 @@ before the label and food, and cleanup runs even when the body fails so no
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import httpx
 import pytest
@@ -169,3 +169,24 @@ def test_shopping_list_item_lifecycle(
 
     after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
     assert all(i["id"] != item_id for i in after["listItems"])
+
+
+@pytest.mark.live
+def test_add_shopping_list_item_round_trips_through_wrapper(
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    note = f"{sentinel_name}-item"
+    added = call_tool(
+        "mealie_add_shopping_list_item",
+        {"shopping_list_id": created_shopping_list["id"], "note": note, "quantity": 3},
+    )
+    assert isinstance(added, dict)
+    item_id = added["id"]
+    try:
+        assert added["note"] == note
+        assert added["quantity"] == 3
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_shopping_list_item", {"item_id": item_id})

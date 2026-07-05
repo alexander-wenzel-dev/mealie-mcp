@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import contextlib
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
@@ -140,3 +140,21 @@ def test_list_comments_order_direction_flips_relative_order(
         for comment_id in (first["id"], second["id"]):
             with contextlib.suppress(ToolError):
                 recipe_comments.delete_comment(mealie_client, comment_id=comment_id)
+
+
+@pytest.mark.live
+def test_create_comment_round_trips_through_wrapper(
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    text = f"{sentinel_name}-comment"
+    created = call_tool("mealie_create_comment", {"recipe_id": created_recipe["id"], "text": text})
+    assert isinstance(created, dict)
+    comment_id = created["id"]
+    try:
+        # recipe_id and text are both str; asserting the text lands as text catches a swap.
+        assert created["text"] == text
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_comment", {"comment_id": comment_id})
