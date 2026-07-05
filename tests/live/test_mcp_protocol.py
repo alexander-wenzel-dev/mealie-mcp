@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+from collections.abc import Callable
 
 import pytest
 from fastmcp import Client
@@ -47,13 +48,10 @@ def test_in_memory_client_enumerates_anchor_tools() -> None:
 
 @pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
-def test_list_recipes_round_trips_pagination_envelope() -> None:
-    async def run() -> object:
-        async with Client(mcp) as client:
-            result = await client.call_tool("mealie_list_recipes", {"per_page": 1})
-        return result.data
-
-    data = asyncio.run(run())
+def test_list_recipes_round_trips_pagination_envelope(
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    data = call_tool("mealie_list_recipes", {"per_page": 1})
     assert isinstance(data, dict)
     assert set(data) >= ENVELOPE_KEYS
     assert isinstance(data["items"], list)
@@ -61,20 +59,53 @@ def test_list_recipes_round_trips_pagination_envelope() -> None:
 
 @pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
-def test_create_recipe_round_trips_name_through_wrapper(sentinel_name: str) -> None:
-    async def run() -> str:
-        async with Client(mcp) as client:
-            created = await client.call_tool("mealie_create_recipe", {"name": sentinel_name})
-            slug = created.data["slug"]
-            try:
-                fetched = await client.call_tool("mealie_get_recipe", {"slug_or_id": slug})
-                return fetched.data["name"]
-            finally:
-                with contextlib.suppress(ToolError):
-                    await client.call_tool("mealie_delete_recipe", {"slug_or_id": slug})
+def test_create_recipe_round_trips_name_through_wrapper(
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    created = call_tool("mealie_create_recipe", {"name": sentinel_name})
+    assert isinstance(created, dict)
+    slug = created["slug"]
+    try:
+        fetched = call_tool("mealie_get_recipe", {"slug_or_id": slug})
+        assert isinstance(fetched, dict)
+        assert fetched["name"] == sentinel_name
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_recipe", {"slug_or_id": slug})
 
-    fetched_name = asyncio.run(run())
-    assert fetched_name == sentinel_name
+
+# Groups whose create tool takes only a name and whose delete tool takes only
+# the created id. One parametrized round-trip proves each forwards its argument
+# through the wrapper; the richer groups carry their own round-trip in-file.
+NAME_ONLY_GROUPS = [
+    ("mealie_create_tag", "mealie_delete_tag", "item_id"),
+    ("mealie_create_category", "mealie_delete_category", "item_id"),
+    ("mealie_create_tool", "mealie_delete_tool", "item_id"),
+    ("mealie_create_food", "mealie_delete_food", "item_id"),
+    ("mealie_create_unit", "mealie_delete_unit", "item_id"),
+    ("mealie_create_shopping_list", "mealie_delete_shopping_list", "list_id"),
+]
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("mealie_client")
+@pytest.mark.parametrize(("create_tool", "delete_tool", "delete_key"), NAME_ONLY_GROUPS)
+def test_name_only_create_round_trips_through_wrapper(
+    create_tool: str,
+    delete_tool: str,
+    delete_key: str,
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    created = call_tool(create_tool, {"name": sentinel_name})
+    assert isinstance(created, dict)
+    resource_id = created["id"]
+    try:
+        assert created["name"] == sentinel_name
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool(delete_tool, {delete_key: resource_id})
 
 
 @pytest.mark.live
