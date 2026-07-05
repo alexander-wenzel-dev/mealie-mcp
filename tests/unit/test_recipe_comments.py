@@ -45,7 +45,7 @@ class TestListComments:
             recipe_comments.list_comments(
                 client,
                 order_by="createdAt",
-                order_direction="sideways",  # type: ignore[arg-type]
+                order_direction="sideways",
             )
 
 

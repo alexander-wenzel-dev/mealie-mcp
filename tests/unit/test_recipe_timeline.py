@@ -33,7 +33,7 @@ class TestListRecipeTimelineEvents:
             recipe_timeline.list_recipe_timeline_events(
                 client,
                 recipe_id="abc",
-                order_direction="sideways",  # type: ignore[arg-type]
+                order_direction="sideways",
             )
 
 

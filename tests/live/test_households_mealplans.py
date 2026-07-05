@@ -72,7 +72,7 @@ def test_mealplan_lifecycle(
     sentinel_name: str,
 ) -> None:
     item_id = created_mealplan["id"]
-    plan_date: dt.date = created_mealplan["date"]  # type: ignore[assignment]
+    plan_date: dt.date = created_mealplan["date"]
     recipe_id = created_mealplan["recipe_id"]
     title = created_mealplan["title"]
     note = f"{sentinel_name}-note"
