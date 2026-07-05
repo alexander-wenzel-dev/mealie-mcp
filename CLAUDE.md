@@ -145,7 +145,7 @@ The detailed implementation rubric lives in `.claude/rules/tools.md` and loads o
 
 The detailed live-test rubric lives in `.claude/rules/live-tests.md` and loads on demand when files under `tests/live/` are read.
 
-`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. Per-tool dispatch code is exercised by live tests, not unit tests.
+`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. The typed functions are the live-tested unit. The wrapper layer (argument forwarding, FastMCP schema derivation, output serialisation) is exercised only for the four recipe anchor tools round-tripped through `call_tool` in `tests/live/test_mcp_protocol.py`; other groups' wrappers are covered by no test.
 
 ## Security rules
 
@@ -163,4 +163,4 @@ Push as soon as the merge-gate checks are green. The PR title is the conventiona
 
 ## Blockers
 
-If anything blocks the task, stop and surface the blocker. Do not silently work around it. Examples include a spec gap, a response shape the generator handled poorly, a missing test fixture, an environment limitation, a live test that cannot run, or genuine ambiguity about the right approach. Do not suppress lint or type errors with `# noqa`, `# type: ignore`, or similar to keep going. Do not invent endpoints the spec does not define. If the spec and live behaviour disagree, trust live behaviour and record the gap in the PR body under "Risks".
+If anything blocks the task, stop and surface the blocker. Do not silently work around it. Examples include a spec gap, a response shape the generator handled poorly, a missing test fixture, an environment limitation, a live test that cannot run, or genuine ambiguity about the right approach. Do not suppress a lint or type error with `# noqa`, `# type: ignore`, or similar to bypass a failing check on logic you wrote; fix the cause. A mechanical suppression where the tool cannot be satisfied is allowed and states why, as the `E501` on the generated-name import lines and the `T201` on the operator script's prints do. Do not invent endpoints the spec does not define. If the spec and live behaviour disagree, trust live behaviour and record the gap in the PR body under "Risks".
