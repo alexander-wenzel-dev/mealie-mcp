@@ -16,7 +16,7 @@ on:
         description: Claude model id.
         required: false
         type: string
-        default: claude-sonnet-4-6
+        default: claude-sonnet-5
     secrets:
       claude-oauth-token:
         required: true

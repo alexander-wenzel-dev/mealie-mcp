@@ -12,10 +12,10 @@ on:
       model:
         description: Claude model to use for the review.
         required: false
-        default: claude-sonnet-4-6
+        default: claude-sonnet-5
         type: choice
         options:
-          - claude-sonnet-4-6
+          - claude-sonnet-5
           - claude-opus-4-8
 
 concurrency:
@@ -69,5 +69,5 @@ jobs:
             /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ env.PR_NUMBER }}
             ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || 'Put the review summary in your tracking comment by updating it; do not open a separate top-level comment.' }}
           claude_args: |
-            --model ${{ inputs.model || 'claude-sonnet-4-6' }}
+            --model ${{ inputs.model || 'claude-sonnet-5' }}
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Task,Read,Glob,Grep,WebFetch,WebSearch,Write"
