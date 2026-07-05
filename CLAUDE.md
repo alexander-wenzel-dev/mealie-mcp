@@ -145,7 +145,7 @@ The detailed implementation rubric lives in `.claude/rules/tools.md` and loads o
 
 The detailed live-test rubric lives in `.claude/rules/live-tests.md` and loads on demand when files under `tests/live/` are read.
 
-`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. The typed functions are the live-tested unit. The wrapper layer (argument forwarding, FastMCP schema derivation, output serialisation) is exercised only for the four recipe anchor tools round-tripped through `call_tool` in `tests/live/test_mcp_protocol.py`; other groups' wrappers are covered by no test.
+`uv run pytest` measures branch coverage of `src/mealie_mcp` and prints a report; there is no hard threshold. The generated client and the `regen-client` operator script are omitted from measurement. The typed functions are the live-tested unit. Each tool group's wrapper is also exercised by one `call_tool` round-trip so argument forwarding, FastMCP schema derivation, and output serialisation are covered: name-only groups share a parametrized test in `tests/live/test_mcp_protocol.py`, richer groups carry theirs in their own live file.
 
 ## Security rules
 

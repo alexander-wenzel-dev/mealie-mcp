@@ -45,6 +45,10 @@ After any live-test failure, the operator confirms no `mcp-test-` data remains a
 
 Every new tool ships with at least one unit test and at least one live test. A diff that adds a tool without a live test is a deviation.
 
+## Wrapper round-trip per group
+
+A direct call to a typed function skips the `@mcp.tool()` wrapper, so a wrapper that forwards an argument to the wrong parameter or mis-serializes its result ships untested. Every tool group's wrapper is exercised by one `call_tool` round-trip on an in-memory `Client(mcp)` that asserts a persisted or returned value matches a named input. The `call_tool` fixture in `conftest.py` drives it. Groups whose create takes only a name share one parametrized test in `test_mcp_protocol.py`; groups with several arguments or a parent to stage carry their round-trip in their own live file, next to their staging. The recipe group is covered by the anchor round-trips in `test_mcp_protocol.py`.
+
 ## No silencing
 
 A failing live test is never marked `xfail` or skipped to ship. Fix the tool, fix the test, or descope and surface the decision.
