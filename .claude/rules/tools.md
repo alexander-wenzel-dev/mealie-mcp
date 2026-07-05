@@ -16,6 +16,17 @@ Each MCP tool is two layers:
 
 Do not collapse the layers, put business logic in the wrapper, or call the generated client from the wrapper instead of the typed function.
 
+## The wrapper docstring is the tool description
+
+FastMCP derives each tool's description from the wrapper's docstring, so it is the primary interface the calling model reads. Write it as the product surface, not an afterthought:
+
+- a one-line summary first,
+- any behavioural caveat or Mealie quirk up front, before `Args:`,
+- a Google-style `Args:` block giving each argument's default and format,
+- a `Returns:` line naming the response shape.
+
+When an argument is an opaque key, a slug or an id rather than a display name, say so here, since a display name silently returns no matches. `_list_recipes` in `recipe_crud.py` is the exemplar.
+
 ## Validation
 
 Input validation uses `require_non_empty` from `_common.py`. Inline `if not value: raise ...` for the same shape is a deviation.
@@ -40,7 +51,9 @@ A paginated list tool follows a fixed shape: default `page=1, per_page=50`, call
 
 ## Scoping a list
 
-Do not expose Mealie's generic `queryFilter` expression as a tool input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it. When such a parameter is an opaque key, a slug or an id rather than a display name, the docstring says so, since a display name silently returns no matches.
+Do not expose Mealie's generic `queryFilter` expression as a list-scoping input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it. When such a parameter is an opaque key, a slug or an id rather than a display name, the docstring says so, since a display name silently returns no matches.
+
+The rule is scoped to list-scoping inputs. When the filter DSL is the resource's own persisted field rather than a parameter that narrows a result set, exposing it verbatim is correct: `create_cookbook` and `update_cookbook` in `households_cookbooks.py` take `query_filter_string` directly, because a cookbook stores that string as its own definition.
 
 ## Building a body from caller input
 
@@ -50,15 +63,31 @@ When a tool builds a generated-client body from caller-supplied data with `Model
 
 Every delete tool uses `ack_delete(action, response, ack_id)` so the MCP contract returns the canonical `{"id": <ack_id>, "deleted": True}` shape. A hand-rolled return shape from a delete tool is a deviation.
 
+## Acknowledging an empty-body write
+
+Some write endpoints return no useful body, for example setting a rating or adding a favourite. `ack_delete` is only for deletes. For these, return a small dict echoing the inputs that identify the effect, as `set_recipe_rating` and `add_favorite` in `users_ratings.py` do. Do not invent a wider ack shape.
+
 ## Naming and grouping
 
 Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. A new tool group is a single new file with a `register(mcp, get_client)` callable; `register_all` auto-discovers it.
 
-## Fetch-then-merge for PUT-replace bodies
+## Update bodies
 
-Mealie's update endpoints PUT-replace the resource: any field absent from the request body resets to its schema default on the server. So an update tool that exposes only some fields must send the full current resource with the caller's edits applied, never a sparse body.
+An update tool's body shape depends on the endpoint's HTTP method and on whether the update model carries fields the tool does not expose. Three variants exist in the code; pick by this ladder.
 
-The pattern, from `update_shopping_list` in `households_shopping_lists.py`:
+1. PATCH endpoint means a sparse body is correct. A PATCH applies only the fields present, so send just the caller's edits with no prefetch. `update_recipe` in `recipe_crud.py` builds a `Recipe` from the supplied fields alone and PATCHes it.
+
+2. PUT endpoint where every field of the update model is a tool input means a sparse body with no prefetch. Construct the body directly from the arguments. `update_tag` (`organizer_tags.py`), `update_category` (`organizer_categories.py`), and `update_comment` (`recipe_comments.py`) each send a small model built from their arguments.
+
+3. PUT endpoint where the update model has fields the tool does not expose means fetch-then-merge. A PUT replaces the resource: any field absent from the body resets to its schema default on the server, so send the full current resource with the caller's edits applied, never a sparse body. Two constructions:
+   - `from_dict` merge when the model can absorb the fetched resource, as in `update_shopping_list` (`households_shopping_lists.py`).
+   - hand-construction when the update model has required structural fields `from_dict` cannot default, as in `update_mealplan`, which builds `UpdatePlanEntry` field by field (`households_mealplans.py`).
+
+A PUT tool that builds a sparse body silently resets every unexposed field. Its live test must prove the merge holds; see the clobber rule in the live-test rubric.
+
+### The from_dict merge
+
+The pattern, from `update_shopping_list`:
 
 ```python
 existing = expect_dict("update_x", prefetch)   # route the prefetch through the tool's own action name
@@ -69,4 +98,8 @@ body.<field> = <new value>
 
 `from_dict` carries every key of the fetched resource, including server-only keys the update model does not declare, into `additional_properties`; clearing it stops those keys being echoed back on the PUT. Assign only the fields the tool exposes; everything else round-trips from `existing` and survives the replace.
 
-A tool that builds a sparse body instead silently resets every unexposed field. The live test for the tool must prove the merge holds; see the clobber rule in the live-test rubric.
+`from_dict` consumes wire-format camelCase keys. An unknown or wrong-cased key is not rejected. It is silently absorbed into `additional_properties` and sets nothing, so a snake_case or mistyped key fails quietly. When translating caller field names to the wire, map them explicitly; `_UPDATE_RECIPE_FIELD_MAP` in `recipe_crud.py` is the snake-to-camel precedent.
+
+### None means "not supplied"
+
+Update tools use `None` as the "field not supplied" sentinel and skip it, so a nullable field cannot be cleared through the tool surface. The docstring says clearing is unsupported. If a task genuinely needs to clear a text field, the escape hatch is treating an empty string as "clear" for that field, decided per tool.
