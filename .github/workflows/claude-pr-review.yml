@@ -67,7 +67,8 @@ jobs:
           track_progress: ${{ github.event_name != 'workflow_dispatch' }}
           prompt: >-
             /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ env.PR_NUMBER }}
-            ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || 'Put the review summary in your tracking comment by updating it; do not open a separate top-level comment.' }}
+            Posting the review is your final and mandatory action. A plain-text reply is discarded and never reaches the user, so the review only lands when you deliver it through the posting tool, and you do that last, even after the subagents return.
+            ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || 'Deliver the summary by updating your tracking comment; do not open a separate top-level comment. Update it even if only to record that you found no blocking issues.' }}
           claude_args: |
             --model ${{ inputs.model || 'claude-sonnet-5' }}
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Task,Read,Glob,Grep,WebFetch,WebSearch,Write"
