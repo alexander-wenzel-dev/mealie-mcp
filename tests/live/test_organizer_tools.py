@@ -48,12 +48,15 @@ def created_tool(
     item_id = created["id"]
     assert created["name"] == sentinel_name
 
-    update_one_api_organizers_tools_item_id_put.sync_detailed(
-        item_id,
-        client=mealie_client,
-        body=RecipeToolCreate(name=sentinel_name, households_with_tool=households_seed),
-    )
     try:
+        expect_dict(
+            "seed_tool_households",
+            update_one_api_organizers_tools_item_id_put.sync_detailed(
+                item_id,
+                client=mealie_client,
+                body=RecipeToolCreate(name=sentinel_name, households_with_tool=households_seed),
+            ),
+        )
         yield {
             "id": item_id,
             "name": sentinel_name,

@@ -13,7 +13,7 @@ For nested resources (e.g. comments on a recipe), stage the parent sentinel firs
 
 Every persisted free-text label or note field (title, description, note, content, etc.) derives from `sentinel_name`, not a hardcoded literal, regardless of how many sentinels the test stages. The cleanup may key on `id`, but two overlapping runs must never write the same literal value into the operator's Mealie, and a single-sentinel test collides just as a multi-sentinel one does. Structural fields like dates, enum slots, and foreign-key ids do not need to derive from `sentinel_name`; they identify the entry, not the run that wrote it.
 
-Staging may call the generated client directly when no tool covers the setup an assertion needs, for example creating a second household or a multi-purpose label. The sentinel and cleanup rules apply the same way.
+Staging may call the generated client directly when no tool covers the setup an assertion needs, for example creating a second household or a multi-purpose label. The sentinel and cleanup rules apply the same way. A raw `sync_detailed` used to seed or stage in the test body must not discard its response: route it through `expect_dict` (or the matching `expect_*`) with no `suppress`, so a failed setup fails the test loudly instead of seeding nothing and leaving the assertion to fail for the wrong reason. A call whose parsed body the setup actually consumes, assigned to a variable or unwrapped through `decode`, is already covered, since a failed setup surfaces when the value is used. The `suppress` form is for cleanup in `finally` only (see Cleanup hygiene).
 
 ## Behavioural assertions, not smoke checks
 

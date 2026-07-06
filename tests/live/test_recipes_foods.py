@@ -20,6 +20,7 @@ from mealie_mcp.client.models.create_ingredient_food_extras_type_0 import (
     CreateIngredientFoodExtrasType0,
 )
 from mealie_mcp.tools import recipes_foods
+from mealie_mcp.tools._common import expect_dict
 
 SEED_DESCRIPTION = "mcp-test-description"
 SEED_EXTRAS_KEY = "mcp_test_extras_key"
@@ -44,17 +45,20 @@ def created_food(
 
     extras_seed = CreateIngredientFoodExtrasType0()
     extras_seed[SEED_EXTRAS_KEY] = SEED_EXTRAS_VALUE
-    update_one_api_foods_item_id_put.sync_detailed(
-        item_id,
-        client=mealie_client,
-        body=CreateIngredientFood(
-            id=item_id,
-            name=sentinel_name,
-            description=SEED_DESCRIPTION,
-            extras=extras_seed,
-        ),
-    )
     try:
+        expect_dict(
+            "seed_food_fields",
+            update_one_api_foods_item_id_put.sync_detailed(
+                item_id,
+                client=mealie_client,
+                body=CreateIngredientFood(
+                    id=item_id,
+                    name=sentinel_name,
+                    description=SEED_DESCRIPTION,
+                    extras=extras_seed,
+                ),
+            ),
+        )
         yield {
             "id": item_id,
             "name": sentinel_name,
