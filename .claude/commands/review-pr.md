@@ -15,4 +15,4 @@ Instruct each to only provide noteworthy feedback. Once they finish, review the 
 
 The reviewers read the diff, not the test output. Test results are verified by CI, not here. Do not report on whether tests pass; report on whether the diff follows the conventions.
 
-Provide feedback using inline comments for specific issues. Use a top-level comment for the summary. Keep feedback concise.
+Provide feedback using inline comments for specific issues. Use a top-level comment for the summary. Keep feedback concise. Posting the summary is the final, required step, done after the subagents return. Feedback you leave as a reply instead of posting through the comment tool is discarded and never reaches the user.
