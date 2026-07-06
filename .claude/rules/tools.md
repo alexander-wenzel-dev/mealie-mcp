@@ -71,6 +71,8 @@ Some write endpoints return no useful body, for example setting a rating or addi
 
 Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. A new tool group is a single new file with a `register(mcp, get_client)` callable; `register_all` auto-discovers it.
 
+A non-underscore module that defines no `register` callable is rejected: `_iter_tool_modules` raises rather than skipping it, so a group whose tools would never be exposed fails boot instead of vanishing behind a green merge gate. The per-group `call_tool` round-trip (see the live-test rubric) doubles as the registration check for a wired group: it fails if the group's tools are not registered. Together they mean a missing or misnamed `register` cannot ship silently, so a group needs no separate name-presence assertion against `mcp.list_tools()`.
+
 ## Update bodies
 
 An update tool's body shape depends on the endpoint's HTTP method and on whether the update model carries fields the tool does not expose. Three variants exist in the code; pick by this ladder.

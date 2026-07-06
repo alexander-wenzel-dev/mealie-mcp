@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+from types import SimpleNamespace
 
+import pytest
 from fastmcp import FastMCP
 
 from mealie_mcp.server import mcp
+from mealie_mcp.tools import _require_register
 
 
 def test_server_module_exposes_fastmcp_instance() -> None:
@@ -26,3 +29,22 @@ def test_server_registers_unique_prefixed_tools() -> None:
     assert len(names) == len(set(names)), f"duplicate tool names: {names}"
     bad = [n for n in names if not n.startswith("mealie_")]
     assert not bad, f"tool names must use the 'mealie_' prefix: {bad}"
+
+
+def test_require_register_returns_the_callable() -> None:
+    def register(mcp: object, get_client: object) -> None: ...
+
+    module = SimpleNamespace(__name__="mealie_mcp.tools.fake", register=register)
+    assert _require_register(module) is register
+
+
+def test_require_register_rejects_a_module_without_register() -> None:
+    module = SimpleNamespace(__name__="mealie_mcp.tools.fake")
+    with pytest.raises(TypeError, match="no register callable"):
+        _require_register(module)
+
+
+def test_require_register_rejects_a_non_callable_register() -> None:
+    module = SimpleNamespace(__name__="mealie_mcp.tools.fake", register="not callable")
+    with pytest.raises(TypeError, match="no register callable"):
+        _require_register(module)
