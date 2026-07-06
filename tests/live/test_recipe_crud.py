@@ -287,8 +287,11 @@ def test_list_recipes_filters_by_tools(
         patch_body = Recipe.from_dict(
             {"tools": [{"id": tool["id"], "name": tool["name"], "slug": tool["slug"]}]}
         )
-        patch_one_api_recipes_slug_patch.sync_detailed(
-            with_tool, client=mealie_client, body=patch_body
+        expect_dict(
+            "seed_recipe_tools",
+            patch_one_api_recipes_slug_patch.sync_detailed(
+                with_tool, client=mealie_client, body=patch_body
+            ),
         )
 
         matched = _result_slugs(

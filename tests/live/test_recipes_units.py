@@ -17,6 +17,7 @@ from mealie_mcp.client.api.recipes_units import update_one_api_units_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_ingredient_unit import CreateIngredientUnit
 from mealie_mcp.tools import recipes_units
+from mealie_mcp.tools._common import expect_dict
 
 SEED_ABBREVIATION = "mcp-test-abbr"
 SEED_USE_ABBREVIATION = True
@@ -39,17 +40,20 @@ def created_unit(
     item_id = created["id"]
     assert created["name"] == sentinel_name
 
-    update_one_api_units_item_id_put.sync_detailed(
-        item_id,
-        client=mealie_client,
-        body=CreateIngredientUnit(
-            id=item_id,
-            name=sentinel_name,
-            abbreviation=SEED_ABBREVIATION,
-            use_abbreviation=SEED_USE_ABBREVIATION,
-        ),
-    )
     try:
+        expect_dict(
+            "seed_unit_fields",
+            update_one_api_units_item_id_put.sync_detailed(
+                item_id,
+                client=mealie_client,
+                body=CreateIngredientUnit(
+                    id=item_id,
+                    name=sentinel_name,
+                    abbreviation=SEED_ABBREVIATION,
+                    use_abbreviation=SEED_USE_ABBREVIATION,
+                ),
+            ),
+        )
         yield {
             "id": item_id,
             "name": sentinel_name,
