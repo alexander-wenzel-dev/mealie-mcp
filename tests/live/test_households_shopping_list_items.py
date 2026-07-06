@@ -15,7 +15,6 @@ from __future__ import annotations
 import contextlib
 from collections.abc import Callable, Iterator
 
-import httpx
 import pytest
 from fastmcp.exceptions import ToolError
 
@@ -79,9 +78,12 @@ def created_label(
     try:
         yield {"id": label_id}
     finally:
-        with contextlib.suppress(httpx.HTTPError):
-            delete_one_api_groups_labels_item_id_delete.sync_detailed(
-                label_id, client=mealie_client
+        with contextlib.suppress(ToolError):
+            expect_dict(
+                "delete_label",
+                delete_one_api_groups_labels_item_id_delete.sync_detailed(
+                    label_id, client=mealie_client
+                ),
             )
 
 

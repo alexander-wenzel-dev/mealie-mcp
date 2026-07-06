@@ -37,7 +37,7 @@ from mealie_mcp.tools import (
     recipe_crud,
     recipes_foods,
 )
-from mealie_mcp.tools._common import decode
+from mealie_mcp.tools._common import decode, expect_dict
 
 
 def _organizer_ref(item: dict[str, str]) -> dict[str, str]:
@@ -415,9 +415,13 @@ def test_list_recipes_filters_by_households(
         )
         assert created_recipe["slug"] not in in_other
     finally:
-        delete_one_api_admin_households_item_id_delete.sync_detailed(
-            other["id"], client=mealie_client
-        )
+        with contextlib.suppress(ToolError):
+            expect_dict(
+                "delete_household",
+                delete_one_api_admin_households_item_id_delete.sync_detailed(
+                    other["id"], client=mealie_client
+                ),
+            )
 
 
 @pytest.mark.live
@@ -448,9 +452,12 @@ def test_list_recipes_filters_by_cookbook(
         assert out_book not in matched
     finally:
         if cookbook is not None:
-            with contextlib.suppress(Exception):
-                delete_one_api_households_cookbooks_item_id_delete.sync_detailed(
-                    cookbook["id"], client=mealie_client
+            with contextlib.suppress(ToolError):
+                expect_dict(
+                    "delete_cookbook",
+                    delete_one_api_households_cookbooks_item_id_delete.sync_detailed(
+                        cookbook["id"], client=mealie_client
+                    ),
                 )
         for slug in (in_book, out_book):
             with contextlib.suppress(ToolError):

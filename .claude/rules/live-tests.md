@@ -11,7 +11,9 @@ Live tests use `mealie_client` and `sentinel_name` from `tests/live/conftest.py`
 
 For nested resources (e.g. comments on a recipe), stage the parent sentinel first, then the child under it. Cleanup deletes the child before the parent so the parent delete does not orphan.
 
-When a test stages more than one sentinel resource, every persisted free-text label or note field (title, description, note, content, etc.) derives from `sentinel_name`, not a hardcoded literal. The cleanup may key on `id`, but two overlapping runs would still write the same literal value into the operator's Mealie. Structural fields like dates, enum slots, and foreign-key ids do not need to derive from `sentinel_name`; they identify the entry, not the run that wrote it.
+Every persisted free-text label or note field (title, description, note, content, etc.) derives from `sentinel_name`, not a hardcoded literal, regardless of how many sentinels the test stages. The cleanup may key on `id`, but two overlapping runs must never write the same literal value into the operator's Mealie, and a single-sentinel test collides just as a multi-sentinel one does. Structural fields like dates, enum slots, and foreign-key ids do not need to derive from `sentinel_name`; they identify the entry, not the run that wrote it.
+
+Staging may call the generated client directly when no tool covers the setup an assertion needs, for example creating a second household or a multi-purpose label. The sentinel and cleanup rules apply the same way.
 
 ## Behavioural assertions, not smoke checks
 
@@ -36,6 +38,8 @@ One-field seeding lets the bug class slip through.
 Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block, so it executes when the test body fails.
 
 Cleanup calls in `finally` blocks suppress their own exceptions, e.g. `with contextlib.suppress(ToolError): recipe_crud.delete_recipe(...)`. `contextlib` is stdlib; `ToolError` is `fastmcp.exceptions.ToolError`. A raised cleanup error masks the real test failure with a misleading traceback.
+
+A raw `sync_detailed` cleanup does not raise on a non-2xx status; the generated client returns the error response rather than raising, so a bare `sync_detailed(...)` in `finally` ignores whether the delete succeeded and `contextlib.suppress(httpx.HTTPError)` around it suppresses nothing. Route the raw call through `expect_dict` (or the matching `expect_*`) so a failed cleanup surfaces, and wrap that in `contextlib.suppress(ToolError)` so it still cannot mask a body failure: `with contextlib.suppress(ToolError): expect_dict("delete_household", delete_one_...sync_detailed(...))`.
 
 For a lookup that must find an item, prefer `next((... for ... in ...), None)` with a following `assert ... is not None, f"<explanatory message>"` over a bare `next(...)`. If the lookup ever misses, the assertion names the missing item; a bare `next()` instead raises `StopIteration`, a confusing error that hides what was not found.
 
