@@ -37,7 +37,7 @@ class TestGetComment:
 
 class TestListComments:
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
             recipe_comments.list_comments(client, per_page=101)
 
     def test_rejects_bad_order_direction(self, client: AuthenticatedClient) -> None:

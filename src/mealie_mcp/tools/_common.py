@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from http import HTTPStatus
 from typing import Any
+from uuid import UUID
 
 from fastmcp.exceptions import ToolError
 
@@ -44,10 +45,20 @@ def require_non_empty(name: str, value: str) -> None:
 MAX_PER_PAGE = 100
 
 
-def require_per_page(per_page: int) -> None:
-    """Raise a `ToolError` if `per_page` exceeds the shared list-tool ceiling."""
-    if per_page > MAX_PER_PAGE:
-        raise ToolError(f"per_page must be <= {MAX_PER_PAGE} (got {per_page})")
+def require_pagination(page: int, per_page: int) -> None:
+    """Raise a `ToolError` if the pagination window is outside the supported range.
+
+    `per_page` is bounded to `1..MAX_PER_PAGE` on both sides. The ceiling caps
+    tool output size; the floor stops the two broken low values Mealie accepts,
+    `-1` (an unbounded "all rows" fetch that defeats the ceiling) and `0` (an
+    empty page). `page` is bounded to `>= 1` for the same reason: Mealie
+    silently coerces `0` to page 1 and reads a negative page as the last page,
+    so an out-of-range value returns a surprising result instead of an error.
+    """
+    if page < 1:
+        raise ToolError(f"page must be >= 1 (got {page})")
+    if per_page < 1 or per_page > MAX_PER_PAGE:
+        raise ToolError(f"per_page must be between 1 and {MAX_PER_PAGE} (got {per_page})")
 
 
 def to_unset[T](value: T | None) -> T | Unset:
@@ -71,6 +82,14 @@ def ack_delete(action: str, response: Response[Any], ack_id: str) -> dict[str, A
     if response.status_code != HTTPStatus.OK:
         raise_api_error(action, int(response.status_code), response.content)
     return {"id": ack_id, "deleted": True}
+
+
+def parse_recipe_uuid(value: str) -> UUID:
+    """Parse a recipe id into a UUID or raise `ToolError`."""
+    try:
+        return UUID(value)
+    except ValueError as exc:
+        raise ToolError(f"recipe_id must be a recipe UUID: {exc}") from exc
 
 
 def parse_order_direction(value: str | None) -> OrderDirection | Unset:

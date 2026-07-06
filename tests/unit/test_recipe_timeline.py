@@ -12,6 +12,8 @@ from fastmcp.exceptions import ToolError
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.tools import recipe_timeline
 
+RECIPE_UUID = "11111111-1111-1111-1111-111111111111"
+
 
 @pytest.fixture
 def client() -> AuthenticatedClient:
@@ -24,15 +26,19 @@ class TestListRecipeTimelineEvents:
         with pytest.raises(ToolError, match="recipe_id must be a non-empty string"):
             recipe_timeline.list_recipe_timeline_events(client, recipe_id="")
 
+    def test_rejects_non_uuid_recipe_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a recipe UUID"):
+            recipe_timeline.list_recipe_timeline_events(client, recipe_id='x" or true')
+
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
-            recipe_timeline.list_recipe_timeline_events(client, recipe_id="abc", per_page=101)
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
+            recipe_timeline.list_recipe_timeline_events(client, recipe_id=RECIPE_UUID, per_page=101)
 
     def test_rejects_bad_order_direction(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
             recipe_timeline.list_recipe_timeline_events(
                 client,
-                recipe_id="abc",
+                recipe_id=RECIPE_UUID,
                 order_direction="sideways",
             )
 

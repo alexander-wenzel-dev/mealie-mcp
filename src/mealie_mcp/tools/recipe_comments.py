@@ -29,7 +29,7 @@ from mealie_mcp.tools._common import (
     expect_list,
     parse_order_direction,
     require_non_empty,
-    require_per_page,
+    require_pagination,
     to_unset,
 )
 
@@ -61,7 +61,7 @@ def list_comments(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List all comments across recipes, paginated. Returns the page payload."""
-    require_per_page(per_page)
+    require_pagination(page, per_page)
     response = get_all_api_comments_get.sync_detailed(
         client=client,
         page=page,
@@ -140,7 +140,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Args:
             page: 1-indexed page number. Defaults to 1.
-            per_page: Page size. Defaults to 50. Capped at 100.
+            per_page: Page size, 1 to 100. Defaults to 50.
             order_by: Optional column name to sort on (e.g. ``"createdAt"``).
             order_direction: ``"asc"`` or ``"desc"``.
 

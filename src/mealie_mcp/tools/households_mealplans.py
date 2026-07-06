@@ -33,7 +33,8 @@ from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     parse_order_direction,
-    require_per_page,
+    parse_recipe_uuid,
+    require_pagination,
     to_unset,
 )
 
@@ -68,10 +69,7 @@ def _parse_recipe_id(value: str | None) -> UUID | Unset:
     """Parse an optional recipe UUID string into a UUID or UNSET."""
     if value is None:
         return UNSET
-    try:
-        return UUID(value)
-    except ValueError as exc:
-        raise ToolError(f"recipe_id must be a recipe UUID: {exc}") from exc
+    return parse_recipe_uuid(value)
 
 
 def list_mealplans(
@@ -84,7 +82,7 @@ def list_mealplans(
     order_direction: Literal["asc", "desc"] | None = None,
 ) -> dict[str, Any]:
     """List meal plan entries, paginated and optionally date-range filtered."""
-    require_per_page(per_page)
+    require_pagination(page, per_page)
     response = get_all_api_households_mealplans_get.sync_detailed(
         client=client,
         page=page,
@@ -190,7 +188,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Args:
             page: 1-indexed page number. Defaults to 1.
-            per_page: Page size. Defaults to 50. Capped at 100.
+            per_page: Page size, 1 to 100. Defaults to 50.
             start_date: Optional inclusive lower bound as ``YYYY-MM-DD``.
             end_date: Optional inclusive upper bound as ``YYYY-MM-DD``.
             order_by: Optional column name to sort on (e.g. ``"date"``).

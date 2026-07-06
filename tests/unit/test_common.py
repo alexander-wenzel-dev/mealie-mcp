@@ -18,9 +18,10 @@ from mealie_mcp.tools._common import (
     expect_list,
     expect_str,
     parse_order_direction,
+    parse_recipe_uuid,
     raise_api_error,
     require_non_empty,
-    require_per_page,
+    require_pagination,
     to_unset,
 )
 
@@ -94,16 +95,42 @@ class TestRequireNonEmpty:
         require_non_empty("name", "x")
 
 
-class TestRequirePerPage:
-    def test_accepts_value_at_max(self) -> None:
-        require_per_page(MAX_PER_PAGE)
+class TestRequirePagination:
+    def test_accepts_per_page_at_max(self) -> None:
+        require_pagination(1, MAX_PER_PAGE)
 
-    def test_accepts_value_below_max(self) -> None:
-        require_per_page(1)
+    def test_accepts_per_page_at_floor(self) -> None:
+        require_pagination(1, 1)
 
-    def test_rejects_value_above_max(self) -> None:
-        with pytest.raises(ToolError, match=rf"per_page must be <= {MAX_PER_PAGE} \(got 250\)"):
-            require_per_page(250)
+    def test_rejects_per_page_above_max(self) -> None:
+        with pytest.raises(
+            ToolError, match=rf"per_page must be between 1 and {MAX_PER_PAGE} \(got 250\)"
+        ):
+            require_pagination(1, 250)
+
+    @pytest.mark.parametrize("per_page", [0, -1])
+    def test_rejects_per_page_below_floor(self, per_page: int) -> None:
+        with pytest.raises(
+            ToolError, match=rf"per_page must be between 1 and {MAX_PER_PAGE} \(got {per_page}\)"
+        ):
+            require_pagination(1, per_page)
+
+    @pytest.mark.parametrize("page", [0, -1])
+    def test_rejects_page_below_one(self, page: int) -> None:
+        with pytest.raises(ToolError, match=rf"page must be >= 1 \(got {page}\)"):
+            require_pagination(page, 50)
+
+
+class TestParseRecipeUuid:
+    def test_parses_valid_uuid(self) -> None:
+        assert (
+            str(parse_recipe_uuid("11111111-1111-1111-1111-111111111111"))
+            == "11111111-1111-1111-1111-111111111111"
+        )
+
+    def test_rejects_non_uuid(self) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a recipe UUID"):
+            parse_recipe_uuid('x" or true')
 
 
 class TestExpectDict:
