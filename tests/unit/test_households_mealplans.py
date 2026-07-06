@@ -21,7 +21,7 @@ def client() -> AuthenticatedClient:
 
 class TestListMealplans:
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
             households_mealplans.list_mealplans(client, per_page=101)
 
     def test_rejects_malformed_start_date(self, client: AuthenticatedClient) -> None:

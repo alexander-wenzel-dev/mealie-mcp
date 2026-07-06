@@ -21,7 +21,7 @@ def client() -> AuthenticatedClient:
 
 class TestListFoods:
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
             recipes_foods.list_foods(client, per_page=101)
 
 

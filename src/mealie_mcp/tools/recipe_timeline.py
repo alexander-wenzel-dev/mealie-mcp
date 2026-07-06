@@ -33,8 +33,9 @@ from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     parse_order_direction,
+    parse_recipe_uuid,
     require_non_empty,
-    require_per_page,
+    require_pagination,
     to_unset,
 )
 
@@ -71,11 +72,14 @@ def list_recipe_timeline_events(
 ) -> dict[str, Any]:
     """List a recipe's timeline events, paginated. Returns the pagination envelope."""
     require_non_empty("recipe_id", recipe_id)
-    require_per_page(per_page)
+    # UUID-parse before interpolating so a caller value carrying a quote or a
+    # DSL operator cannot alter the parsed queryFilter expression.
+    recipe_uuid = parse_recipe_uuid(recipe_id)
+    require_pagination(page, per_page)
 
     response = get_all_api_recipes_timeline_events_get.sync_detailed(
         client=client,
-        query_filter=f'recipe_id="{recipe_id}"',
+        query_filter=f'recipe_id="{recipe_uuid}"',
         page=page,
         per_page=per_page,
         order_by=to_unset(order_by),
@@ -184,7 +188,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Args:
             recipe_id: UUID of the recipe whose events to list.
             page: 1-indexed page number. Defaults to 1.
-            per_page: Page size. Defaults to 50. Capped at 100.
+            per_page: Page size, 1 to 100. Defaults to 50.
             order_by: Optional column name to sort on (e.g. ``"timestamp"``).
             order_direction: ``"asc"`` or ``"desc"``.
 

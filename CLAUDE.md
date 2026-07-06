@@ -132,7 +132,7 @@ Review is CI's job. Do not spawn a review agent locally before pushing. Running 
 
 - Each MCP tool is a typed module-level function plus a thin `@mcp.tool()` wrapper inside a `register(mcp, get_client)` function. The typed function is the testable unit; the wrapper calls `get_client()` and forwards.
 - Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. Test files mirror the same grouping under `tests/unit/` and `tests/live/`. `register_all` auto-discovers a new module.
-- Shared helpers in `src/mealie_mcp/tools/_common.py` cover validation (`require_non_empty`, `require_per_page`), optional-argument translation (`to_unset`, `parse_order_direction`), response decoding (`expect_dict`, `expect_list`, `expect_str`, plus the lower-level `decode` and `raise_api_error`), and the delete contract (`ack_delete`). Do not re-implement these inline.
+- Shared helpers in `src/mealie_mcp/tools/_common.py` cover validation (`require_non_empty`, `require_pagination`, `parse_recipe_uuid`), optional-argument translation (`to_unset`, `parse_order_direction`), response decoding (`expect_dict`, `expect_list`, `expect_str`, plus the lower-level `decode` and `raise_api_error`), and the delete contract (`ack_delete`). Do not re-implement these inline.
 
 The detailed implementation rubric lives in `.claude/rules/tools.md` and loads on demand when files under `src/mealie_mcp/tools/` are read.
 

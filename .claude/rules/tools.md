@@ -47,13 +47,17 @@ Optional caller arguments translate to the generated client's `UNSET` sentinel v
 
 ## List tools
 
-A paginated list tool follows a fixed shape: default `page=1, per_page=50`, call `require_per_page(per_page)` first (the shared ceiling is 100), forward optional `order_by` through `to_unset` and `order_direction` through `parse_order_direction`, and return the raw pagination envelope via `expect_dict`. See `list_shopping_lists` in `households_shopping_lists.py`.
+A paginated list tool follows a fixed shape: default `page=1, per_page=50`, call `require_pagination(page, per_page)` first, forward optional `order_by` through `to_unset` and `order_direction` through `parse_order_direction`, and return the raw pagination envelope via `expect_dict`. See `list_shopping_lists` in `households_shopping_lists.py`.
+
+The pagination bound is two-sided, and its job is bounding tool output size, not server politeness. `per_page` is held to `1..100`: the ceiling caps how much a single call returns, and the floor rejects the two low values Mealie mishandles, `-1` (an unbounded "all rows" fetch that defeats the ceiling) and `0` (an empty page). `page` is held to `>= 1`, since Mealie silently coerces `0` to page 1 and reads a negative page as the last page, so an out-of-range value returns a surprising result rather than an error.
 
 ## Scoping a list
 
 Do not expose Mealie's generic `queryFilter` expression as a list-scoping input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it. When such a parameter is an opaque key, a slug or an id rather than a display name, the docstring says so, since a display name silently returns no matches.
 
 The rule is scoped to list-scoping inputs. When the filter DSL is the resource's own persisted field rather than a parameter that narrows a result set, exposing it verbatim is correct: `create_cookbook` and `update_cookbook` in `households_cookbooks.py` take `query_filter_string` directly, because a cookbook stores that string as its own definition.
+
+When a tool interpolates a value into a `queryFilter` it builds internally, that value must first be validated to a shape that cannot alter the expression: UUID-parse ids, never interpolate free text. A value carrying a quote or a DSL operator would otherwise change the parsed filter. `list_recipe_timeline_events` UUID-parses `recipe_id` before interpolating it.
 
 ## Building a body from caller input
 
@@ -71,7 +75,7 @@ Some write endpoints return no useful body, for example setting a rating or addi
 
 Tool modules are grouped by Mealie OpenAPI tag, one module per group, mirroring `mealie_mcp.client.api`. Tool names follow `mealie_<verb>_<noun>`. A new tool group is a single new file with a `register(mcp, get_client)` callable; `register_all` auto-discovers it.
 
-A non-underscore module that defines no `register` callable is rejected: `_iter_tool_modules` raises rather than skipping it, so a group whose tools would never be exposed fails boot instead of vanishing behind a green merge gate. The per-group `call_tool` round-trip (see the live-test rubric) doubles as the registration check for a wired group: it fails if the group's tools are not registered. Together they mean a missing or misnamed `register` cannot ship silently, so a group needs no separate name-presence assertion against `mcp.list_tools()`.
+A non-underscore module that defines no `register` callable is rejected: `_require_register` raises rather than skipping it, so a group whose tools would never be exposed fails boot instead of vanishing behind a green merge gate. The per-group `call_tool` round-trip (see the live-test rubric) doubles as the registration check for a wired group: it fails if the group's tools are not registered. Together they mean a missing or misnamed `register` cannot ship silently, so a group needs no separate name-presence assertion against `mcp.list_tools()`.
 
 ## Update bodies
 

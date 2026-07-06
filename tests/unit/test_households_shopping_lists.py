@@ -22,7 +22,7 @@ def client() -> AuthenticatedClient:
 
 class TestListShoppingLists:
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match=r"per_page must be <= 100 \(got 101\)"):
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
             households_shopping_lists.list_shopping_lists(client, per_page=101)
 
 
