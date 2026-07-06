@@ -32,15 +32,38 @@ from mealie_mcp.tools._common import (
     require_non_empty,
 )
 
+RATING_MIN = 0.0
+RATING_MAX = 5.0
+
+_user_id_by_token: dict[str, str] = {}
+
 
 def _current_user_id(client: AuthenticatedClient) -> str:
-    """Resolve the acting user's id from the authenticated token."""
+    """Resolve the acting user's id from the authenticated token.
+
+    The id is stable for the token's life, so it is cached per token to spare a
+    ``GET /api/users/self`` on every rating and favorite call.
+    """
+    cached = _user_id_by_token.get(client.token)
+    if cached is not None:
+        return cached
     response = get_logged_in_user_api_users_self_get.sync_detailed(client=client)
     user = expect_dict("resolve current user", response)
     user_id = user.get("id")
     if not isinstance(user_id, str) or not user_id:
         raise ToolError("Could not resolve the current user id from Mealie")
+    _user_id_by_token[client.token] = user_id
     return user_id
+
+
+def _require_rating_in_range(rating: float) -> None:
+    """Raise a `ToolError` if a rating is outside Mealie's ``0..5`` convention.
+
+    Mealie stores whatever float it is sent, so an out-of-range value silently
+    corrupts the user's ratings rather than being rejected.
+    """
+    if not RATING_MIN <= rating <= RATING_MAX:
+        raise ToolError(f"rating must be between {RATING_MIN:g} and {RATING_MAX:g} (got {rating})")
 
 
 def _ratings_list(action: str, response: Any) -> list[Any]:
@@ -55,6 +78,7 @@ def _ratings_list(action: str, response: Any) -> list[Any]:
 def set_recipe_rating(client: AuthenticatedClient, slug: str, rating: float) -> dict[str, Any]:
     """Set the acting user's rating for a recipe. Returns a confirmation."""
     require_non_empty("slug", slug)
+    _require_rating_in_range(rating)
 
     user_id = _current_user_id(client)
     response = set_rating_api_users_id_ratings_slug_post.sync_detailed(
@@ -112,7 +136,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Args:
             slug: Recipe slug.
-            rating: Numeric rating to store for the recipe.
+            rating: Rating from 0 to 5 to store for the recipe.
 
         Returns:
             A confirmation ``{"slug": <slug>, "rating": <rating>}``.
