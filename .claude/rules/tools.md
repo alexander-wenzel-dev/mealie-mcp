@@ -53,7 +53,7 @@ The pagination bound is two-sided, and its job is bounding tool output size, not
 
 ## Scoping a list
 
-Do not expose Mealie's generic `queryFilter` expression as a list-scoping input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it. When such a parameter is an opaque key, a slug or an id rather than a display name, the docstring says so, since a display name silently returns no matches.
+Do not expose Mealie's generic `queryFilter` expression as a list-scoping input. It is an untyped filter string, error prone for an assistant to build and a poor fit for typed tool inputs. Scope a list with explicit typed parameters instead, and build the `queryFilter` internally if the endpoint needs one. The recipe timeline list, for example, takes a typed `recipe_id` and builds the filter from it.
 
 The rule is scoped to list-scoping inputs. When the filter DSL is the resource's own persisted field rather than a parameter that narrows a result set, exposing it verbatim is correct: `create_cookbook` and `update_cookbook` in `households_cookbooks.py` take `query_filter_string` directly, because a cookbook stores that string as its own definition.
 
@@ -83,7 +83,7 @@ An update tool's body shape depends on the endpoint's HTTP method and on whether
 
 1. PATCH endpoint means a sparse body is correct. A PATCH applies only the fields present, so send just the caller's edits with no prefetch. `update_recipe` in `recipe_crud.py` builds a `Recipe` from the supplied fields alone and PATCHes it.
 
-2. PUT endpoint where every field of the update model is a tool input means a sparse body with no prefetch. Construct the body directly from the arguments. `update_tag` (`organizer_tags.py`), `update_category` (`organizer_categories.py`), and `update_comment` (`recipe_comments.py`) each send a small model built from their arguments.
+2. PUT endpoint where every field of the update model is a tool input means a sparse body with no prefetch. Construct the body directly from the arguments. `update_tag` in `organizer_tags.py` is the exemplar: a small model built from its arguments.
 
 3. PUT endpoint where the update model has fields the tool does not expose means fetch-then-merge. A PUT replaces the resource: any field absent from the body resets to its schema default on the server, so send the full current resource with the caller's edits applied, never a sparse body. Two constructions:
    - `from_dict` merge when the model can absorb the fetched resource, as in `update_shopping_list` (`households_shopping_lists.py`).
