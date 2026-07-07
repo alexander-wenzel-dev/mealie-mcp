@@ -40,6 +40,10 @@ class TestCreateUnit:
         with pytest.raises(ToolError, match="name must be a non-empty string"):
             recipes_units.create_unit(client, name="   ")
 
+    def test_rejects_blank_alias(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="aliases entry must be a non-empty string"):
+            recipes_units.create_unit(client, name="tablespoon", aliases=["ok", "   "])
+
 
 class TestUpdateUnit:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
@@ -49,6 +53,14 @@ class TestUpdateUnit:
     def test_rejects_empty_name(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="name must be a non-empty string"):
             recipes_units.update_unit(client, item_id="abc", name="")
+
+    def test_rejects_call_without_fields(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="update_unit requires at least one field to update"):
+            recipes_units.update_unit(client, item_id="abc")
+
+    def test_rejects_blank_alias(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="aliases entry must be a non-empty string"):
+            recipes_units.update_unit(client, item_id="abc", aliases=[""])
 
 
 class TestDeleteUnit:
