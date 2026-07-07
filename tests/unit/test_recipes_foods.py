@@ -40,6 +40,10 @@ class TestCreateFood:
         with pytest.raises(ToolError, match="name must be a non-empty string"):
             recipes_foods.create_food(client, name="   ")
 
+    def test_rejects_blank_alias(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="aliases entry must be a non-empty string"):
+            recipes_foods.create_food(client, name="butter", aliases=["ok", "   "])
+
 
 class TestUpdateFood:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
@@ -49,6 +53,14 @@ class TestUpdateFood:
     def test_rejects_empty_name(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="name must be a non-empty string"):
             recipes_foods.update_food(client, item_id="abc", name="")
+
+    def test_rejects_call_without_fields(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="update_food requires at least one field to update"):
+            recipes_foods.update_food(client, item_id="abc")
+
+    def test_rejects_blank_alias(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="aliases entry must be a non-empty string"):
+            recipes_foods.update_food(client, item_id="abc", aliases=[""])
 
 
 class TestDeleteFood:
