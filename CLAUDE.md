@@ -16,7 +16,7 @@ YAGNI and KISS. Build what the task requires now. Resist abstractions, configura
 
 ## Writing style
 
-Committed prose uses simple technical English, short sentences, and no em dashes. Code comments and docstrings describe behaviour or a non-obvious why. They do not restate durable rules from this file, name this file, or reference the current task.
+Committed prose uses simple technical English, short sentences, and no em dashes. The same holds for any pull request or issue comment you write. Code comments and docstrings describe behaviour or a non-obvious why. They do not restate durable rules from this file, name this file, or reference the current task.
 
 Names for tests, modules, functions, and sections describe what the thing is or verifies, not the procedure or the current task's framing. A name should still read correctly when the original context is gone.
 
@@ -153,7 +153,7 @@ Never commit `.env` or any file that contains real tokens, hostnames, IPs, or us
 
 ## Branches, commits, and PRs
 
-Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. Commit in small steps and keep generated artifacts isolated in their own commit.
+Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. A commit message states what the change leaves behind, not the in-branch journey to it. When you amend or rebuild, write it as if it were the first commit, with no review-fix narration. Commit in small steps and keep generated artifacts isolated in their own commit.
 
 Push as soon as the merge-gate checks are green. The PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". The body contract binds when the PR is marked ready for review.
 
