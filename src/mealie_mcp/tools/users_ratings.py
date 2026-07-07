@@ -24,6 +24,7 @@ from mealie_mcp.client.api.users_ratings import (
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.user_rating_update import UserRatingUpdate
+from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -66,7 +67,7 @@ def _require_rating_in_range(rating: float) -> None:
         raise ToolError(f"rating must be between {RATING_MIN:g} and {RATING_MAX:g} (got {rating})")
 
 
-def _ratings_list(action: str, response: Any) -> list[Any]:
+def _ratings_list(action: str, response: Response[Any]) -> list[Any]:
     """Pull the ``ratings`` array out of a user-rating collection envelope."""
     payload = expect_dict(action, response)
     ratings = payload.get("ratings")

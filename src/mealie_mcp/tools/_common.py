@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Never
 from uuid import UUID
 
 from fastmcp.exceptions import ToolError
@@ -23,7 +23,7 @@ def decode(content: bytes) -> Any:
         return content.decode("utf-8", errors="replace")
 
 
-def raise_api_error(action: str, status: int, content: bytes) -> None:
+def raise_api_error(action: str, status: int, content: bytes) -> Never:
     """Raise a `ToolError` that preserves the Mealie error message."""
     body = decode(content)
     if isinstance(body, dict):
