@@ -48,3 +48,33 @@ def test_reset_client_drops_cached_instance() -> None:
     client_factory.reset_client()
     second = client_factory.get_client()
     assert first is not second
+
+
+class _RaisingClient:
+    """A context manager whose `__enter__` fails, standing in for a client
+    whose connection pool cannot be opened."""
+
+    def __enter__(self) -> _RaisingClient:
+        raise RuntimeError("enter boom")
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+
+@pytest.mark.usefixtures("stub_env")
+def test_failed_enter_leaves_cache_unset_and_recovers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_build = client_factory.build_client
+    monkeypatch.setattr(client_factory, "build_client", _RaisingClient)
+
+    with pytest.raises(RuntimeError, match="enter boom"):
+        client_factory.get_client()
+
+    # A failed enter must not cache a half-open client, so the next call can
+    # build a fresh one instead of handing back a broken singleton.
+    assert client_factory._cache.client is None
+    assert client_factory._cache.stack is None
+
+    monkeypatch.setattr(client_factory, "build_client", real_build)
+    assert isinstance(client_factory.get_client(), AuthenticatedClient)
