@@ -24,6 +24,7 @@ from mealie_mcp.client.api.households_shopping_list_items import (
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.shopping_list_item_create import ShoppingListItemCreate
 from mealie_mcp.client.models.shopping_list_item_update import ShoppingListItemUpdate
+from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -35,7 +36,7 @@ from mealie_mcp.tools._common import (
 )
 
 
-def _single_item(action: str, response: Any, key: str) -> dict[str, Any]:
+def _single_item(action: str, response: Response[Any], key: str) -> dict[str, Any]:
     """Pull the one changed item out of a bulk-collection response.
 
     The create and update endpoints return a `ShoppingListItemsCollectionOut`
