@@ -11,7 +11,7 @@ from __future__ import annotations
 import atexit
 import threading
 from collections.abc import Callable
-from contextlib import suppress
+from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 
 import httpx
@@ -21,13 +21,14 @@ from mealie_mcp.config import load_config
 
 DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=5.0)
 
-ClientProvider = Callable[[], AuthenticatedClient]
+type ClientProvider = Callable[[], AuthenticatedClient]
 """A callable that returns the AuthenticatedClient to use for a tool call."""
 
 
 @dataclass
 class _Cache:
     client: AuthenticatedClient | None = None
+    stack: ExitStack | None = None
 
 
 _cache = _Cache()
@@ -53,13 +54,9 @@ def get_client() -> AuthenticatedClient:
         return _cache.client
     with _lock:
         if _cache.client is None:
-            client = build_client()
-            try:
-                client.__enter__()
-            except BaseException:
-                with suppress(Exception):
-                    client.__exit__(None, None, None)
-                raise
+            stack = ExitStack()
+            client = stack.enter_context(build_client())
+            _cache.stack = stack
             _cache.client = client
             atexit.register(_shutdown)
     return _cache.client
@@ -77,9 +74,10 @@ def reset_client() -> None:
 
 def _shutdown() -> None:
     with _lock:
-        client = _cache.client
-        if client is None:
+        stack = _cache.stack
+        if stack is None:
             return
         _cache.client = None
+        _cache.stack = None
     with suppress(Exception):
-        client.__exit__(None, None, None)
+        stack.close()
