@@ -18,7 +18,7 @@ from fastmcp import FastMCP
 
 from mealie_mcp.client_factory import ClientProvider
 
-Register = Callable[[FastMCP, ClientProvider], None]
+type Register = Callable[[FastMCP, ClientProvider], None]
 
 
 def _require_register(module: ModuleType) -> Register:
