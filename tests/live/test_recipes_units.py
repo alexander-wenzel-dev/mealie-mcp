@@ -8,7 +8,7 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -144,6 +144,40 @@ def test_unit_lifecycle(mealie_client: AuthenticatedClient, created_unit: dict[s
 
     with pytest.raises(ToolError, match=r"Mealie get_unit failed \(404"):
         recipes_units.get_unit(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("mealie_client")
+def test_create_unit_round_trips_fields_through_wrapper(
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """The wrapper forwards the descriptive fields, booleans, and aliases."""
+    created = call_tool(
+        "mealie_create_unit",
+        {
+            "name": sentinel_name,
+            "abbreviation": f"{sentinel_name}-abbr",
+            "plural_name": f"{sentinel_name}-plural",
+            "plural_abbreviation": f"{sentinel_name}-plural-abbr",
+            "use_abbreviation": True,
+            "fraction": False,
+            "aliases": [f"{sentinel_name}-alias"],
+        },
+    )
+    assert isinstance(created, dict)
+    item_id = str(created["id"])
+    try:
+        assert created["name"] == sentinel_name
+        assert created["abbreviation"] == f"{sentinel_name}-abbr"
+        assert created["pluralName"] == f"{sentinel_name}-plural"
+        assert created["pluralAbbreviation"] == f"{sentinel_name}-plural-abbr"
+        assert created["useAbbreviation"] is True
+        assert created["fraction"] is False
+        assert [alias["name"] for alias in created["aliases"]] == [f"{sentinel_name}-alias"]
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_unit", {"item_id": item_id})
 
 
 @pytest.mark.live

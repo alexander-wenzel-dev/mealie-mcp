@@ -223,8 +223,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Args:
             item_id: UUID of the food to update.
             name: New name. Must be non-empty when given.
-            plural_name: New plural form of the name.
-            description: New free-text description.
+            plural_name: New plural form of the name. Pass an empty string to
+                clear it.
+            description: New free-text description. Pass an empty string to
+                clear it.
             aliases: Replacement list of alternative names. Replaces the
                 whole list; pass an empty list to clear all aliases.
 

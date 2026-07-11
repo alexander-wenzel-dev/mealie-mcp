@@ -8,9 +8,7 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
-import json
-from collections.abc import Iterator
-from http import HTTPStatus
+from collections.abc import Callable, Iterator
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -44,8 +42,8 @@ def sentinel_label(mealie_client: AuthenticatedClient, sentinel_name: str) -> It
         client=mealie_client,
         body=MultiPurposeLabelCreate(name=f"{sentinel_name}-label"),
     )
-    assert response.status_code == HTTPStatus.OK, response.content
-    label_id = str(json.loads(response.content)["id"])
+    label = expect_dict("create_label", response)
+    label_id = str(label["id"])
     try:
         yield label_id
     finally:
@@ -161,6 +159,34 @@ def test_food_lifecycle(mealie_client: AuthenticatedClient, created_food: dict[s
 
     with pytest.raises(ToolError, match=r"Mealie get_food failed \(404"):
         recipes_foods.get_food(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("mealie_client")
+def test_create_food_round_trips_fields_through_wrapper(
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """The wrapper forwards the descriptive fields and aliases to the tool."""
+    created = call_tool(
+        "mealie_create_food",
+        {
+            "name": sentinel_name,
+            "plural_name": f"{sentinel_name}-plural",
+            "description": f"{sentinel_name}-description",
+            "aliases": [f"{sentinel_name}-alias"],
+        },
+    )
+    assert isinstance(created, dict)
+    item_id = str(created["id"])
+    try:
+        assert created["name"] == sentinel_name
+        assert created["pluralName"] == f"{sentinel_name}-plural"
+        assert created["description"] == f"{sentinel_name}-description"
+        assert [alias["name"] for alias in created["aliases"]] == [f"{sentinel_name}-alias"]
+    finally:
+        with contextlib.suppress(ToolError):
+            call_tool("mealie_delete_food", {"item_id": item_id})
 
 
 @pytest.mark.live

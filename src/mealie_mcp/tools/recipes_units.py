@@ -258,9 +258,12 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Args:
             item_id: UUID of the unit to update.
             name: New name. Must be non-empty when given.
-            abbreviation: New short form, for example ``tbsp``.
-            plural_name: New plural form of the name.
-            plural_abbreviation: New plural short form.
+            abbreviation: New short form, for example ``tbsp``. Pass an empty
+                string to clear it.
+            plural_name: New plural form of the name. Pass an empty string to
+                clear it.
+            plural_abbreviation: New plural short form. Pass an empty string to
+                clear it.
             use_abbreviation: Display the abbreviation instead of the name.
             fraction: Display quantities of this unit as fractions.
             aliases: Replacement list of alternative names. Replaces the
