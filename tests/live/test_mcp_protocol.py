@@ -82,8 +82,6 @@ NAME_ONLY_GROUPS = [
     ("mealie_create_tag", "mealie_delete_tag", "item_id"),
     ("mealie_create_category", "mealie_delete_category", "item_id"),
     ("mealie_create_tool", "mealie_delete_tool", "item_id"),
-    ("mealie_create_food", "mealie_delete_food", "item_id"),
-    ("mealie_create_unit", "mealie_delete_unit", "item_id"),
     ("mealie_create_shopping_list", "mealie_delete_shopping_list", "list_id"),
 ]
 
