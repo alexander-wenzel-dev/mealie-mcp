@@ -14,7 +14,7 @@ import pytest
 from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.tools import organizer_categories
+from mealie_mcp.tools import organizer_categories, recipe_crud
 
 
 @pytest.fixture
@@ -62,3 +62,36 @@ def test_category_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_category failed \(404"):
         organizer_categories.get_category(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_empty_categories_drops_a_category_once_a_recipe_uses_it(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    category = organizer_categories.create_category(mealie_client, name=sentinel_name)
+    category_id = category["id"]
+    recipe_slug: str | None = None
+    try:
+        empty = organizer_categories.list_empty_categories(mealie_client)
+        assert isinstance(empty, list)
+        assert any(c["id"] == category_id for c in empty)
+
+        recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe_slug,
+            recipe_category=[
+                {"id": category_id, "name": category["name"], "slug": category["slug"]}
+            ],
+        )
+
+        assert all(
+            c["id"] != category_id
+            for c in organizer_categories.list_empty_categories(mealie_client)
+        )
+    finally:
+        if recipe_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
+        with contextlib.suppress(ToolError):
+            organizer_categories.delete_category(mealie_client, item_id=category_id)
