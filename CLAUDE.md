@@ -141,7 +141,7 @@ The detailed implementation rubric lives in `.claude/rules/tools.md` and loads o
 - Unit tests cover pure logic only. No HTTP, no mock transports. Per-tool unit tests cover input validation. Shared-helper behaviour is tested once in `tests/unit/test_common.py`. `tests/conftest.py` loads `.env` for the whole session.
 - Live tests are tagged `@pytest.mark.live`, use `mealie_client` and `sentinel_name` fixtures from `tests/live/conftest.py`, and follow sentinel staging with `try`/`finally` cleanup that runs even when the body fails.
 - Live assertions observe a behavioural difference (presence, absence, value change, ordering shift). "No 422" is a smoke check, not a test. If a parameter cannot be exercised against an observable effect, defer it and record why in the PR Risks.
-- Every new tool ships with at least one unit test and at least one live test. Failing live tests are not silenced or `xfail`ed to ship.
+- Every new tool ships with at least one live test, and a unit test where it has pure logic to cover. Failing live tests are not silenced or `xfail`ed to ship.
 
 The detailed live-test rubric lives in `.claude/rules/live-tests.md` and loads on demand when files under `tests/live/` are read.
 

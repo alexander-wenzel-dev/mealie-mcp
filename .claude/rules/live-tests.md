@@ -47,7 +47,7 @@ After any live-test failure, the operator confirms no `mcp-test-` data remains a
 
 ## Coverage per tool
 
-Every new tool ships with at least one unit test and at least one live test. A diff that adds a tool without a live test is a deviation.
+Every new tool ships with at least one live test. A diff that adds a tool without a live test is a deviation.
 
 ## Wrapper round-trip per group
 
