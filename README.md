@@ -90,7 +90,7 @@ The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added
 | `recipes_units`                  | Create, read, list, update, and delete ingredient units.                                                               |
 | `households_mealplans`           | Create, read, list, update, and delete meal plan entries.                                                              |
 | `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients.                       |
-| `households_shopping_list_items` | Add, update, and delete shopping list items.                                                                           |
+| `households_shopping_list_items` | List, add, update, and delete shopping list items.                                                                     |
 | `users_ratings`                  | List a user's ratings and favorites, set a recipe rating, and add or remove favorites.                                 |
 
 </details>

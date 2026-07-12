@@ -20,6 +20,18 @@ def client() -> AuthenticatedClient:
     return AuthenticatedClient(base_url="https://mealie.example.com", token="t")
 
 
+class TestListShoppingListItems:
+    def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"per_page must be between 1 and 100 \(got 101\)"):
+            households_shopping_list_items.list_shopping_list_items(client, per_page=101)
+
+    def test_rejects_invalid_order_direction(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="order_direction must be 'asc' or 'desc'"):
+            households_shopping_list_items.list_shopping_list_items(
+                client, order_direction="sideways"
+            )
+
+
 class TestAddShoppingListItem:
     def test_rejects_blank_shopping_list_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="shopping_list_id must be a non-empty string"):

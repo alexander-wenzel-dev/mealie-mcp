@@ -1,16 +1,16 @@
 """Household shopping list item tools.
 
 Mirrors `mealie_mcp.client.api.households_shopping_list_items`. Exposes the
-per-item lifecycle on a shopping list: add a free-text item, update an item
-(toggle checked, edit quantity or note), and remove an item. Bulk operations
-and recipe-derived items are out of scope. The lists themselves live in
-`households_shopping_lists`.
+per-item lifecycle on a shopping list: list items across the household's
+lists, add a free-text item, update an item (toggle checked, edit quantity or
+note), and remove an item. Bulk operations and recipe-derived items are out of
+scope. The lists themselves live in `households_shopping_lists`.
 """
 
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
@@ -18,6 +18,7 @@ from fastmcp.exceptions import ToolError
 from mealie_mcp.client.api.households_shopping_list_items import (
     create_one_api_households_shopping_items_post,
     delete_one_api_households_shopping_items_item_id_delete,
+    get_all_api_households_shopping_items_get,
     get_one_api_households_shopping_items_item_id_get,
     update_one_api_households_shopping_items_item_id_put,
 )
@@ -30,8 +31,10 @@ from mealie_mcp.tools._common import (
     ack_delete,
     decode,
     expect_dict,
+    parse_order_direction,
     raise_api_error,
     require_non_empty,
+    require_pagination,
     to_unset,
 )
 
@@ -54,6 +57,25 @@ def _single_item(action: str, response: Response[Any], key: str) -> dict[str, An
     if not isinstance(item, dict):
         raise ToolError(f"Unexpected {action} item shape: {item!r}")
     return item
+
+
+def list_shopping_list_items(
+    client: AuthenticatedClient,
+    page: int = 1,
+    per_page: int = 50,
+    order_by: str | None = None,
+    order_direction: Literal["asc", "desc"] | None = None,
+) -> dict[str, Any]:
+    """List shopping list items across the household's lists, paginated."""
+    require_pagination(page, per_page)
+    response = get_all_api_households_shopping_items_get.sync_detailed(
+        client=client,
+        page=page,
+        per_page=per_page,
+        order_by=to_unset(order_by),
+        order_direction=parse_order_direction(order_direction),
+    )
+    return expect_dict("list_shopping_list_items", response)
 
 
 def add_shopping_list_item(
@@ -127,6 +149,35 @@ def delete_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the household shopping list item tools on the given FastMCP instance."""
+
+    @mcp.tool(name="mealie_list_shopping_list_items")
+    def _list_shopping_list_items(
+        page: int = 1,
+        per_page: int = 50,
+        order_by: str | None = None,
+        order_direction: Literal["asc", "desc"] | None = None,
+    ) -> dict[str, Any]:
+        """List shopping list items across all of the household's lists, paginated.
+
+        The items span every list in the household, not one list. To read the
+        items of a single list, use ``mealie_get_shopping_list`` instead.
+
+        Args:
+            page: 1-indexed page number. Defaults to 1.
+            per_page: Page size, 1 to 100. Defaults to 50.
+            order_by: Optional column name to sort on (e.g. ``"created_at"``).
+            order_direction: ``"asc"`` or ``"desc"``.
+
+        Returns:
+            A pagination envelope with ``items`` and pagination metadata.
+        """
+        return list_shopping_list_items(
+            get_client(),
+            page=page,
+            per_page=per_page,
+            order_by=order_by,
+            order_direction=order_direction,
+        )
 
     @mcp.tool(name="mealie_add_shopping_list_item")
     def _add_shopping_list_item(
