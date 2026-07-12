@@ -3,8 +3,9 @@
 Mirrors `mealie_mcp.client.api.households_shopping_list_items`. Exposes the
 per-item lifecycle on a shopping list: list items across the household's
 lists, add a free-text item, update an item (toggle checked, edit quantity or
-note), and remove an item. Bulk operations and recipe-derived items are out of
-scope. The lists themselves live in `households_shopping_lists`.
+note), remove an item, and delete several items in one call. Bulk create and
+bulk update, and recipe-derived items, are out of scope. The lists themselves
+live in `households_shopping_lists`.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.households_shopping_list_items import (
     create_one_api_households_shopping_items_post,
+    delete_many_api_households_shopping_items_delete,
     delete_one_api_households_shopping_items_item_id_delete,
     get_all_api_households_shopping_items_get,
     get_one_api_households_shopping_items_item_id_get,
@@ -29,6 +31,7 @@ from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
+    ack_delete_bulk,
     decode,
     expect_dict,
     parse_order_direction,
@@ -147,6 +150,25 @@ def delete_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict
     return ack_delete("delete_shopping_list_item", response, item_id)
 
 
+def delete_shopping_list_items_bulk(
+    client: AuthenticatedClient, item_ids: list[str]
+) -> dict[str, Any]:
+    """Delete several shopping list items in one call.
+
+    The endpoint returns a ``SuccessResponse`` envelope rather than a per-id
+    result, so the tool returns a canonical batch acknowledgement
+    ``{"ids": item_ids, "deleted": True}`` after verifying the 200 response.
+    """
+    if not item_ids:
+        raise ToolError("item_ids must contain at least one id")
+    for item_id in item_ids:
+        require_non_empty("item_id", item_id)
+    response = delete_many_api_households_shopping_items_delete.sync_detailed(
+        client=client, ids=item_ids
+    )
+    return ack_delete_bulk("delete_shopping_list_items_bulk", response, item_ids)
+
+
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the household shopping list item tools on the given FastMCP instance."""
 
@@ -247,3 +269,22 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_shopping_list_item(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_delete_shopping_list_items_bulk")
+    def _delete_shopping_list_items_bulk(item_ids: list[str]) -> dict[str, Any]:
+        """Delete several shopping list items in one call.
+
+        Deletes every item whose id is in ``item_ids`` with a single request,
+        rather than one request per item. The list must be non-empty and every
+        id non-blank. Mealie returns a success envelope, not a per-id result,
+        so the acknowledgement reflects the ids requested, not a confirmation
+        of each.
+
+        Args:
+            item_ids: UUIDs of the shopping list items to delete. Required,
+                non-empty, each id non-blank.
+
+        Returns:
+            A canonical batch acknowledgement ``{"ids": <item_ids>, "deleted": True}``.
+        """
+        return delete_shopping_list_items_bulk(get_client(), item_ids=item_ids)

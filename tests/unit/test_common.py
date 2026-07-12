@@ -13,6 +13,7 @@ from mealie_mcp.client.types import UNSET, Response
 from mealie_mcp.tools._common import (
     MAX_PER_PAGE,
     ack_delete,
+    ack_delete_bulk,
     decode,
     expect_dict,
     expect_list,
@@ -205,6 +206,26 @@ class TestAckDelete:
     def test_raises_on_non_ok(self) -> None:
         with pytest.raises(ToolError, match=r"Mealie delete_x failed \(404\)"):
             ack_delete("delete_x", _response(HTTPStatus.NOT_FOUND, b'{"detail": "nope"}'), "abc")
+
+
+class TestAckDeleteBulk:
+    def test_returns_canonical_batch_ack_on_ok(self) -> None:
+        assert ack_delete_bulk("delete_x", _response(HTTPStatus.OK, b""), ["a", "b"]) == {
+            "ids": ["a", "b"],
+            "deleted": True,
+        }
+
+    def test_ignores_response_body_shape(self) -> None:
+        assert ack_delete_bulk("delete_x", _response(HTTPStatus.OK, b'{"k": 1}'), ["a"]) == {
+            "ids": ["a"],
+            "deleted": True,
+        }
+
+    def test_raises_on_non_ok(self) -> None:
+        with pytest.raises(ToolError, match=r"Mealie delete_x failed \(404\)"):
+            ack_delete_bulk(
+                "delete_x", _response(HTTPStatus.NOT_FOUND, b'{"detail": "nope"}'), ["a"]
+            )
 
 
 class TestParseOrderDirection:
