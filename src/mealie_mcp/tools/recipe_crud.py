@@ -2,7 +2,8 @@
 
 Mirrors `mealie_mcp.client.api.recipe_crud`. Exposes the recipe lifecycle
 operations: list, create, read, duplicate, scrape from URL or raw payload,
-patch the last-made timestamp, edit fields, and delete.
+patch the last-made timestamp, edit fields, set or delete the title image,
+and delete.
 """
 
 from __future__ import annotations
@@ -18,11 +19,13 @@ from mealie_mcp.client.api.recipe_crud import (
     create_one_api_recipes_post,
     create_recipe_from_html_or_json_api_recipes_create_html_or_json_post,
     delete_one_api_recipes_slug_delete,
+    delete_recipe_image_api_recipes_slug_image_delete,
     duplicate_one_api_recipes_slug_duplicate_post,
     get_all_api_recipes_get,
     get_one_api_recipes_slug_get,
     parse_recipe_url_api_recipes_create_url_post,
     patch_one_api_recipes_slug_patch,
+    scrape_image_url_api_recipes_slug_image_post,
     suggest_recipes_api_recipes_suggestions_get,
     update_last_made_api_recipes_slug_last_made_patch,
 )
@@ -39,6 +42,7 @@ from mealie_mcp.tools._common import (
     expect_dict,
     expect_str,
     parse_order_direction,
+    raise_api_error,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -274,6 +278,35 @@ def create_recipe_from_html_or_json(
     )
     slug = expect_str("create_recipe_from_html_or_json", response, HTTPStatus.CREATED)
     return {"slug": slug}
+
+
+def set_recipe_image_from_url(
+    client: AuthenticatedClient, slug_or_id: str, url: str
+) -> dict[str, Any]:
+    """Set a recipe's title image from an image URL. Returns a confirmation.
+
+    Mealie fetches the image server-side and returns an empty body, so the
+    result echoes the inputs that identify the effect rather than a payload.
+    """
+    require_non_empty("slug_or_id", slug_or_id)
+    require_non_empty("url", url)
+
+    response = scrape_image_url_api_recipes_slug_image_post.sync_detailed(
+        slug_or_id, client=client, body=ScrapeRecipe(url=url)
+    )
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error("set_recipe_image_from_url", int(response.status_code), response.content)
+    return {"slug_or_id": slug_or_id, "image_set": True}
+
+
+def delete_recipe_image(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
+    """Delete a recipe's image. Returns ``{"id": slug_or_id, "deleted": True}``."""
+    require_non_empty("slug_or_id", slug_or_id)
+
+    response = delete_recipe_image_api_recipes_slug_image_delete.sync_detailed(
+        slug_or_id, client=client
+    )
+    return ack_delete("delete_recipe_image", response, slug_or_id)
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -574,3 +607,32 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             include_categories=include_categories,
             url=url,
         )
+
+    @mcp.tool(name="mealie_set_recipe_image_from_url")
+    def _set_recipe_image_from_url(slug_or_id: str, url: str) -> dict[str, Any]:
+        """Set a recipe's title image from an image URL.
+
+        Mealie fetches the image from ``url`` server-side, so the URL must point
+        at an image Mealie's instance can reach. This sets the recipe's own
+        title image; it does not scrape a recipe page.
+
+        Args:
+            slug_or_id: Recipe slug or UUID.
+            url: URL of an image Mealie can fetch.
+
+        Returns:
+            A confirmation ``{"slug_or_id": <slug_or_id>, "image_set": True}``.
+        """
+        return set_recipe_image_from_url(get_client(), slug_or_id=slug_or_id, url=url)
+
+    @mcp.tool(name="mealie_delete_recipe_image")
+    def _delete_recipe_image(slug_or_id: str) -> dict[str, Any]:
+        """Delete a recipe's title image in Mealie.
+
+        Args:
+            slug_or_id: Recipe slug or UUID.
+
+        Returns:
+            A canonical acknowledgement ``{"id": <slug_or_id>, "deleted": True}``.
+        """
+        return delete_recipe_image(get_client(), slug_or_id=slug_or_id)

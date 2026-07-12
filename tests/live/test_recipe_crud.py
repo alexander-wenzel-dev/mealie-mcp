@@ -10,6 +10,7 @@ from __future__ import annotations
 import contextlib
 import datetime as dt
 import json
+import os
 from collections.abc import Iterator
 
 import pytest
@@ -62,6 +63,17 @@ def created_recipe(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=created["slug"])
+
+
+@pytest.fixture
+def served_image_url() -> str:
+    """An image URL the Mealie instance serves itself.
+
+    Points at the instance's own PWA icon so the image-set path resolves
+    server-side without reaching any third party.
+    """
+    base = os.environ["MEALIE_BASE_URL"].rstrip("/")
+    return f"{base}/icons/android-chrome-512x512.png"
 
 
 @pytest.mark.live
@@ -224,6 +236,42 @@ def test_create_recipe_from_html_or_json(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
+def test_set_recipe_image_from_url_changes_image(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    served_image_url: str,
+) -> None:
+    slug = created_recipe["slug"]
+    before = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert before["image"] is None
+
+    ack = recipe_crud.set_recipe_image_from_url(
+        mealie_client, slug_or_id=slug, url=served_image_url
+    )
+    assert ack == {"slug_or_id": slug, "image_set": True}
+
+    after = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert after["image"] is not None
+
+
+@pytest.mark.live
+def test_delete_recipe_image_removes_image(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    served_image_url: str,
+) -> None:
+    slug = created_recipe["slug"]
+    recipe_crud.set_recipe_image_from_url(mealie_client, slug_or_id=slug, url=served_image_url)
+    assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["image"] is not None
+
+    ack = recipe_crud.delete_recipe_image(mealie_client, slug_or_id=slug)
+    assert ack == {"id": slug, "deleted": True}
+
+    after = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert after["image"] is None
 
 
 @pytest.mark.live
