@@ -15,6 +15,7 @@ from mealie_mcp.client.api.organizer_tags import (
     create_one_api_organizers_tags_post,
     delete_recipe_tag_api_organizers_tags_item_id_delete,
     get_all_api_organizers_tags_get,
+    get_empty_tags_api_organizers_tags_empty_get,
     get_one_api_organizers_tags_item_id_get,
     get_one_by_slug_api_organizers_tags_slug_tag_slug_get,
     update_one_api_organizers_tags_item_id_put,
@@ -25,6 +26,7 @@ from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    expect_list,
     parse_order_direction,
     require_non_empty,
     require_pagination,
@@ -51,6 +53,12 @@ def list_tags(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_tags", response)
+
+
+def list_empty_tags(client: AuthenticatedClient) -> list[Any]:
+    """List tags with no recipes assigned. Returns a bare list."""
+    response = get_empty_tags_api_organizers_tags_empty_get.sync_detailed(client=client)
+    return expect_list("list_empty_tags", response)
 
 
 def get_tag(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
@@ -137,6 +145,20 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             order_by=order_by,
             order_direction=order_direction,
         )
+
+    @mcp.tool(name="mealie_list_empty_tags")
+    def _list_empty_tags() -> list[Any]:
+        """List recipe tags that have no recipes assigned.
+
+        Use this to find unused tags worth cleaning up. Delete one with
+        ``mealie_delete_tag``. Takes no arguments and returns every empty tag
+        at once, not a page.
+
+        Returns:
+            A bare list of tag payloads, each with no recipes assigned. Empty
+            when every tag is in use.
+        """
+        return list_empty_tags(get_client())
 
     @mcp.tool(name="mealie_get_tag")
     def _get_tag(item_id: str) -> dict[str, Any]:
