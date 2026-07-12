@@ -174,6 +174,30 @@ def test_shopping_list_item_lifecycle(
 
 
 @pytest.mark.live
+def test_list_shopping_list_items_includes_sentinel(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    note = f"{sentinel_name}-item"
+    added = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=list_id, note=note
+    )
+    item_id = added["id"]
+    try:
+        envelope = households_shopping_list_items.list_shopping_list_items(
+            mealie_client, per_page=100
+        )
+        found = next((i for i in envelope["items"] if i["id"] == item_id), None)
+        assert found is not None, f"item {item_id} not found across shopping lists"
+        assert found["note"] == note
+    finally:
+        with contextlib.suppress(ToolError):
+            households_shopping_list_items.delete_shopping_list_item(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
 def test_add_shopping_list_item_round_trips_through_wrapper(
     created_shopping_list: dict[str, str],
     sentinel_name: str,
