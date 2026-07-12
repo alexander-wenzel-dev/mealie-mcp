@@ -60,3 +60,15 @@ class TestDeleteShoppingListItem:
     def test_rejects_blank_item_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
             households_shopping_list_items.delete_shopping_list_item(client, item_id="   ")
+
+
+class TestDeleteShoppingListItemsBulk:
+    def test_rejects_empty_list(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="item_ids must contain at least one id"):
+            households_shopping_list_items.delete_shopping_list_items_bulk(client, item_ids=[])
+
+    def test_rejects_blank_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="item_id must be a non-empty string"):
+            households_shopping_list_items.delete_shopping_list_items_bulk(
+                client, item_ids=["abc", "   "]
+            )

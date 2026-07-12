@@ -84,6 +84,18 @@ def ack_delete(action: str, response: Response[Any], ack_id: str) -> dict[str, A
     return {"id": ack_id, "deleted": True}
 
 
+def ack_delete_bulk(action: str, response: Response[Any], ack_ids: list[str]) -> dict[str, Any]:
+    """Return the canonical batch delete acknowledgement after verifying a 200 response.
+
+    The bulk delete endpoints return a success envelope with no per-id detail,
+    so the acknowledgement echoes the ids requested. The shape mirrors
+    ``ack_delete`` with a plural ``ids`` so callers get a stable batch contract.
+    """
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error(action, int(response.status_code), response.content)
+    return {"ids": ack_ids, "deleted": True}
+
+
 def parse_recipe_uuid(value: str) -> UUID:
     """Parse a recipe id into a UUID or raise `ToolError`."""
     try:

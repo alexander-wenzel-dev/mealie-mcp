@@ -198,6 +198,36 @@ def test_list_shopping_list_items_includes_sentinel(
 
 
 @pytest.mark.live
+def test_delete_shopping_list_items_bulk_removes_all(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    list_id = created_shopping_list["id"]
+    first = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=list_id, note=f"{sentinel_name}-item-1"
+    )
+    second = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=list_id, note=f"{sentinel_name}-item-2"
+    )
+    item_ids = [first["id"], second["id"]]
+    try:
+        ack = call_tool("mealie_delete_shopping_list_items_bulk", {"item_ids": item_ids})
+        assert ack == {"ids": item_ids, "deleted": True}
+
+        after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+        remaining = {i["id"] for i in after["listItems"]}
+        assert remaining.isdisjoint(item_ids)
+    finally:
+        for item_id in item_ids:
+            with contextlib.suppress(ToolError):
+                households_shopping_list_items.delete_shopping_list_item(
+                    mealie_client, item_id=item_id
+                )
+
+
+@pytest.mark.live
 def test_add_shopping_list_item_round_trips_through_wrapper(
     created_shopping_list: dict[str, str],
     sentinel_name: str,
