@@ -61,6 +61,10 @@ jobs:
         uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Stream the full SDK transcript to the job log, including each tool
+          # call and permission denial. Without it the log shows only the init
+          # and result events, which hide why a run ends without posting.
+          show_full_output: true
           # A /review-pr comment gets a fresh live tracking comment (tag mode);
           # dispatch runs agent mode. use_sticky_comment stays off so a new
           # comment is posted each run and prior reviews are kept.
