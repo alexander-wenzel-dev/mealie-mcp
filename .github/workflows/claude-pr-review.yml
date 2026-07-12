@@ -72,6 +72,7 @@ jobs:
           prompt: >-
             /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ env.PR_NUMBER }}
             Posting the review is your final and mandatory action. A plain-text reply is discarded and never reaches the user, so the review only lands when you deliver it through the posting tool, and you do that last, even after the subagents return.
+            Run the review subagents synchronously and collect their feedback in the same turn. Do not end your turn to wait for a background completion notification; this run has no wakeup to resume it.
             ${{ github.event_name == 'workflow_dispatch' && 'Inline comments are unavailable in this run, so post the whole review as one top-level comment with gh pr comment. Always post that comment, even if only to record that you found no blocking issues.' || 'Deliver the summary by updating your tracking comment; do not open a separate top-level comment. Update it even if only to record that you found no blocking issues.' }}
           claude_args: |
             --model ${{ inputs.model || 'claude-sonnet-5' }}
