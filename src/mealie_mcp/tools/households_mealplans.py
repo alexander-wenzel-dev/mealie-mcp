@@ -2,8 +2,8 @@
 
 Mirrors `mealie_mcp.client.api.households_mealplans`. Exposes the per-entry
 lifecycle: list (paginated, date-range filtered), create, get, update, and
-delete. Meal plan rules, random-meal generation, and the today/shopping
-helpers are out of scope.
+delete, plus a read of today's plan. Meal plan rules, random-meal generation,
+and the shopping helper are out of scope.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from mealie_mcp.client.api.households_mealplans import (
     delete_one_api_households_mealplans_item_id_delete,
     get_all_api_households_mealplans_get,
     get_one_api_households_mealplans_item_id_get,
+    get_todays_meals_api_households_mealplans_today_get,
     update_one_api_households_mealplans_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
@@ -32,6 +33,7 @@ from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    expect_list,
     parse_order_direction,
     parse_recipe_uuid,
     require_pagination,
@@ -93,6 +95,12 @@ def list_mealplans(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_mealplans", response)
+
+
+def todays_mealplan(client: AuthenticatedClient) -> list[Any]:
+    """Return today's meal plan entries. Mealie decides "today" server-side."""
+    response = get_todays_meals_api_households_mealplans_today_get.sync_detailed(client=client)
+    return expect_list("todays_mealplan", response)
 
 
 def create_mealplan(
@@ -206,6 +214,19 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             order_by=order_by,
             order_direction=order_direction,
         )
+
+    @mcp.tool(name="mealie_get_todays_mealplan")
+    def _get_todays_mealplan() -> list[Any]:
+        """List the meal plan entries scheduled for today.
+
+        Mealie determines "today" server-side, so the caller supplies no date
+        and needs no knowledge of the server time zone. An empty plan returns
+        an empty list, not an error.
+
+        Returns:
+            A JSON-compatible list of today's meal plan entries.
+        """
+        return todays_mealplan(get_client())
 
     @mcp.tool(name="mealie_create_mealplan")
     def _create_mealplan(

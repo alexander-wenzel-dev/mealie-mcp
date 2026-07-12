@@ -126,6 +126,43 @@ def test_mealplan_lifecycle(
 
 
 @pytest.mark.live
+def test_todays_mealplan_lists_todays_entry(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    # Mealie decides "today" in the server time zone. This process and the
+    # server share a clock in CI, so a UTC date matches; a midnight boundary or
+    # a server on a different time zone is a known edge.
+    today = dt.datetime.now(tz=dt.UTC).date()
+    todays_entry = households_mealplans.create_mealplan(
+        mealie_client,
+        date=today.isoformat(),
+        title=sentinel_name,
+        entry_type="dinner",
+    )
+    other_entry = households_mealplans.create_mealplan(
+        mealie_client,
+        date=dt.date(2030, 1, 1).isoformat(),
+        title=sentinel_name,
+        entry_type="dinner",
+    )
+    todays_id = todays_entry["id"]
+    other_id = other_entry["id"]
+    try:
+        entries = call_tool("mealie_get_todays_mealplan", {})
+        assert isinstance(entries, list)
+        ids = {entry["id"] for entry in entries}
+        assert todays_id in ids
+        # A dated-elsewhere entry must be filtered out, not returned wholesale.
+        assert other_id not in ids
+    finally:
+        for item_id in (todays_id, other_id):
+            with contextlib.suppress(ToolError):
+                households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
 def test_create_mealplan_round_trips_through_wrapper(
     created_recipe: dict[str, str],
     sentinel_name: str,
