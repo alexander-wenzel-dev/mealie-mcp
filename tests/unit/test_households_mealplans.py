@@ -47,6 +47,22 @@ class TestCreateMealplan:
             households_mealplans.create_mealplan(client, date="2026-06-15", entry_type="brunch")
 
 
+class TestCreateRandomMealplan:
+    def test_rejects_malformed_date(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="date must be an ISO 8601 date"):
+            households_mealplans.create_random_mealplan(client, date="15/06/2026")
+
+    def test_rejects_empty_date(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="date must be an ISO 8601 date"):
+            households_mealplans.create_random_mealplan(client, date="")
+
+    def test_rejects_unknown_entry_type(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="entry_type must be one of"):
+            households_mealplans.create_random_mealplan(
+                client, date="2026-06-15", entry_type="brunch"
+            )
+
+
 class TestUpdateMealplan:
     def test_rejects_no_fields(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="requires at least one field to update"):
