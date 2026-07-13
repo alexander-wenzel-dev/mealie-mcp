@@ -2,8 +2,8 @@
 
 Mirrors `mealie_mcp.client.api.households_mealplans`. Exposes the per-entry
 lifecycle: list (paginated, date-range filtered), create, get, update, and
-delete, plus a read of today's plan. Meal plan rules, random-meal generation,
-and the shopping helper are out of scope.
+delete, plus a read of today's plan and a server-picked random entry. Meal plan
+rules and the shopping helper are out of scope.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.households_mealplans import (
     create_one_api_households_mealplans_post,
+    create_random_meal_api_households_mealplans_random_post,
     delete_one_api_households_mealplans_item_id_delete,
     get_all_api_households_mealplans_get,
     get_one_api_households_mealplans_item_id_get,
@@ -26,6 +27,7 @@ from mealie_mcp.client.api.households_mealplans import (
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_plan_entry import CreatePlanEntry
+from mealie_mcp.client.models.create_random_entry import CreateRandomEntry
 from mealie_mcp.client.models.plan_entry_type import PlanEntryType
 from mealie_mcp.client.models.update_plan_entry import UpdatePlanEntry
 from mealie_mcp.client.types import UNSET, Unset
@@ -121,6 +123,26 @@ def create_mealplan(
     )
     response = create_one_api_households_mealplans_post.sync_detailed(client=client, body=body)
     return expect_dict("create_mealplan", response, HTTPStatus.CREATED)
+
+
+def create_random_mealplan(
+    client: AuthenticatedClient,
+    date: str,
+    entry_type: str | None = None,
+) -> dict[str, Any]:
+    """Create a meal plan entry with a recipe Mealie picks at random.
+
+    Mealie selects the recipe server-side, honouring the household's meal plan
+    rules. Returns the created entry payload.
+    """
+    body = CreateRandomEntry(
+        date=_parse_date("date", date),
+        entry_type=_parse_entry_type(entry_type),
+    )
+    response = create_random_meal_api_households_mealplans_random_post.sync_detailed(
+        client=client, body=body
+    )
+    return expect_dict("create_random_mealplan", response)
 
 
 def get_mealplan(client: AuthenticatedClient, item_id: int) -> dict[str, Any]:
@@ -259,6 +281,32 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             recipe_id=recipe_id,
             title=title,
             text=text,
+            entry_type=entry_type,
+        )
+
+    @mcp.tool(name="mealie_create_random_mealplan")
+    def _create_random_mealplan(
+        date: str,
+        entry_type: str | None = None,
+    ) -> dict[str, Any]:
+        """Add a meal plan entry whose recipe Mealie picks at random.
+
+        Mealie chooses the recipe server-side from the household's recipes,
+        following any meal plan rules the household has configured. Use this to
+        fill a slot without naming a recipe. The household must have at least one
+        recipe for the pick to succeed.
+
+        Args:
+            date: Day of the entry as ``YYYY-MM-DD``. Required.
+            entry_type: Optional meal slot. One of ``breakfast``, ``lunch``,
+                ``dinner``, ``side``, ``snack``, ``dessert``, ``drink``.
+
+        Returns:
+            The newly created meal plan entry as a JSON-compatible dict.
+        """
+        return create_random_mealplan(
+            get_client(),
+            date=date,
             entry_type=entry_type,
         )
 

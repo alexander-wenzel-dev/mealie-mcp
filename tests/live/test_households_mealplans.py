@@ -187,3 +187,28 @@ def test_create_mealplan_round_trips_through_wrapper(
     finally:
         with contextlib.suppress(ToolError):
             call_tool("mealie_delete_mealplan", {"item_id": item_id})
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("created_recipe")
+def test_create_random_mealplan_picks_a_recipe(
+    mealie_client: AuthenticatedClient,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    # A sentinel recipe is staged, so the household holds at least one recipe the
+    # server-side random pick can resolve to a real recipe link rather than a null
+    # slot. This asserts the pick landed on a recipe, not that it landed on this one.
+    plan_date = dt.date(2030, 1, 3).isoformat()
+    created = call_tool(
+        "mealie_create_random_mealplan",
+        {"date": plan_date, "entry_type": "dinner"},
+    )
+    assert isinstance(created, dict)
+    item_id = created["id"]
+    try:
+        assert created["date"] == plan_date
+        assert created["entryType"] == "dinner"
+        assert created["recipeId"] is not None
+    finally:
+        with contextlib.suppress(ToolError):
+            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
