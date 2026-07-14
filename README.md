@@ -6,9 +6,10 @@
 
 Talk to your Mealie recipe manager in plain language. This MCP server lets an assistant like Claude read, create, and manage recipes, meal plans, and shopping lists on a Mealie instance you control.
 
-> Built on a typed client generated straight from Mealie's own API, so the tools match what Mealie actually ships and stay correct as Mealie evolves.
+> The only Mealie MCP with a generated typed client under a curated set of tools, each verified against a live Mealie, so they match what Mealie actually ships and stay correct as it evolves.
 
-- **Generated, not hand-typed** - request and response shapes come from Mealie's OpenAPI spec
+- **Generated client, not hand-typed** - the request functions and models are generated from Mealie's OpenAPI spec, not a hand-written wrapper
+- **Curated toolset** - a focused set of tools with typed inputs and outputs
 - **Version-pinned** - a Mealie upgrade is regenerate-and-review, not a manual audit
 - **Verified live** - every tool is tested against a real Mealie, behavioural not smoke
 
@@ -29,6 +30,8 @@ Once registered, you ask in plain language and the assistant picks the matching 
 > _"Put mushroom risotto on the meal plan for Sunday dinner."_
 >
 > _"Log that I made the focaccia today."_
+>
+> _"Tag all my soup recipes as 'winter' in one go."_
 
 ## Requirements
 
@@ -47,6 +50,9 @@ uv sync
 ```
 
 ## Configure
+
+To get a token, open your profile in Mealie and create one under Manage Your API
+Tokens, then use its value for `MEALIE_API_TOKEN`.
 
 Register the server in your MCP client. The example below works for any client that uses the standard MCP server config (Claude Desktop, Cursor, and others). Replace `/absolute/path/to/mealie-mcp` with the path to your clone.
 
@@ -73,59 +79,58 @@ claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEA
 
 ## Tools
 
-The server exposes MCP tools grouped by Mealie OpenAPI tag. New groups are added as the project grows.
+The server exposes 97 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
 
 <details>
 <summary>All tool groups</summary>
 
-| Group                            | Coverage                                                                                                               |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `recipe_crud`                    | Create, read, list, duplicate, update, scrape from URL or JSON-LD, patch the last-made timestamp, suggest recipes from the foods on hand, and delete recipes. |
-| `recipe_comments`                | Create, read, list, update, and delete recipe comments.                                                                |
-| `recipe_timeline`                | Create, read, list, update, and delete a recipe's timeline events, its cooking journal.                                |
-| `organizer_categories`           | Create, read by id or slug, list, update, and delete recipe categories.                                                |
-| `organizer_tags`                 | Create, read by id or slug, list, update, and delete recipe tags.                                                      |
-| `organizer_tools`                | Create, read by id or slug, list, update, and delete recipe tools.                                                     |
-| `recipes_foods`                  | Create, read, list, update, and delete ingredient foods.                                                               |
-| `recipes_units`                  | Create, read, list, update, and delete ingredient units.                                                               |
-| `households_mealplans`           | Create, read, list, update, and delete meal plan entries.                                                              |
-| `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients.                       |
-| `households_shopping_list_items` | List, add, update, and delete shopping list items.                                                                     |
-| `users_ratings`                  | List a user's ratings and favorites, set a recipe rating, and add or remove favorites.                                 |
+### Recipes
+
+| Group                 | Coverage                                                                                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `recipe_crud`         | Create, read, list, duplicate, update, and delete recipes; scrape from a URL or from HTML or JSON, suggest recipes from the foods on hand, patch the last-made timestamp, and set or delete the title image. |
+| `recipe_comments`     | Create, read, list, update, and delete recipe comments.                                                                                                                                           |
+| `recipe_timeline`     | Create, read, list, update, and delete a recipe's timeline events, its cooking journal.                                                                                                           |
+| `recipe_bulk_actions` | Tag, categorize, apply settings to, or delete many recipes in one call.                                                                                                                           |
+
+### Organizers and ingredient data
+
+| Group                         | Coverage                                                                            |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `organizer_categories`        | Create, read by id or slug, list (including empty ones), update, and delete recipe categories. |
+| `organizer_tags`              | Create, read by id or slug, list (including empty ones), update, and delete recipe tags.        |
+| `organizer_tools`             | Create, read by id or slug, list, update, and delete recipe tools.                  |
+| `groups_multi_purpose_labels` | Create, read, list, update, and delete multi-purpose labels.                        |
+| `recipes_foods`               | Create, read, list, update, and delete ingredient foods.                            |
+| `recipes_units`               | Create, read, list, update, and delete ingredient units.                            |
+
+### Households
+
+| Group                            | Coverage                                                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `households_mealplans`           | Create, read, list, update, and delete meal plan entries; get today's plan and add a server-picked random entry. |
+| `households_mealplan_rules`      | Create, read, list, update, and delete meal plan rules.                                                          |
+| `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients, one recipe or several. |
+| `households_shopping_list_items` | List, add, update, delete, and bulk-delete shopping list items.                                                  |
+| `households_cookbooks`           | Create, read, list, update, and delete cookbooks.                                                                |
+
+### Users
+
+| Group           | Coverage                                                                               |
+| --------------- | -------------------------------------------------------------------------------------- |
+| `users_ratings` | List a user's ratings and favorites, set a recipe rating, and add or remove favorites. |
 
 </details>
 
-## Regenerate the API client
+## Contributing
 
-The Mealie OpenAPI spec is cached at `spec/mealie-openapi.json` and pinned in `pyproject.toml`. Regenerate the typed client from the cached spec:
+Setup, the checks a change must pass, and the branch and commit conventions are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
-```sh
-uv run regen-client            # use the cached spec
-uv run regen-client --update   # refetch from $MEALIE_BASE_URL/openapi.json and re-pin
-```
+## Security
 
-## Run tests
-
-```sh
-uv run pytest          # unit tests
-uv run pytest -m live  # live tests, need a running Mealie
-```
-
-Unit tests need nothing extra. Live tests run against a real Mealie instance.
-
-To stand one up locally, `scripts/mealie-up` boots a container, mints an admin token, and prints `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` to stdout for `.env`:
-
-```sh
-./scripts/mealie-up > .env.new && mv .env.new .env
-```
-
-The staging file avoids truncating a working `.env` if the script fails. The variable names are also listed in `.env.example`. By default the script boots the Mealie version pinned in `pyproject.toml`, the same version the generated client and CI are built against, so the live suite stays reproducible. See [`scripts/README.md`](scripts/README.md) for version options and how to stop the container.
-
-Then run the live suite:
-
-```sh
-uv run pytest -m live
-```
+To report a vulnerability or read the token-handling guidance, see
+[SECURITY.md](SECURITY.md).
 
 ## License
 

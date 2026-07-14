@@ -43,8 +43,7 @@ uv run pytest -m live     # live tests, need a running Mealie
 ```
 
 Unit tests need nothing extra. Live tests run against a real Mealie instance. To
-stand one up locally, see the README "Run tests" section and
-[`scripts/README.md`](scripts/README.md).
+stand one up locally, see [`scripts/README.md`](scripts/README.md).
 
 Every new tool ships with a live test, and a unit test where it has pure logic to
 cover.
