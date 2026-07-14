@@ -4,13 +4,25 @@ version = "0.0.1"
 description = "MCP server that wraps the Mealie REST API."
 readme = "README.md"
 requires-python = ">=3.14"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "Alexander Wenzel" }]
+keywords = ["mealie", "mcp", "model-context-protocol", "recipes", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.14",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+]
 dependencies = [
     "fastmcp>=3.4.4",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/alexander-wenzel-dev/mealie-mcp"
+Repository = "https://github.com/alexander-wenzel-dev/mealie-mcp"
+Issues = "https://github.com/alexander-wenzel-dev/mealie-mcp/issues"
 
 [project.scripts]
 mealie-mcp = "mealie_mcp.server:main"
