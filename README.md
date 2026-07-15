@@ -77,6 +77,42 @@ For Claude Code:
 claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uv --directory "$(pwd)" run mealie-mcp
 ```
 
+## Running over HTTP
+
+By default the server speaks stdio, which is what the client configs above use. To
+serve it over HTTP instead, for remote or container hosting, set
+`MEALIE_MCP_TRANSPORT=http`. The HTTP transport is gated by a static bearer token
+and refuses to start without one. Generate a token with the bundled script:
+
+```sh
+./scripts/gen-token
+```
+
+Put the value in `MEALIE_MCP_HTTP_TOKEN`. Clients then send it as
+`Authorization: Bearer <token>`. The relevant variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `MEALIE_MCP_TRANSPORT` | `stdio` | `stdio` or `http` |
+| `MEALIE_MCP_HTTP_TOKEN` | none | required for HTTP; no default, generate one |
+| `MEALIE_MCP_HTTP_HOST` | `127.0.0.1` | bind address |
+| `MEALIE_MCP_HTTP_PORT` | `8000` | bind port |
+| `MEALIE_MCP_HTTP_ALLOWED_HOSTS` | `127.0.0.1,localhost` | allowed `Host` headers |
+
+To bind IPv6, set `MEALIE_MCP_HTTP_HOST` to `::1` (localhost) or `::` (all
+interfaces) and add the bracketed literal `[::1]` to
+`MEALIE_MCP_HTTP_ALLOWED_HOSTS`, since the allowlist matches the bracketed form.
+
+On the HTTP transport the server validates the `Host` and `Origin` headers of
+each request against `MEALIE_MCP_HTTP_ALLOWED_HOSTS` and rejects a mismatch,
+which blocks DNS-rebinding and cross-origin browser requests.
+
+The bearer token is a single shared key with no rotation or revocation. It is
+meant for localhost or for a network you already trust. Do not expose the HTTP
+transport to an untrusted network on its own: this server holds an admin Mealie
+token, so anyone who reaches it drives Mealie as admin. For real authentication
+or SSO, put a reverse proxy that terminates OIDC in front of it.
+
 ## Tools
 
 The server exposes 97 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
