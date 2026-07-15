@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""Print a random URL-safe bearer token for MEALIE_MCP_HTTP_TOKEN.
+
+The HTTP transport gates access with a static bearer token and refuses to
+start without one. This mints a 256-bit token to stdout for the operator to
+place in the environment or MCP client config. It never writes any file.
+"""
+
+from __future__ import annotations
+
+import secrets
+
+print(secrets.token_urlsafe(32))
