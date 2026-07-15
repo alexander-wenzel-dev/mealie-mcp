@@ -2,6 +2,15 @@
 
 Operator helpers. Not packaged or shipped to end users.
 
+## gen-token
+
+Prints a random 256-bit URL-safe token to stdout, for use as
+`MEALIE_MCP_HTTP_TOKEN` when serving over the HTTP transport. Writes no file.
+
+```
+./scripts/gen-token
+```
+
 ## mealie-up
 
 Boots a local Mealie container, waits for the API to come up, mints an admin
