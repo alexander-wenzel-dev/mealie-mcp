@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
 from fastmcp import FastMCP
+from starlette.requests import Request
 
-from mealie_mcp.server import mcp
+from mealie_mcp.server import build_auth, health, mcp
 from mealie_mcp.tools import _require_register
 
 
@@ -48,3 +51,14 @@ def test_require_register_rejects_a_non_callable_register() -> None:
     module = SimpleNamespace(__name__="mealie_mcp.tools.fake", register="not callable")
     with pytest.raises(TypeError, match="no register callable"):
         _require_register(module)
+
+
+def test_health_route_reports_ok() -> None:
+    response = asyncio.run(health(cast(Request, SimpleNamespace())))
+    assert response.status_code == 200
+    assert json.loads(response.body) == {"status": "ok"}
+
+
+def test_build_auth_accepts_the_configured_token() -> None:
+    verifier = build_auth("secret")
+    assert "secret" in verifier.tokens
