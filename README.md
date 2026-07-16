@@ -88,6 +88,9 @@ and refuses to start without one. Generate a token with the bundled script:
 ./scripts/gen-token
 ```
 
+No Python on the host? The token is just an opaque random string, so anything
+with enough entropy works, for example `openssl rand -base64 32`.
+
 Put the value in `MEALIE_MCP_HTTP_TOKEN`. Clients then send it as
 `Authorization: Bearer <token>`. The relevant variables:
 
@@ -112,6 +115,33 @@ meant for localhost or for a network you already trust. Do not expose the HTTP
 transport to an untrusted network on its own: this server holds an admin Mealie
 token, so anyone who reaches it drives Mealie as admin. For real authentication
 or SSO, put a reverse proxy that terminates OIDC in front of it.
+
+## Container
+
+The bundled `Dockerfile` builds an image that runs as a non-root user and serves
+the HTTP transport on port 8000. The app listens on `0.0.0.0` within the
+container so Docker's published port can reach it; host-side exposure is decided
+by `-p` below.
+
+```sh
+docker build -t mealie-mcp .
+docker run --rm -p 8000:8000 \
+  -e MEALIE_BASE_URL=https://mealie.example.com \
+  -e MEALIE_API_TOKEN=replace-me \
+  -e MEALIE_MCP_HTTP_TOKEN="$(./scripts/gen-token)" \
+  mealie-mcp
+```
+
+`-p 8000:8000` publishes the port on every host interface, so the server is
+reachable off-box. The bearer token is what guards it there; the exposure limits
+above apply, so keep it on a trusted network or behind a reverse proxy. For
+local-only access, bind the loopback with `-p 127.0.0.1:8000:8000`.
+
+`MEALIE_MCP_HTTP_ALLOWED_HOSTS` is DNS-rebinding protection, not an access gate:
+a direct client can set any `Host` header, so it does not keep off-box callers
+out, the token does. When clients reach the server under other hostnames, add
+those to the list, and keep `127.0.0.1` in it so the container healthcheck, which
+probes `/health` over the loopback, stays green.
 
 ## Tools
 
