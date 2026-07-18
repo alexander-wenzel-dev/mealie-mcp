@@ -155,8 +155,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         at once, not a page.
 
         Returns:
-            A bare list of tag payloads, each with no recipes assigned. Empty
-            when every tag is in use.
+            A list of tag payloads, each with no recipes assigned, empty when
+            every tag is in use. The MCP structured output wraps the list under
+            a ``result`` key (``{"result": [...]}``).
         """
         return list_empty_tags(get_client())
 
@@ -164,11 +165,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _get_tag(item_id: str) -> dict[str, Any]:
         """Fetch a single tag from Mealie by id.
 
+        The ``recipes`` list is always empty here, even when the tag is in use.
+        Use ``mealie_get_tag_by_slug`` to see the recipes carrying the tag.
+
         Args:
             item_id: UUID of the tag.
 
         Returns:
-            The tag payload as a JSON-compatible dict.
+            The tag payload as a JSON-compatible dict, with an empty ``recipes``.
         """
         return get_tag(get_client(), item_id=item_id)
 
