@@ -116,6 +116,29 @@ def test_categorize_recipes_categorizes_every_recipe(
 
 
 @pytest.mark.live
+def test_categorize_recipes_is_additive(
+    mealie_client: AuthenticatedClient, two_recipe_slugs: list[str], sentinel_name: str
+) -> None:
+    first = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-first")
+    second = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-second")
+    try:
+        recipe_bulk_actions.categorize_recipes(
+            mealie_client, recipes=two_recipe_slugs, categories=[_full_object(first)]
+        )
+        recipe_bulk_actions.categorize_recipes(
+            mealie_client, recipes=two_recipe_slugs, categories=[_full_object(second)]
+        )
+        for slug in two_recipe_slugs:
+            refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+            slugs = {c["slug"] for c in refreshed["recipeCategory"]}
+            assert {first["slug"], second["slug"]} <= slugs
+    finally:
+        for category in (first, second):
+            with contextlib.suppress(ToolError):
+                organizer_categories.delete_category(mealie_client, item_id=category["id"])
+
+
+@pytest.mark.live
 def test_apply_recipe_settings_sets_values_on_every_recipe(
     mealie_client: AuthenticatedClient, two_recipe_slugs: list[str]
 ) -> None:
