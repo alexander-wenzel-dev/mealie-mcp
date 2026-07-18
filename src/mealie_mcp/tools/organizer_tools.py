@@ -153,11 +153,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _get_tool(item_id: str) -> dict[str, Any]:
         """Fetch a single tool from Mealie by id.
 
+        Returns a compact payload without the ``recipes`` list. Use
+        ``mealie_get_tool_by_slug`` to read the recipes using the tool.
+
         Args:
             item_id: UUID of the tool.
 
         Returns:
-            The tool payload as a JSON-compatible dict.
+            The tool payload as a JSON-compatible dict, without ``recipes``.
         """
         return get_tool(get_client(), item_id=item_id)
 
