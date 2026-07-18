@@ -226,6 +226,67 @@ def test_update_recipe_tag_without_id_is_rejected(
 
 
 @pytest.mark.live
+def test_update_recipe_category_without_id_is_rejected(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A category carrying only name and slug fails; Mealie needs the id.
+
+    Mealie rejects an id-less category the same way it rejects an id-less tag:
+    a misleading 400 "Recipe already exists" that leaves the recipe untouched.
+    """
+    category = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-cat")
+    try:
+        with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(400"):
+            recipe_crud.update_recipe(
+                mealie_client,
+                slug_or_id=created_recipe["slug"],
+                recipe_category=[{"name": category["name"], "slug": category["slug"]}],
+            )
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
+        assert refreshed["recipeCategory"] == []
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_categories.delete_category(mealie_client, item_id=category["id"])
+
+
+@pytest.mark.live
+def test_update_recipe_patch_preserves_scalars_and_replaces_lists(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A PATCH leaves an unsupplied field alone but replaces a supplied list wholesale."""
+    slug = created_recipe["slug"]
+    tag_one = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-one")
+    tag_two = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-two")
+    try:
+        description = f"{sentinel_name}-desc"
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            description=description,
+            tags=[
+                {"id": tag_one["id"], "name": tag_one["name"], "slug": tag_one["slug"]},
+                {"id": tag_two["id"], "name": tag_two["name"], "slug": tag_two["slug"]},
+            ],
+        )
+
+        # A tags-only update must leave the unsupplied description untouched and
+        # replace the whole tag list rather than merging, so tag two drops out.
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            tags=[{"id": tag_one["id"], "name": tag_one["name"], "slug": tag_one["slug"]}],
+        )
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        assert refreshed["description"] == description
+        assert [t["slug"] for t in refreshed["tags"]] == [tag_one["slug"]]
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_tags.delete_tag(mealie_client, item_id=tag_one["id"])
+        with contextlib.suppress(ToolError):
+            organizer_tags.delete_tag(mealie_client, item_id=tag_two["id"])
+
+
+@pytest.mark.live
 def test_update_last_made_persists_timestamp(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
 ) -> None:
