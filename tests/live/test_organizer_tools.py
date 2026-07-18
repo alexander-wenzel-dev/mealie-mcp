@@ -99,3 +99,18 @@ def test_tool_lifecycle(
 
     with pytest.raises(ToolError, match=r"Mealie get_tool failed \(404"):
         organizer_tools.get_tool(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_get_tool_by_id_omits_recipes_while_by_slug_includes_it(
+    mealie_client: AuthenticatedClient, created_tool: dict[str, object]
+) -> None:
+    item_id = str(created_tool["id"])
+
+    # The by-id read returns a compact payload with no recipes list; the by-slug
+    # read carries the recipes key.
+    by_id = organizer_tools.get_tool(mealie_client, item_id=item_id)
+    assert "recipes" not in by_id
+
+    by_slug = organizer_tools.get_tool_by_slug(mealie_client, slug=str(by_id["slug"]))
+    assert "recipes" in by_slug
