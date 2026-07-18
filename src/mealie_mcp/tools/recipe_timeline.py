@@ -100,14 +100,19 @@ def create_timeline_event(
     require_non_empty("recipe_id", recipe_id)
     require_non_empty("subject", subject)
     parsed_type = _parse_event_type(event_type)
-    parsed_timestamp = _parse_timestamp(timestamp) if timestamp is not None else None
+    # An omitted timestamp otherwise reaches Mealie as UNSET, and Mealie's schema
+    # default is frozen at server import, so every such event is stamped with the
+    # server boot time. Send the current time explicitly to sidestep that.
+    parsed_timestamp = (
+        _parse_timestamp(timestamp) if timestamp is not None else dt.datetime.now(dt.UTC)
+    )
 
     body = RecipeTimelineEventIn(
         recipe_id=recipe_id,
         subject=subject,
         event_type=parsed_type,
         event_message=to_unset(event_message),
-        timestamp=to_unset(parsed_timestamp),
+        timestamp=parsed_timestamp,
     )
     response = create_one_api_recipes_timeline_events_post.sync_detailed(client=client, body=body)
     return expect_dict("create_timeline_event", response, HTTPStatus.CREATED)
@@ -220,8 +225,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             event_type: ``"comment"`` or ``"info"``. Defaults to ``"info"``.
                 ``"system"`` events are server generated and rejected.
             event_message: Optional event body.
-            timestamp: Optional ISO 8601 datetime. Defaults to the server's
-                current time when omitted.
+            timestamp: Optional ISO 8601 datetime. Defaults to the current
+                time when omitted.
 
         Returns:
             The newly created event payload as a JSON-compatible dict.

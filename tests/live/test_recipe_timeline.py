@@ -10,6 +10,7 @@ data lingers.
 from __future__ import annotations
 
 import contextlib
+import datetime as dt
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -213,3 +214,41 @@ def test_create_timeline_event_round_trips_through_wrapper(
     finally:
         with contextlib.suppress(ToolError):
             call_tool("mealie_delete_timeline_event", {"event_id": event_id})
+
+
+def _parse_utc(value: str) -> dt.datetime:
+    """Parse an ISO 8601 timestamp and normalize it to a UTC-aware datetime."""
+    parsed = dt.datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=dt.UTC)
+    return parsed.astimezone(dt.UTC)
+
+
+@pytest.mark.live
+def test_create_timeline_event_omitted_timestamp_stamps_current_time(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """An omitted timestamp is stamped near now, not with the server boot time.
+
+    Mealie's schema default for the timestamp is evaluated once at server
+    import, so an UNSET timestamp lands at the server boot time, which can be
+    days old. The tool sends the current time explicitly to avoid that, so the
+    returned timestamp must sit within a small window of now.
+    """
+    before = dt.datetime.now(dt.UTC)
+    created = recipe_timeline.create_timeline_event(
+        mealie_client,
+        recipe_id=created_recipe["id"],
+        subject=f"{sentinel_name}-subject",
+        event_type="info",
+    )
+    after = dt.datetime.now(dt.UTC)
+    event_id = created["id"]
+    try:
+        stamped = _parse_utc(created["timestamp"])
+        assert before - dt.timedelta(seconds=5) <= stamped <= after + dt.timedelta(seconds=5)
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_timeline.delete_timeline_event(mealie_client, event_id=event_id)
