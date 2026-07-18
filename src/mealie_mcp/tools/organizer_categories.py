@@ -155,8 +155,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         category at once, not a page.
 
         Returns:
-            A bare list of category payloads, each with no recipes assigned.
-            Empty when every category is in use.
+            A list of category payloads, each with no recipes assigned, empty
+            when every category is in use. The MCP structured output wraps the
+            list under a ``result`` key (``{"result": [...]}``).
         """
         return list_empty_categories(get_client())
 
@@ -164,11 +165,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _get_category(item_id: str) -> dict[str, Any]:
         """Fetch a single category from Mealie by id.
 
+        Returns a compact payload without the ``recipes`` list. Use
+        ``mealie_get_category_by_slug`` to read the recipes in the category.
+
         Args:
             item_id: UUID of the category.
 
         Returns:
-            The category payload as a JSON-compatible dict.
+            The category payload as a JSON-compatible dict, without ``recipes``.
         """
         return get_category(get_client(), item_id=item_id)
 

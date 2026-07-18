@@ -95,3 +95,35 @@ def test_empty_categories_drops_a_category_once_a_recipe_uses_it(
                 recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
         with contextlib.suppress(ToolError):
             organizer_categories.delete_category(mealie_client, item_id=category_id)
+
+
+@pytest.mark.live
+def test_get_category_by_id_omits_recipes_while_by_slug_hydrates(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    category = organizer_categories.create_category(mealie_client, name=sentinel_name)
+    category_id = category["id"]
+    recipe_slug: str | None = None
+    try:
+        recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe_slug,
+            recipe_category=[
+                {"id": category_id, "name": category["name"], "slug": category["slug"]}
+            ],
+        )
+
+        # The by-id read returns a compact payload with no recipes list.
+        by_id = organizer_categories.get_category(mealie_client, item_id=category_id)
+        assert "recipes" not in by_id
+
+        # The by-slug read hydrates recipes, including the one just attached.
+        by_slug = organizer_categories.get_category_by_slug(mealie_client, slug=category["slug"])
+        assert any(r["slug"] == recipe_slug for r in by_slug["recipes"])
+    finally:
+        if recipe_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
+        with contextlib.suppress(ToolError):
+            organizer_categories.delete_category(mealie_client, item_id=category_id)
