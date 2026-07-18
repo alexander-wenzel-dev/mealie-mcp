@@ -82,3 +82,34 @@ def test_empty_tags_drops_a_tag_once_a_recipe_uses_it(
                 recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
         with contextlib.suppress(ToolError):
             organizer_tags.delete_tag(mealie_client, item_id=tag_id)
+
+
+@pytest.mark.live
+def test_get_tag_by_id_leaves_recipes_empty_while_by_slug_hydrates(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    tag = organizer_tags.create_tag(mealie_client, name=sentinel_name)
+    tag_id = tag["id"]
+    recipe_slug: str | None = None
+    try:
+        recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe_slug,
+            tags=[{"id": tag_id, "name": tag["name"], "slug": tag["slug"]}],
+        )
+
+        # The by-id read carries a recipes key but never populates it, even
+        # though the tag is now in use.
+        by_id = organizer_tags.get_tag(mealie_client, item_id=tag_id)
+        assert by_id["recipes"] == []
+
+        # The by-slug read hydrates recipes, including the one just attached.
+        by_slug = organizer_tags.get_tag_by_slug(mealie_client, slug=tag["slug"])
+        assert any(r["slug"] == recipe_slug for r in by_slug["recipes"])
+    finally:
+        if recipe_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
+        with contextlib.suppress(ToolError):
+            organizer_tags.delete_tag(mealie_client, item_id=tag_id)
