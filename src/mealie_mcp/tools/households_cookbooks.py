@@ -96,10 +96,11 @@ def update_cookbook(
 
     Mealie's PUT replaces the resource rather than patching it, so fields absent
     from the request body reset to their schema defaults. The current cookbook is
-    fetched and the merged payload is sent so ``slug``, ``position``, and
-    ``public`` survive untouched. The prefetch is routed through
-    ``expect_dict("update_cookbook", ...)`` so any failure surfaces under the
-    caller's tool name.
+    fetched and the merged payload is sent so ``position`` and ``public`` survive
+    untouched. Changing ``name`` reslugs the cookbook server-side, so ``slug``
+    tracks the new name rather than being preserved. The prefetch is routed
+    through ``expect_dict("update_cookbook", ...)`` so any failure surfaces under
+    the caller's tool name.
     """
     require_non_empty("item_id", item_id)
     if name is None and description is None and query_filter_string is None:
@@ -210,8 +211,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     ) -> dict[str, Any]:
         """Edit an existing cookbook.
 
-        Only the supplied fields change; ``slug``, ``position``, ``public``, and
-        any field left unset are preserved.
+        Only the supplied fields change; ``position``, ``public``, and any field
+        left unset are preserved. Changing ``name`` reslugs the cookbook, so its
+        ``slug`` changes; the id stays stable.
 
         Args:
             item_id: UUID of the cookbook to update.
