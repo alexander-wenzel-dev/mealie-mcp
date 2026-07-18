@@ -32,6 +32,7 @@ from mealie_mcp.client.models.shopping_list_item_update import ShoppingListItemU
 from mealie_mcp.tools import (
     households_shopping_list_items,
     households_shopping_lists,
+    recipe_crud,
     recipes_foods,
 )
 from mealie_mcp.tools._common import expect_dict
@@ -171,6 +172,48 @@ def test_shopping_list_item_lifecycle(
 
     after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
     assert all(i["id"] != item_id for i in after["listItems"])
+
+
+@pytest.mark.live
+def test_update_shopping_list_item_checkoff_drops_recipe_references(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """Checking an item off detaches its recipe references.
+
+    Mealie clears a recipe-linked item's references server-side when the item
+    is checked off, so a bought item no longer feeds recipe aggregation. The
+    merged PUT body still carries the references; this pins the drop as Mealie
+    behaviour rather than a merge regression, and guards the docstring claim
+    against silent drift on a future Mealie version.
+    """
+    list_id = created_shopping_list["id"]
+    recipe = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")
+    try:
+        recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=recipe["slug"])["id"]
+        updated_list = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id
+        )
+        linked = next(
+            (
+                item
+                for item in updated_list["listItems"]
+                if any(ref["recipeId"] == recipe_id for ref in item["recipeReferences"])
+            ),
+            None,
+        )
+        assert linked is not None, f"no item linked to recipe {recipe_id}"
+        assert linked["recipeReferences"] != []
+
+        checked = households_shopping_list_items.update_shopping_list_item(
+            mealie_client, item_id=linked["id"], checked=True
+        )
+        assert checked["checked"] is True
+        assert checked["recipeReferences"] == []
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe["slug"])
 
 
 @pytest.mark.live
