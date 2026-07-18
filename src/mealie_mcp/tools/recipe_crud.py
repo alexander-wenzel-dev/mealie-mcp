@@ -521,10 +521,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             recipe_instructions: Full step list. Each item must have ``text``
                 and may include ``title`` and ``summary``.
             notes: Full notes list. Each item must have ``title`` and ``text``.
-            tags: Full tag list. Each item must have ``name`` and ``slug`` of
-                an existing tag.
-            recipe_category: Full category list. Each item must have ``name``
-                and ``slug`` of an existing category.
+            tags: Full tag list. Each item must include the ``id`` of an
+                existing tag; ``name`` and ``slug`` alone are rejected by
+                Mealie with a misleading "Recipe already exists" error. Fetch
+                the id via ``mealie_list_tags``.
+            recipe_category: Full category list. Each item must include the
+                ``id`` of an existing category; ``name`` and ``slug`` alone are
+                rejected the same way. Fetch the id via
+                ``mealie_list_categories``.
 
         Returns:
             The updated recipe payload as a JSON-compatible dict.
