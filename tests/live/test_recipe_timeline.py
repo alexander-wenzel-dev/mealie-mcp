@@ -121,6 +121,30 @@ def test_recipe_timeline_event_lifecycle(
         recipe_timeline.get_timeline_event(mealie_client, event_id=event_id)
 
 
+@pytest.mark.live
+def test_create_timeline_event_stores_comment_type(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    created = recipe_timeline.create_timeline_event(
+        mealie_client,
+        recipe_id=created_recipe["id"],
+        subject=f"{sentinel_name}-subject",
+        event_type="comment",
+    )
+    event_id = created["id"]
+    try:
+        # The default event_type is "info"; a non-default "comment" must land as
+        # the stored eventType rather than being coerced back to the default.
+        assert created["eventType"] == "comment"
+        fetched = recipe_timeline.get_timeline_event(mealie_client, event_id=event_id)
+        assert fetched["eventType"] == "comment"
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_timeline.delete_timeline_event(mealie_client, event_id=event_id)
+
+
 def _event_order(listing: dict[str, Any], *ids: str) -> list[str]:
     """The given event ids in the order they appear in a timeline listing.
 
