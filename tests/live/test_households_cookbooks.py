@@ -161,6 +161,27 @@ def test_update_preserves_public_and_position(
 
 
 @pytest.mark.live
+def test_update_cookbook_rename_reslugs_and_keeps_id(
+    mealie_client: AuthenticatedClient,
+    created_cookbook: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    item_id = created_cookbook["id"]
+    original_slug = households_cookbooks.get_cookbook(mealie_client, item_id=item_id)["slug"]
+
+    updated = households_cookbooks.update_cookbook(
+        mealie_client, item_id=item_id, name=f"{sentinel_name}-renamed"
+    )
+
+    # A name change reslugs the cookbook server-side, so the slug is not
+    # preserved; the id is the stable handle across the rename.
+    assert updated["slug"] != original_slug
+    assert updated["id"] == item_id
+    after = households_cookbooks.get_cookbook(mealie_client, item_id=item_id)
+    assert after["slug"] == updated["slug"]
+
+
+@pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
 def test_create_cookbook_round_trips_through_wrapper(
     sentinel_name: str,
