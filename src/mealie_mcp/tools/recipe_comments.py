@@ -163,7 +163,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             slug: Recipe slug.
 
         Returns:
-            A list of comment payloads for the recipe.
+            A list of comment payloads for the recipe. The MCP structured output
+            wraps the list under a ``result`` key (``{"result": [...]}``).
         """
         return list_recipe_comments(get_client(), slug=slug)
 
