@@ -201,6 +201,31 @@ def test_update_recipe_attaches_tag_and_category(
 
 
 @pytest.mark.live
+def test_update_recipe_tag_without_id_is_rejected(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A tag reference carrying only name and slug fails; Mealie needs the id.
+
+    Mealie rejects an id-less tag item with a misleading 400 "Recipe already
+    exists" and leaves the recipe untouched. The tool must not swallow that as
+    success.
+    """
+    tag = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-tag")
+    try:
+        with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(400"):
+            recipe_crud.update_recipe(
+                mealie_client,
+                slug_or_id=created_recipe["slug"],
+                tags=[{"name": tag["name"], "slug": tag["slug"]}],
+            )
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
+        assert refreshed["tags"] == []
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_tags.delete_tag(mealie_client, item_id=tag["id"])
+
+
+@pytest.mark.live
 def test_update_last_made_persists_timestamp(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
 ) -> None:
