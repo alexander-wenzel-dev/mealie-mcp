@@ -150,7 +150,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Returns:
             A list of rating records, each with the recipe id, rating, and
-            favorite flag.
+            favorite flag. The MCP structured output wraps the list under a
+            ``result`` key (``{"result": [...]}``).
         """
         return list_ratings(get_client())
 
@@ -160,7 +161,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Returns:
             A list of favorited recipe records for the recipes the user has
-            favorited.
+            favorited. The MCP structured output wraps the list under a
+            ``result`` key (``{"result": [...]}``).
         """
         return list_favorites(get_client())
 

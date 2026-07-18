@@ -246,7 +246,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         an empty list, not an error.
 
         Returns:
-            A JSON-compatible list of today's meal plan entries.
+            A list of today's meal plan entries. The MCP structured output wraps
+            the list under a ``result`` key (``{"result": [...]}``).
         """
         return todays_mealplan(get_client())
 
