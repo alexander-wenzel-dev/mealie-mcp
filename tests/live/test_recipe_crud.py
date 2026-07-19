@@ -361,9 +361,11 @@ def test_delete_recipe_image_removes_image(
 
 
 @pytest.mark.live
-def test_parse_recipe_url_rejects_invalid_url(mealie_client: AuthenticatedClient) -> None:
-    with pytest.raises(ToolError, match=r"Mealie parse_recipe_url failed"):
-        recipe_crud.parse_recipe_url(mealie_client, url="https://example.com/not-a-recipe")
+def test_create_recipe_from_url_rejects_invalid_url(
+    mealie_client: AuthenticatedClient,
+) -> None:
+    with pytest.raises(ToolError, match=r"Mealie create_recipe_from_url failed"):
+        recipe_crud.create_recipe_from_url(mealie_client, url="https://example.com/not-a-recipe")
 
 
 @pytest.mark.live
