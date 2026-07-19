@@ -217,6 +217,62 @@ def test_update_shopping_list_item_checkoff_drops_recipe_references(
 
 
 @pytest.mark.live
+def test_update_shopping_list_item_note_change_keeps_recipe_references(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """A non-checkoff update leaves a recipe-linked item's references intact.
+
+    The checkoff drop is the documented exception; a note-only edit that does not
+    check the item off must preserve its recipeReferences through the PUT-replace.
+    """
+    list_id = created_shopping_list["id"]
+    recipe = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")
+    try:
+        recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=recipe["slug"])["id"]
+        updated_list = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id
+        )
+        linked = next(
+            (
+                item
+                for item in updated_list["listItems"]
+                if any(ref["recipeId"] == recipe_id for ref in item["recipeReferences"])
+            ),
+            None,
+        )
+        assert linked is not None, f"no item linked to recipe {recipe_id}"
+
+        renamed = households_shopping_list_items.update_shopping_list_item(
+            mealie_client, item_id=linked["id"], note=f"{sentinel_name}-note"
+        )
+        assert renamed["checked"] is False
+        assert [ref["recipeId"] for ref in renamed["recipeReferences"]] == [recipe_id]
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe["slug"])
+
+
+@pytest.mark.live
+def test_add_shopping_list_item_defaults_quantity_to_one(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    added = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=created_shopping_list["id"], note=f"{sentinel_name}-item"
+    )
+    item_id = added["id"]
+    try:
+        # With quantity omitted, Mealie seeds 1 rather than 0 or null.
+        assert added["quantity"] == 1
+    finally:
+        with contextlib.suppress(ToolError):
+            households_shopping_list_items.delete_shopping_list_item(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
 def test_list_shopping_list_items_includes_sentinel(
     mealie_client: AuthenticatedClient,
     created_shopping_list: dict[str, str],
