@@ -75,6 +75,29 @@ def test_create_recipe_round_trips_name_through_wrapper(
             call_tool("mealie_delete_recipe", {"slug_or_id": slug})
 
 
+@pytest.mark.live
+@pytest.mark.usefixtures("mealie_client")
+def test_bare_list_tool_wraps_result_in_structured_content() -> None:
+    """A tool returning a bare list is exposed as ``{"result": [...]}``.
+
+    FastMCP wraps a non-object return value in the MCP structured-output field
+    under a ``result`` key. The list-returning tools document this shape; this
+    pins it once for all of them. The ``call_tool`` fixture reads ``result.data``,
+    which the client unwraps back to a plain list, so the wrap is observable only
+    on the raw result inspected here.
+    """
+
+    async def run() -> object:
+        async with Client(mcp) as client:
+            result = await client.call_tool("mealie_get_todays_mealplan", {})
+        return result.structured_content
+
+    structured = asyncio.run(run())
+    assert isinstance(structured, dict)
+    assert list(structured) == ["result"]
+    assert isinstance(structured["result"], list)
+
+
 # Groups whose create tool takes only a name and whose delete tool takes only
 # the created id. One parametrized round-trip proves each forwards its argument
 # through the wrapper; the richer groups carry their own round-trip in-file.

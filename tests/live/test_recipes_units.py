@@ -151,13 +151,25 @@ def test_update_unit_empty_values_clear_text_and_aliases(
     mealie_client: AuthenticatedClient, created_unit: dict[str, str]
 ) -> None:
     item_id = created_unit["id"]
-    # An empty string clears the abbreviation and an empty list clears the
-    # aliases, rather than being skipped the way an omitted (None) field is.
-    updated = recipes_units.update_unit(mealie_client, item_id=item_id, abbreviation="", aliases=[])
+    # An empty string clears the abbreviation, plural name, and plural
+    # abbreviation, and an empty list clears the aliases, rather than being
+    # skipped the way an omitted (None) field is.
+    updated = recipes_units.update_unit(
+        mealie_client,
+        item_id=item_id,
+        abbreviation="",
+        plural_name="",
+        plural_abbreviation="",
+        aliases=[],
+    )
     assert updated["abbreviation"] == ""
+    assert updated["pluralName"] == ""
+    assert updated["pluralAbbreviation"] == ""
     assert updated["aliases"] == []
     refetched = recipes_units.get_unit(mealie_client, item_id=item_id)
     assert refetched["abbreviation"] == ""
+    assert refetched["pluralName"] == ""
+    assert refetched["pluralAbbreviation"] == ""
     assert refetched["aliases"] == []
 
 

@@ -166,12 +166,17 @@ def test_update_food_empty_values_clear_text_and_aliases(
     mealie_client: AuthenticatedClient, created_food: dict[str, str]
 ) -> None:
     item_id = created_food["id"]
-    # An empty string clears the description and an empty list clears the
-    # aliases, rather than being skipped the way an omitted (None) field is.
-    updated = recipes_foods.update_food(mealie_client, item_id=item_id, description="", aliases=[])
+    # An empty string clears the plural name and description and an empty list
+    # clears the aliases, rather than being skipped the way an omitted (None)
+    # field is.
+    updated = recipes_foods.update_food(
+        mealie_client, item_id=item_id, plural_name="", description="", aliases=[]
+    )
+    assert updated["pluralName"] == ""
     assert updated["description"] == ""
     assert updated["aliases"] == []
     refetched = recipes_foods.get_food(mealie_client, item_id=item_id)
+    assert refetched["pluralName"] == ""
     assert refetched["description"] == ""
     assert refetched["aliases"] == []
 
