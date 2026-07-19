@@ -77,6 +77,25 @@ def test_mealplan_rule_lifecycle(
 
 
 @pytest.mark.live
+def test_create_mealplan_rule_defaults_to_any_day_and_type(
+    mealie_client: AuthenticatedClient,
+) -> None:
+    created = households_mealplan_rules.create_mealplan_rule(mealie_client)
+    rule_id = created["id"]
+    try:
+        # Omitting day and entry_type stores Mealie's "unset" sentinel, meaning
+        # the rule applies to any day and any meal type.
+        assert created["day"] == "unset"
+        assert created["entryType"] == "unset"
+        fetched = households_mealplan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
+        assert fetched["day"] == "unset"
+        assert fetched["entryType"] == "unset"
+    finally:
+        with contextlib.suppress(ToolError):
+            households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+
+
+@pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
 def test_create_mealplan_rule_round_trips_through_wrapper(
     sentinel_name: str,
