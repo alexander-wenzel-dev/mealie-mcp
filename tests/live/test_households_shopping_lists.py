@@ -197,6 +197,33 @@ def test_add_recipes_to_list_adds_each_with_its_scale(
 
 
 @pytest.mark.live
+def test_add_recipe_scales_item_quantities(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    note = f"{sentinel_name}-eggs"
+    slug = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-qty")["slug"]
+    recipe_crud.update_recipe(
+        mealie_client, slug_or_id=slug, recipe_ingredient=[{"quantity": 3, "note": note}]
+    )
+    recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["id"]
+    try:
+        updated = households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id, scale=2.0
+        )
+        item = next((i for i in updated["listItems"] if i["note"] == note), None)
+        assert item is not None, "recipe ingredient did not land as a list item"
+        # scale=2.0 multiplies the ingredient quantity 3 into a list item of 6,
+        # not just the recipe reference quantity.
+        assert item["quantity"] == 6
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
 def test_remove_recipe_from_list_drops_reference(
     mealie_client: AuthenticatedClient,
     created_shopping_list: dict[str, str],
