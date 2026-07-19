@@ -274,3 +274,27 @@ def test_remove_recipe_from_list_decrements_reference(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+
+
+@pytest.mark.live
+def test_update_shopping_list_rename_keeps_recipe_references(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    list_id = created_shopping_list["id"]
+    slug, recipe_id = _staged_recipe(mealie_client, sentinel_name, suffix="rename-ref")
+    try:
+        households_shopping_lists.add_recipe_to_shopping_list(
+            mealie_client, list_id=list_id, recipe_id=recipe_id
+        )
+        renamed = households_shopping_lists.update_shopping_list(
+            mealie_client, list_id=list_id, name=f"{sentinel_name}-renamed"
+        )
+        assert renamed["name"] == f"{sentinel_name}-renamed"
+        # A name-only update must not clobber the recipe link: fetch-then-merge
+        # carries recipeReferences through the PUT-replace.
+        assert _recipe_ref(renamed, recipe_id) is not None, "recipe reference dropped on rename"
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
