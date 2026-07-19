@@ -216,8 +216,12 @@ def test_add_recipe_scales_item_quantities(
         item = next((i for i in updated["listItems"] if i["note"] == note), None)
         assert item is not None, "recipe ingredient did not land as a list item"
         # scale=2.0 multiplies the ingredient quantity 3 into a list item of 6,
-        # not just the recipe reference quantity.
+        # not just the recipe reference quantity, and the scaled value persists.
         assert item["quantity"] == 6
+        after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+        stored = next((i for i in after["listItems"] if i["note"] == note), None)
+        assert stored is not None, "scaled item missing after re-fetch"
+        assert stored["quantity"] == 6
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
@@ -293,8 +297,9 @@ def test_update_shopping_list_rename_keeps_recipe_references(
         )
         assert renamed["name"] == f"{sentinel_name}-renamed"
         # A name-only update must not clobber the recipe link: fetch-then-merge
-        # carries recipeReferences through the PUT-replace.
-        assert _recipe_ref(renamed, recipe_id) is not None, "recipe reference dropped on rename"
+        # carries recipeReferences through the PUT-replace and it persists.
+        after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+        assert _recipe_ref(after, recipe_id) is not None, "recipe reference dropped on rename"
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)

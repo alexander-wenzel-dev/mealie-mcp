@@ -248,7 +248,10 @@ def test_update_shopping_list_item_note_change_keeps_recipe_references(
             mealie_client, item_id=linked["id"], note=f"{sentinel_name}-note"
         )
         assert renamed["checked"] is False
-        assert [ref["recipeId"] for ref in renamed["recipeReferences"]] == [recipe_id]
+        after = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+        stored = next((i for i in after["listItems"] if i["id"] == linked["id"]), None)
+        assert stored is not None, "linked item missing after update"
+        assert [ref["recipeId"] for ref in stored["recipeReferences"]] == [recipe_id]
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe["slug"])
@@ -265,8 +268,15 @@ def test_add_shopping_list_item_defaults_quantity_to_one(
     )
     item_id = added["id"]
     try:
-        # With quantity omitted, Mealie seeds 1 rather than 0 or null.
+        # With quantity omitted, Mealie seeds 1 rather than 0 or null, and the
+        # seed persists rather than only appearing on the add response.
         assert added["quantity"] == 1
+        listing = households_shopping_lists.get_shopping_list(
+            mealie_client, list_id=created_shopping_list["id"]
+        )
+        stored = next((i for i in listing["listItems"] if i["id"] == item_id), None)
+        assert stored is not None, f"item {item_id} not found on the list"
+        assert stored["quantity"] == 1
     finally:
         with contextlib.suppress(ToolError):
             households_shopping_list_items.delete_shopping_list_item(mealie_client, item_id=item_id)
