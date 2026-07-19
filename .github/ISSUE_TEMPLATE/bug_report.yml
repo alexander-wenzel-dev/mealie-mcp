@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a tool that misbehaves or a response that looks wrong
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste real tokens, hostnames, or full request URLs. Use
+        `mealie.example.com` and placeholder values.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: First checks
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I redacted tokens, hostnames, and personal data from this report.
+          required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you asked for and what the server or tool did instead.
+      placeholder: I called mealie_create_recipe_from_url and got ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The tool call or prompt, and any inputs, with secrets redacted.
+    validations:
+      required: true
+  - type: input
+    id: mealie-version
+    attributes:
+      label: Mealie version
+      description: The version of the Mealie instance you point at.
+    validations:
+      required: true
+  - type: input
+    id: server-version
+    attributes:
+      label: mealie-mcp version
+      description: The tag or commit you run.
+    validations:
+      required: true

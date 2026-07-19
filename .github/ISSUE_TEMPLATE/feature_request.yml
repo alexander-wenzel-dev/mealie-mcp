@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest a new tool or an improvement to an existing one
+labels: ["enhancement"]
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: First checks
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: The task you cannot do today, or that is awkward with the current tools.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed tool or change
+      description: >
+        The Mealie operation to expose or adjust. If you know the Mealie API
+        endpoint, name it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

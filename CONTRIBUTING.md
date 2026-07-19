@@ -57,6 +57,13 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) with lower-case
 subjects, for example `feat(recipes): add bulk tag action`. A commit message
 states what the change leaves behind.
 
+## Opening issues and pull requests
+
+Issues and pull requests open with a template. Fill in the required sections.
+The pull request template asks you to disclose to what degree an AI assistant was
+used. State it accurately: undisclosed or misleading AI usage may delay review or
+lead to the pull request being closed.
+
 ## Security
 
 Never commit real tokens, hostnames, or URLs. Use `mealie.example.com` and
