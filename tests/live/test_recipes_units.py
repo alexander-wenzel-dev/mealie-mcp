@@ -147,6 +147,21 @@ def test_unit_lifecycle(mealie_client: AuthenticatedClient, created_unit: dict[s
 
 
 @pytest.mark.live
+def test_update_unit_empty_values_clear_text_and_aliases(
+    mealie_client: AuthenticatedClient, created_unit: dict[str, str]
+) -> None:
+    item_id = created_unit["id"]
+    # An empty string clears the abbreviation and an empty list clears the
+    # aliases, rather than being skipped the way an omitted (None) field is.
+    updated = recipes_units.update_unit(mealie_client, item_id=item_id, abbreviation="", aliases=[])
+    assert updated["abbreviation"] == ""
+    assert updated["aliases"] == []
+    refetched = recipes_units.get_unit(mealie_client, item_id=item_id)
+    assert refetched["abbreviation"] == ""
+    assert refetched["aliases"] == []
+
+
+@pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
 def test_create_unit_round_trips_fields_through_wrapper(
     sentinel_name: str,
