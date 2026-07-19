@@ -510,6 +510,44 @@ def test_suggest_recipes_matches_on_food(
 
 
 @pytest.mark.live
+def test_suggest_recipes_honours_max_missing_foods(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    foods = [
+        recipes_foods.create_food(mealie_client, name=f"{sentinel_name}-food-{i}") for i in range(3)
+    ]
+    slug = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")["slug"]
+    try:
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            recipe_ingredient=[
+                {"note": food["name"], "food": {"id": food["id"], "name": food["name"]}}
+                for food in foods
+            ],
+        )
+        on_hand = [foods[0]["id"]]  # one of three foods on hand, so two are missing
+
+        # A generous budget keeps the recipe: two missing foods is within five.
+        loose = recipe_crud.suggest_recipes(
+            mealie_client, foods=on_hand, max_missing_foods=5, limit=100
+        )
+        assert any(item["recipe"]["slug"] == slug for item in loose["items"])
+
+        # Tightening the budget below the two missing foods drops the recipe.
+        tight = recipe_crud.suggest_recipes(
+            mealie_client, foods=on_hand, max_missing_foods=1, limit=100
+        )
+        assert all(item["recipe"]["slug"] != slug for item in tight["items"])
+    finally:
+        with contextlib.suppress(ToolError):
+            recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+        for food in foods:
+            with contextlib.suppress(ToolError):
+                recipes_foods.delete_food(mealie_client, item_id=food["id"])
+
+
+@pytest.mark.live
 def test_list_recipes_filters_by_households(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
 ) -> None:
