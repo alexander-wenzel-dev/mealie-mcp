@@ -238,7 +238,7 @@ def update_recipe(
     return expect_dict("update_recipe", response)
 
 
-def parse_recipe_url(
+def create_recipe_from_url(
     client: AuthenticatedClient,
     url: str,
     include_tags: bool = False,
@@ -253,7 +253,7 @@ def parse_recipe_url(
             url=url, include_tags=include_tags, include_categories=include_categories
         ),
     )
-    slug = expect_str("parse_recipe_url", response, HTTPStatus.CREATED)
+    slug = expect_str("create_recipe_from_url", response, HTTPStatus.CREATED)
     return {"slug": slug}
 
 
@@ -562,8 +562,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """
         return update_last_made(get_client(), slug_or_id=slug_or_id, timestamp=timestamp)
 
-    @mcp.tool(name="mealie_parse_recipe_url")
-    def _parse_recipe_url(
+    @mcp.tool(name="mealie_create_recipe_from_url")
+    def _create_recipe_from_url(
         url: str, include_tags: bool = False, include_categories: bool = False
     ) -> dict[str, str]:
         """Scrape a recipe from a URL and persist it in Mealie.
@@ -577,7 +577,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Returns:
             ``{"slug": <slug>}`` for the newly created recipe.
         """
-        return parse_recipe_url(
+        return create_recipe_from_url(
             get_client(),
             url=url,
             include_tags=include_tags,

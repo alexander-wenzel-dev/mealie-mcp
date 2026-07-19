@@ -83,10 +83,10 @@ class TestUpdateRecipe:
             recipe_crud.update_recipe(client, slug_or_id="abc")
 
 
-class TestParseRecipeUrl:
+class TestCreateRecipeFromUrl:
     def test_rejects_empty_url(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="url must be a non-empty string"):
-            recipe_crud.parse_recipe_url(client, url="")
+            recipe_crud.create_recipe_from_url(client, url="")
 
 
 class TestCreateRecipeFromHtmlOrJson:
