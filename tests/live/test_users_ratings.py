@@ -55,6 +55,13 @@ def test_rating_and_favorite_lifecycle(
     assert favorited is not None, f"favorite for {slug} not found in user favorites"
     assert favorited["isFavorite"] is True
 
+    # Adding a favorite must not clear the existing rating: both live on the same
+    # UserToRecipe record, so the 4.5 rating set above has to survive.
+    ratings_after_favorite = users_ratings.list_ratings(mealie_client)
+    rated_after = next((r for r in ratings_after_favorite if r["recipeId"] == recipe_id), None)
+    assert rated_after is not None, f"rating for {slug} cleared by add_favorite"
+    assert rated_after["rating"] == 4.5
+
     # Setting a rating must not clear an existing favorite: set_recipe_rating
     # omits the unexposed is_favorite field, which would clobber it under
     # replace semantics.
