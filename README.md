@@ -13,8 +13,6 @@ Talk to your Mealie recipe manager in plain language. This MCP server lets an as
 - **Version-pinned** - a Mealie upgrade is regenerate-and-review, not a manual audit
 - **Verified live** - every tool is tested against a real Mealie, behavioural not smoke
 
-Status: early development. Not yet published to PyPI.
-
 ## What it looks like
 
 Once registered, you ask in plain language and the assistant picks the matching tools:
@@ -41,7 +39,11 @@ Once registered, you ask in plain language and the assistant picks the matching 
 
 ## Install
 
-Clone the repo so an MCP client can launch the server from your local checkout.
+You can run the server two ways over stdio. Clone-free with `uvx`, which fetches
+and runs a pinned release tag on demand, or from a local clone.
+
+The clone-free path needs no install step. The client config below invokes `uvx`
+directly. To run from a clone instead:
 
 ```sh
 git clone https://github.com/alexander-wenzel-dev/mealie-mcp.git
@@ -54,7 +56,30 @@ uv sync
 To get a token, open your profile in Mealie and create one under Manage Your API
 Tokens, then use its value for `MEALIE_API_TOKEN`.
 
-Register the server in your MCP client. The example below works for any client that uses the standard MCP server config (Claude Desktop, Cursor, and others). Replace `/absolute/path/to/mealie-mcp` with the path to your clone.
+Register the server in your MCP client. The JSON config works for any client that
+uses the standard MCP server config (Claude Desktop, Cursor, and others).
+
+### Claude Desktop and other standard clients
+
+Clone-free with `uvx`:
+
+```json
+{
+  "mcpServers": {
+    "mealie": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.1.0", "mealie-mcp"],
+      "env": {
+        "MEALIE_BASE_URL": "https://mealie.example.com",
+        "MEALIE_API_TOKEN": "replace-me"
+      }
+    }
+  }
+}
+```
+
+From a local clone, replace `/absolute/path/to/mealie-mcp` with the path to your
+checkout:
 
 ```json
 {
@@ -71,7 +96,15 @@ Register the server in your MCP client. The example below works for any client t
 }
 ```
 
-For Claude Code:
+### Claude Code
+
+Clone-free with `uvx`:
+
+```sh
+claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uvx --from git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.1.0 mealie-mcp
+```
+
+From a local clone:
 
 ```sh
 claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uv --directory "$(pwd)" run mealie-mcp
@@ -115,6 +148,36 @@ meant for localhost or for a network you already trust. Do not expose the HTTP
 transport to an untrusted network on its own: this server holds an admin Mealie
 token, so anyone who reaches it drives Mealie as admin. For real authentication
 or SSO, put a reverse proxy that terminates OIDC in front of it.
+
+### Connecting a client over HTTP
+
+Once the server runs over HTTP, point a client at its `/mcp` endpoint and send the
+bearer token. The examples use `https://mealie-mcp.example.com/mcp`, the address of
+this server, which is separate from your Mealie instance.
+
+Claude Code speaks HTTP natively:
+
+```sh
+claude mcp add --transport http mealie https://mealie-mcp.example.com/mcp --header "Authorization: Bearer replace-me"
+```
+
+Claude Desktop has no native HTTP transport, so bridge it with `mcp-remote`:
+
+```json
+{
+  "mcpServers": {
+    "mealie": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mealie-mcp.example.com/mcp",
+        "--header",
+        "Authorization: Bearer replace-me"
+      ]
+    }
+  }
+}
+```
 
 ## Container
 
