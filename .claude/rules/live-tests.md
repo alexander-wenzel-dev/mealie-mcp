@@ -33,6 +33,14 @@ If an update tool's body model carries fields the tool does not expose, the live
 
 One-field seeding lets the bug class slip through.
 
+## Docstring claims and default-seeded arguments
+
+The clobber rule is one case of a wider discipline. Every claim a wrapper docstring makes that a caller can observe must have a live assertion that would fail if the claim were false: a required id on a field, a field preserved across an update, or a value seeded when an argument is omitted. A behavioural suite that never reads the docstring is blind to a false claim, so the test is what pins the prose to live behaviour. Adding a tool means covering its claims and its defaults this way, not only its happy path.
+
+Assert the effect the claim promises. `update_recipe` asserts both that an id-bearing tag lands and that a name-and-slug-only tag is rejected, matching the docstring that says the id is required. A default-seeded argument is set to a non-default value with an observable assertion, or deferred with a recorded reason, as Behavioural assertions above requires; `create_label` asserts an omitted color stores Mealie's `#959595`.
+
+When live behaviour contradicts the docstring, the docstring is what is wrong: correct it to match a live call, then assert the corrected claim.
+
 ## Cleanup hygiene
 
 Cleanup runs in a `pytest` fixture finalizer or a `try`/`finally` block, so it executes when the test body fails.
