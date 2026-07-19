@@ -69,6 +69,24 @@ def test_label_lifecycle_color_survives_name_only_update(
 
 
 @pytest.mark.live
+def test_create_label_defaults_color_to_gray(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+) -> None:
+    created = groups_multi_purpose_labels.create_label(mealie_client, name=sentinel_name)
+    item_id = created["id"]
+    try:
+        # With color omitted, Mealie seeds the documented #959595 default rather
+        # than leaving it empty.
+        assert created["color"] == "#959595"
+        fetched = groups_multi_purpose_labels.get_label(mealie_client, item_id=item_id)
+        assert fetched["color"] == "#959595"
+    finally:
+        with contextlib.suppress(ToolError):
+            groups_multi_purpose_labels.delete_label(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
 @pytest.mark.usefixtures("mealie_client")
 def test_create_label_round_trips_color_through_wrapper(
     sentinel_name: str,
