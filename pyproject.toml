@@ -1,6 +1,6 @@
 [project]
 name = "mealie-mcp"
-version = "0.0.1"
+version = "0.1.0"
 description = "MCP server that wraps the Mealie REST API."
 readme = "README.md"
 requires-python = ">=3.14"
@@ -24,6 +24,7 @@ dependencies = [
 Homepage = "https://github.com/alexander-wenzel-dev/mealie-mcp"
 Repository = "https://github.com/alexander-wenzel-dev/mealie-mcp"
 Issues = "https://github.com/alexander-wenzel-dev/mealie-mcp/issues"
+Changelog = "https://github.com/alexander-wenzel-dev/mealie-mcp/blob/main/CHANGELOG.md"
 
 [project.scripts]
 mealie-mcp = "mealie_mcp.server:main"
