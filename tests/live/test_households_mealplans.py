@@ -4,8 +4,10 @@ Stages a sentinel recipe, schedules a sentinel meal plan entry that references
 it, exercises the get, list, update, and delete tools, then tears both
 sentinels down. The update step changes only ``text`` and asserts that the
 unsupplied ``recipe_id`` link and ``entry_type`` survive the PUT-replace, so a
-regression in fetch-then-merge would fail the test. Cleanup runs even when the
-test body fails so no `mcp-test-` data lingers.
+regression in fetch-then-merge would fail the test. Separate tests omit
+``entry_type`` on each create tool and pin the differing slots Mealie seeds, and
+one stages a rule whose filter matches nothing to pin what an unmatched rule
+does. Cleanup runs even when the test body fails so no `mcp-test-` data lingers.
 """
 
 from __future__ import annotations
@@ -13,12 +15,13 @@ from __future__ import annotations
 import contextlib
 import datetime as dt
 from collections.abc import Callable, Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.tools import households_mealplans, recipe_crud
+from mealie_mcp.tools import households_mealplan_rules, households_mealplans, recipe_crud
 
 
 @pytest.fixture
@@ -187,6 +190,78 @@ def test_create_mealplan_round_trips_through_wrapper(
     finally:
         with contextlib.suppress(ToolError):
             call_tool("mealie_delete_mealplan", {"item_id": item_id})
+
+
+@pytest.mark.live
+def test_create_mealplan_defaults_to_breakfast(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+) -> None:
+    # With entry_type omitted the key never reaches Mealie, so the server seeds
+    # its own slot. The sibling random tool seeds a different one, so pinning
+    # this value catches a docstring that names the wrong default.
+    plan_date = dt.date(2030, 1, 4).isoformat()
+    created = households_mealplans.create_mealplan(
+        mealie_client, date=plan_date, recipe_id=created_recipe["id"]
+    )
+    item_id = created["id"]
+    try:
+        assert created["entryType"] == "breakfast"
+        fetched = households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+        assert fetched["entryType"] == "breakfast"
+    finally:
+        with contextlib.suppress(ToolError):
+            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("created_recipe")
+def test_create_random_mealplan_defaults_to_dinner(
+    mealie_client: AuthenticatedClient,
+) -> None:
+    plan_date = dt.date(2030, 1, 5).isoformat()
+    created = households_mealplans.create_random_mealplan(mealie_client, date=plan_date)
+    item_id = created["id"]
+    try:
+        assert created["entryType"] == "dinner"
+        fetched = households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+        assert fetched["entryType"] == "dinner"
+    finally:
+        with contextlib.suppress(ToolError):
+            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("created_recipe")
+def test_create_random_mealplan_fails_when_the_matching_rule_filters_everything_out(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+) -> None:
+    # A recipe is staged, so an unrestricted pick would succeed. The rule covers
+    # this date's weekday and slot and filters on a tag no recipe carries, which
+    # narrows the candidate set to nothing. Mealie rejects rather than widening
+    # the pick back to the full recipe list.
+    plan_date = dt.date(2030, 1, 6)
+    rule = households_mealplan_rules.create_mealplan_rule(
+        mealie_client,
+        day=plan_date.strftime("%A").lower(),
+        entry_type="snack",
+        query_filter_string=f'tags.name CONTAINS ALL ["{sentinel_name}"]',
+    )
+    # Capturing the result means a regression that schedules an entry instead of
+    # raising is torn down rather than left on the plan.
+    created: dict[str, Any] | None = None
+    try:
+        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
+            created = households_mealplans.create_random_mealplan(
+                mealie_client, date=plan_date.isoformat(), entry_type="snack"
+            )
+    finally:
+        if created is not None:
+            with contextlib.suppress(ToolError):
+                households_mealplans.delete_mealplan(mealie_client, item_id=created["id"])
+        with contextlib.suppress(ToolError):
+            households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule["id"])
 
 
 @pytest.mark.live
