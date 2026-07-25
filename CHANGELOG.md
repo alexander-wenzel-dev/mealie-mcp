@@ -6,6 +6,14 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The meal plan tools now state the slot Mealie seeds for an omitted
+  `entry_type`: `breakfast` on `mealie_create_mealplan`, `dinner` on
+  `mealie_create_random_mealplan`.
+- `mealie_create_mealplan_rule` now states that Mealie `AND`-joins the filters of
+  every rule matching a slot, so rules narrow each other instead of overriding.
+
 ## [0.1.0] - 2026-07-19
 
 First public release.
