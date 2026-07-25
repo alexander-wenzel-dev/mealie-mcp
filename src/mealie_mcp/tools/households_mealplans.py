@@ -270,8 +270,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             recipe_id: Optional recipe UUID to schedule.
             title: Optional free-text title for a non-recipe entry.
             text: Optional free-text note.
-            entry_type: Optional meal slot. One of ``breakfast``, ``lunch``,
-                ``dinner``, ``side``, ``snack``, ``dessert``, ``drink``.
+            entry_type: Meal slot. One of ``breakfast``, ``lunch``, ``dinner``,
+                ``side``, ``snack``, ``dessert``, ``drink``. If omitted, Mealie
+                seeds ``breakfast``; ``mealie_create_random_mealplan`` seeds
+                ``dinner`` instead.
 
         Returns:
             The newly created meal plan entry as a JSON-compatible dict.
@@ -295,12 +297,16 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Mealie chooses the recipe server-side from the household's recipes,
         following any meal plan rules the household has configured. Use this to
         fill a slot without naming a recipe. The household must have at least one
-        recipe for the pick to succeed.
+        recipe for the pick to succeed. If a rule covers the day and slot but its
+        filter matches no recipe, the call fails with a 404 instead of falling
+        back to the unfiltered list.
 
         Args:
             date: Day of the entry as ``YYYY-MM-DD``. Required.
-            entry_type: Optional meal slot. One of ``breakfast``, ``lunch``,
-                ``dinner``, ``side``, ``snack``, ``dessert``, ``drink``.
+            entry_type: Meal slot. One of ``breakfast``, ``lunch``, ``dinner``,
+                ``side``, ``snack``, ``dessert``, ``drink``. If omitted, Mealie
+                seeds ``dinner``; ``mealie_create_mealplan`` seeds ``breakfast``
+                instead.
 
         Returns:
             The newly created meal plan entry as a JSON-compatible dict.
