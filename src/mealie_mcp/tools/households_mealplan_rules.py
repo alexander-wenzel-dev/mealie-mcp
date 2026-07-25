@@ -3,7 +3,9 @@
 Mirrors `mealie_mcp.client.api.households_mealplan_rules`. Exposes CRUD for the
 rules that bias Mealie's random meal selection: for a given day and entry type, a
 rule constrains the pick with an opaque filter DSL. A rule with ``day`` or
-``entry_type`` left as ``unset`` applies to any day or any type. The rule logic
+``entry_type`` left as ``unset`` applies to any day or any type. Every rule
+matching a slot contributes, and Mealie joins their filters with ``AND``, so a
+narrower rule adds to a broader one rather than replacing it. The rule logic
 lives entirely in Mealie; these tools are thin CRUD. Like a cookbook, a rule
 stores its filter as an opaque ``queryFilterString`` that the create and update
 tools pass straight through rather than building from structured category, tag,
@@ -208,6 +210,12 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         A rule constrains the recipe ``mealie_create_random_mealplan`` picks for
         a matching day and entry type. Leaving ``day`` or ``entry_type`` unset
         applies the rule to any day or any type.
+
+        Rules do not override each other. Mealie joins the filters of every rule
+        matching a slot with ``AND``. Two filters on ``tags.name`` then match no
+        recipe, so the pick fails with a 404. Use at most one filtering rule per
+        day and slot, and combine requirements into one filter such as
+        ``'tags.name CONTAINS ALL ["Quick","Vegan"]'``.
 
         Args:
             day: Optional day the rule applies to. One of ``monday``,
