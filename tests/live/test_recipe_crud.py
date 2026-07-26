@@ -156,6 +156,36 @@ def test_update_recipe_patches_scalars_and_lists(
 
 
 @pytest.mark.live
+def test_update_recipe_sets_servings_and_yield_quantity(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
+) -> None:
+    """Both numeric yield fields persist, and 0 clears either on its own.
+
+    Mealie seeds both at 0, so the seeds are set to distinct non-zero values to
+    tell them apart. Clearing one afterwards must leave the other standing.
+    """
+    slug = created_recipe["slug"]
+    updated = recipe_crud.update_recipe(
+        mealie_client, slug_or_id=slug, recipe_servings=6, recipe_yield_quantity=12
+    )
+    assert updated["recipeServings"] == 6
+    assert updated["recipeYieldQuantity"] == 12
+
+    refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert refreshed["recipeServings"] == 6
+    assert refreshed["recipeYieldQuantity"] == 12
+
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, recipe_servings=0)
+    cleared = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert cleared["recipeServings"] == 0
+    assert cleared["recipeYieldQuantity"] == 12
+
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, recipe_yield_quantity=0)
+    both_cleared = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert both_cleared["recipeYieldQuantity"] == 0
+
+
+@pytest.mark.live
 def test_update_recipe_reslugs_on_name_change(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
 ) -> None:

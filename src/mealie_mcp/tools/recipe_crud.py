@@ -179,6 +179,8 @@ def update_last_made(
 _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "name": "name",
     "description": "description",
+    "recipe_servings": "recipeServings",
+    "recipe_yield_quantity": "recipeYieldQuantity",
     "recipe_yield": "recipeYield",
     "total_time": "totalTime",
     "prep_time": "prepTime",
@@ -197,6 +199,8 @@ def update_recipe(
     *,
     name: str | None = None,
     description: str | None = None,
+    recipe_servings: float | None = None,
+    recipe_yield_quantity: float | None = None,
     recipe_yield: str | None = None,
     total_time: str | None = None,
     prep_time: str | None = None,
@@ -213,6 +217,8 @@ def update_recipe(
     supplied: dict[str, Any] = {
         "name": name,
         "description": description,
+        "recipe_servings": recipe_servings,
+        "recipe_yield_quantity": recipe_yield_quantity,
         "recipe_yield": recipe_yield,
         "total_time": total_time,
         "prep_time": prep_time,
@@ -489,6 +495,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         slug_or_id: str,
         name: str | None = None,
         description: str | None = None,
+        recipe_servings: float | None = None,
+        recipe_yield_quantity: float | None = None,
         recipe_yield: str | None = None,
         total_time: str | None = None,
         prep_time: str | None = None,
@@ -511,6 +519,12 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 Mealie to reslug the recipe; subsequent calls must use the
                 returned slug.
             description: New free-text description.
+            recipe_servings: Number of people the recipe feeds. Mealie scales
+                ingredient amounts against this. ``0`` clears it.
+            recipe_yield_quantity: Number of items produced, paired with
+                ``recipe_yield`` for the noun (``12`` plus ``"Muffins"``).
+                Mealie scales against this when ``recipe_servings`` is ``0``,
+                and ``0`` clears it.
             recipe_yield: Human-readable yield (e.g. ``"4 servings"``).
             total_time: Human-readable total time (e.g. ``"45 minutes"``).
             prep_time: Human-readable preparation time.
@@ -541,6 +555,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             slug_or_id=slug_or_id,
             name=name,
             description=description,
+            recipe_servings=recipe_servings,
+            recipe_yield_quantity=recipe_yield_quantity,
             recipe_yield=recipe_yield,
             total_time=total_time,
             prep_time=prep_time,
