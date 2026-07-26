@@ -97,6 +97,7 @@ select = [
 ignore = [
     "TRY003",   # avoid long messages outside exception class (noisy)
     "PLR0913",  # too many arguments (FastMCP tools often have many)
+    "PLR0917",  # too many positional arguments (same reason as PLR0913)
 ]
 
 [tool.ruff.lint.per-file-ignores]
