@@ -43,10 +43,10 @@ packages = ["src/mealie_mcp"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.22",
+    "ruff>=0.16.0",
     "mypy>=2.3.0",
     "pytest>=9.1.1",
-    "pre-commit>=4.6.0",
+    "pre-commit>=4.6.1",
     "bandit>=1.9.4",
     "pip-audit>=2.10.1",
     "openapi-python-client>=0.29.0",
