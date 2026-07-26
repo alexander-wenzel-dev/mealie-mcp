@@ -11,6 +11,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_update_recipe` now takes `recipe_servings` and `recipe_yield_quantity`,
   the two numeric fields Mealie's ingredient scaler reads.
 
+### Changed
+
+- The pinned Mealie OpenAPI spec moved from v3.20.1 to v3.21.0.
+
 ### Fixed
 
 - `mealie_update_recipe` now states that an ingredient's `food` and `unit` each
