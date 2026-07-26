@@ -26,28 +26,28 @@ class QueryFilterJSONPart:
         value (list[str] | None | str | Unset):
     """
 
-    left_parenthesis: None | str | Unset = UNSET
-    right_parenthesis: None | str | Unset = UNSET
-    logical_operator: LogicalOperator | None | Unset = UNSET
-    attribute_name: None | str | Unset = UNSET
-    relational_operator: None | RelationalKeyword | RelationalOperator | Unset = UNSET
-    value: list[str] | None | str | Unset = UNSET
+    left_parenthesis: str | Unset | None = UNSET
+    right_parenthesis: str | Unset | None = UNSET
+    logical_operator: LogicalOperator | Unset | None = UNSET
+    attribute_name: str | Unset | None = UNSET
+    relational_operator: RelationalKeyword | RelationalOperator | Unset | None = UNSET
+    value: list[str] | str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        left_parenthesis: None | str | Unset
+        left_parenthesis: str | Unset | None
         if isinstance(self.left_parenthesis, Unset):
             left_parenthesis = UNSET
         else:
             left_parenthesis = self.left_parenthesis
 
-        right_parenthesis: None | str | Unset
+        right_parenthesis: str | Unset | None
         if isinstance(self.right_parenthesis, Unset):
             right_parenthesis = UNSET
         else:
             right_parenthesis = self.right_parenthesis
 
-        logical_operator: None | str | Unset
+        logical_operator: str | Unset | None
         if isinstance(self.logical_operator, Unset):
             logical_operator = UNSET
         elif isinstance(self.logical_operator, LogicalOperator):
@@ -55,13 +55,13 @@ class QueryFilterJSONPart:
         else:
             logical_operator = self.logical_operator
 
-        attribute_name: None | str | Unset
+        attribute_name: str | Unset | None
         if isinstance(self.attribute_name, Unset):
             attribute_name = UNSET
         else:
             attribute_name = self.attribute_name
 
-        relational_operator: None | str | Unset
+        relational_operator: str | Unset | None
         if isinstance(self.relational_operator, Unset):
             relational_operator = UNSET
         elif isinstance(self.relational_operator, RelationalKeyword) or isinstance(
@@ -71,7 +71,7 @@ class QueryFilterJSONPart:
         else:
             relational_operator = self.relational_operator
 
-        value: list[str] | None | str | Unset
+        value: list[str] | str | Unset | None
         if isinstance(self.value, Unset):
             value = UNSET
         elif isinstance(self.value, list):
@@ -102,7 +102,7 @@ class QueryFilterJSONPart:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_left_parenthesis(data: object) -> None | str | Unset:
+        def _parse_left_parenthesis(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -111,7 +111,7 @@ class QueryFilterJSONPart:
 
         left_parenthesis = _parse_left_parenthesis(d.pop("leftParenthesis", UNSET))
 
-        def _parse_right_parenthesis(data: object) -> None | str | Unset:
+        def _parse_right_parenthesis(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -120,7 +120,7 @@ class QueryFilterJSONPart:
 
         right_parenthesis = _parse_right_parenthesis(d.pop("rightParenthesis", UNSET))
 
-        def _parse_logical_operator(data: object) -> LogicalOperator | None | Unset:
+        def _parse_logical_operator(data: object) -> LogicalOperator | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -137,7 +137,7 @@ class QueryFilterJSONPart:
 
         logical_operator = _parse_logical_operator(d.pop("logicalOperator", UNSET))
 
-        def _parse_attribute_name(data: object) -> None | str | Unset:
+        def _parse_attribute_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,7 +148,7 @@ class QueryFilterJSONPart:
 
         def _parse_relational_operator(
             data: object,
-        ) -> None | RelationalKeyword | RelationalOperator | Unset:
+        ) -> RelationalKeyword | RelationalOperator | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -173,7 +173,7 @@ class QueryFilterJSONPart:
 
         relational_operator = _parse_relational_operator(d.pop("relationalOperator", UNSET))
 
-        def _parse_value(data: object) -> list[str] | None | str | Unset:
+        def _parse_value(data: object) -> list[str] | str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

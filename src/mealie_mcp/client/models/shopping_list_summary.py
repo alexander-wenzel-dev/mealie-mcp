@@ -40,10 +40,10 @@ class ShoppingListSummary:
     household_id: str
     recipe_references: list[ShoppingListRecipeRefOut]
     label_settings: list[ShoppingListMultiPurposeLabelOut]
-    name: None | str | Unset = UNSET
-    extras: None | ShoppingListSummaryExtrasType0 | Unset = ShoppingListSummaryExtrasType0()
-    created_at: datetime.datetime | None | Unset = UNSET
-    updated_at: datetime.datetime | None | Unset = UNSET
+    name: str | Unset | None = UNSET
+    extras: ShoppingListSummaryExtrasType0 | Unset | None = ShoppingListSummaryExtrasType0()
+    created_at: datetime.datetime | Unset | None = UNSET
+    updated_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,13 +65,13 @@ class ShoppingListSummary:
             label_settings_item = label_settings_item_data.to_dict()
             label_settings.append(label_settings_item)
 
-        name: None | str | Unset
+        name: str | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
             name = self.name
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, ShoppingListSummaryExtrasType0):
@@ -79,7 +79,7 @@ class ShoppingListSummary:
         else:
             extras = self.extras
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -87,7 +87,7 @@ class ShoppingListSummary:
         else:
             created_at = self.created_at
 
-        updated_at: None | str | Unset
+        updated_at: str | Unset | None
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -148,7 +148,7 @@ class ShoppingListSummary:
 
             label_settings.append(label_settings_item)
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -157,7 +157,7 @@ class ShoppingListSummary:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_extras(data: object) -> None | ShoppingListSummaryExtrasType0 | Unset:
+        def _parse_extras(data: object) -> ShoppingListSummaryExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -174,7 +174,7 @@ class ShoppingListSummary:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -191,7 +191,7 @@ class ShoppingListSummary:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_updated_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_updated_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

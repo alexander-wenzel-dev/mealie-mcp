@@ -13,7 +13,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: ScrapeRecipeTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipeTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Test Parse Recipe Url
 
@@ -96,7 +96,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipeTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Test Parse Recipe Url
 
@@ -123,7 +123,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipeTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Test Parse Recipe Url
 
@@ -153,7 +153,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipeTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Test Parse Recipe Url
 

@@ -15,7 +15,7 @@ def _get_kwargs(
     group_slug: str,
     household_slug: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -67,7 +67,7 @@ def sync_detailed(
     household_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | HouseholdSummary]:
     """Get Household
 
@@ -102,7 +102,7 @@ def sync(
     household_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | HouseholdSummary | None:
     """Get Household
 
@@ -132,7 +132,7 @@ async def asyncio_detailed(
     household_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | HouseholdSummary]:
     """Get Household
 
@@ -165,7 +165,7 @@ async def asyncio(
     household_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | HouseholdSummary | None:
     """Get Household
 

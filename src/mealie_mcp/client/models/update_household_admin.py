@@ -28,7 +28,7 @@ class UpdateHouseholdAdmin:
     group_id: str
     name: str
     id: str
-    preferences: None | Unset | UpdateHouseholdPreferences = UNSET
+    preferences: Unset | UpdateHouseholdPreferences | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +40,7 @@ class UpdateHouseholdAdmin:
 
         id = self.id
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, UpdateHouseholdPreferences):
@@ -73,7 +73,7 @@ class UpdateHouseholdAdmin:
 
         id = d.pop("id")
 
-        def _parse_preferences(data: object) -> None | Unset | UpdateHouseholdPreferences:
+        def _parse_preferences(data: object) -> Unset | UpdateHouseholdPreferences | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

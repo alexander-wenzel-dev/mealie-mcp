@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: ForgotPassword,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -66,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ForgotPassword,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | PasswordResetToken]:
     """Generate Token
 
@@ -100,7 +100,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ForgotPassword,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | PasswordResetToken | None:
     """Generate Token
 
@@ -129,7 +129,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ForgotPassword,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | PasswordResetToken]:
     """Generate Token
 
@@ -161,7 +161,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ForgotPassword,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | PasswordResetToken | None:
     """Generate Token
 

@@ -12,7 +12,7 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReadInviteToken]]:
     """Get Invite Tokens
 
@@ -93,7 +93,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReadInviteToken] | None:
     """Get Invite Tokens
 
@@ -117,7 +117,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReadInviteToken]]:
     """Get Invite Tokens
 
@@ -144,7 +144,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReadInviteToken] | None:
     """Get Invite Tokens
 

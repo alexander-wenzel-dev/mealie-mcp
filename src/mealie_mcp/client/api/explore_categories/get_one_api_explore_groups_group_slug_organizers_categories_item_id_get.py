@@ -15,7 +15,7 @@ def _get_kwargs(
     group_slug: str,
     item_id: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -67,7 +67,7 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[CategoryOut | HTTPValidationError]:
     """Get One
 
@@ -102,7 +102,7 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> CategoryOut | HTTPValidationError | None:
     """Get One
 
@@ -132,7 +132,7 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[CategoryOut | HTTPValidationError]:
     """Get One
 
@@ -165,7 +165,7 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient | Client,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> CategoryOut | HTTPValidationError | None:
     """Get One
 

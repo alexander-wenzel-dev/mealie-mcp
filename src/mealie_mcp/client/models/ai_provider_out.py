@@ -32,7 +32,7 @@ class AIProviderOut:
     name: str
     model: str
     id: str
-    base_url: None | str | Unset = UNSET
+    base_url: str | Unset | None = UNSET
     timeout: int | Unset = 300
     request_headers: AIProviderOutRequestheaders | Unset = UNSET
     request_params: AIProviderOutRequestparams | Unset = UNSET
@@ -45,7 +45,7 @@ class AIProviderOut:
 
         id = self.id
 
-        base_url: None | str | Unset
+        base_url: str | Unset | None
         if isinstance(self.base_url, Unset):
             base_url = UNSET
         else:
@@ -93,7 +93,7 @@ class AIProviderOut:
 
         id = d.pop("id")
 
-        def _parse_base_url(data: object) -> None | str | Unset:
+        def _parse_base_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

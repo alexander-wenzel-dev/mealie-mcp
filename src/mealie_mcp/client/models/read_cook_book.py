@@ -38,12 +38,12 @@ class ReadCookBook:
     household_id: str
     id: str
     description: str | Unset = ""
-    slug: None | str | Unset = UNSET
+    slug: str | Unset | None = UNSET
     position: int | Unset = 1
     public: bool | Unset = False
     query_filter_string: str | Unset = ""
     query_filter: QueryFilterJSON | Unset = UNSET
-    household: CookbookHousehold | None | Unset = UNSET
+    household: CookbookHousehold | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -59,7 +59,7 @@ class ReadCookBook:
 
         description = self.description
 
-        slug: None | str | Unset
+        slug: str | Unset | None
         if isinstance(self.slug, Unset):
             slug = UNSET
         else:
@@ -75,7 +75,7 @@ class ReadCookBook:
         if not isinstance(self.query_filter, Unset):
             query_filter = self.query_filter.to_dict()
 
-        household: dict[str, Any] | None | Unset
+        household: dict[str, Any] | Unset | None
         if isinstance(self.household, Unset):
             household = UNSET
         elif isinstance(self.household, CookbookHousehold):
@@ -126,7 +126,7 @@ class ReadCookBook:
 
         description = d.pop("description", UNSET)
 
-        def _parse_slug(data: object) -> None | str | Unset:
+        def _parse_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,7 +148,7 @@ class ReadCookBook:
         else:
             query_filter = QueryFilterJSON.from_dict(_query_filter)
 
-        def _parse_household(data: object) -> CookbookHousehold | None | Unset:
+        def _parse_household(data: object) -> CookbookHousehold | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

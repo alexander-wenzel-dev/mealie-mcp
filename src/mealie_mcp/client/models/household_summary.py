@@ -30,7 +30,7 @@ class HouseholdSummary:
     name: str
     id: str
     slug: str
-    preferences: None | ReadHouseholdPreferences | Unset = UNSET
+    preferences: ReadHouseholdPreferences | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +44,7 @@ class HouseholdSummary:
 
         slug = self.slug
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, ReadHouseholdPreferences):
@@ -80,7 +80,7 @@ class HouseholdSummary:
 
         slug = d.pop("slug")
 
-        def _parse_preferences(data: object) -> None | ReadHouseholdPreferences | Unset:
+        def _parse_preferences(data: object) -> ReadHouseholdPreferences | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

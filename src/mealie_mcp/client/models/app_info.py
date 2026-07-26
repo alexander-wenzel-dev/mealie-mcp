@@ -38,8 +38,8 @@ class AppInfo:
     oidc_redirect: bool
     oidc_provider_name: str
     token_time: int
-    default_group_slug: None | str | Unset = UNSET
-    default_household_slug: None | str | Unset = UNSET
+    default_group_slug: str | Unset | None = UNSET
+    default_household_slug: str | Unset | None = UNSET
     allowed_iframe_hosts: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -62,13 +62,13 @@ class AppInfo:
 
         token_time = self.token_time
 
-        default_group_slug: None | str | Unset
+        default_group_slug: str | Unset | None
         if isinstance(self.default_group_slug, Unset):
             default_group_slug = UNSET
         else:
             default_group_slug = self.default_group_slug
 
-        default_household_slug: None | str | Unset
+        default_household_slug: str | Unset | None
         if isinstance(self.default_household_slug, Unset):
             default_household_slug = UNSET
         else:
@@ -123,7 +123,7 @@ class AppInfo:
 
         token_time = d.pop("tokenTime")
 
-        def _parse_default_group_slug(data: object) -> None | str | Unset:
+        def _parse_default_group_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -132,7 +132,7 @@ class AppInfo:
 
         default_group_slug = _parse_default_group_slug(d.pop("defaultGroupSlug", UNSET))
 
-        def _parse_default_household_slug(data: object) -> None | str | Unset:
+        def _parse_default_household_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

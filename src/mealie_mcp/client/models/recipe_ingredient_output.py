@@ -35,14 +35,14 @@ class RecipeIngredientOutput:
         reference_id (UUID | Unset):
     """
 
-    quantity: float | None | Unset = 0.0
-    unit: CreateIngredientUnit | IngredientUnitOutput | None | Unset = UNSET
-    food: CreateIngredientFood | IngredientFoodOutput | None | Unset = UNSET
-    referenced_recipe: None | RecipeOutput | Unset = UNSET
-    note: None | str | Unset = ""
+    quantity: float | Unset | None = 0.0
+    unit: CreateIngredientUnit | IngredientUnitOutput | Unset | None = UNSET
+    food: CreateIngredientFood | IngredientFoodOutput | Unset | None = UNSET
+    referenced_recipe: RecipeOutput | Unset | None = UNSET
+    note: str | Unset | None = ""
     display: str | Unset = ""
-    title: None | str | Unset = UNSET
-    original_text: None | str | Unset = UNSET
+    title: str | Unset | None = UNSET
+    original_text: str | Unset | None = UNSET
     reference_id: UUID | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -53,13 +53,13 @@ class RecipeIngredientOutput:
         from ..models.ingredient_unit_output import IngredientUnitOutput
         from ..models.recipe_output import RecipeOutput
 
-        quantity: float | None | Unset
+        quantity: float | Unset | None
         if isinstance(self.quantity, Unset):
             quantity = UNSET
         else:
             quantity = self.quantity
 
-        unit: dict[str, Any] | None | Unset
+        unit: dict[str, Any] | Unset | None
         if isinstance(self.unit, Unset):
             unit = UNSET
         elif isinstance(self.unit, IngredientUnitOutput) or isinstance(
@@ -69,7 +69,7 @@ class RecipeIngredientOutput:
         else:
             unit = self.unit
 
-        food: dict[str, Any] | None | Unset
+        food: dict[str, Any] | Unset | None
         if isinstance(self.food, Unset):
             food = UNSET
         elif isinstance(self.food, IngredientFoodOutput) or isinstance(
@@ -79,7 +79,7 @@ class RecipeIngredientOutput:
         else:
             food = self.food
 
-        referenced_recipe: dict[str, Any] | None | Unset
+        referenced_recipe: dict[str, Any] | Unset | None
         if isinstance(self.referenced_recipe, Unset):
             referenced_recipe = UNSET
         elif isinstance(self.referenced_recipe, RecipeOutput):
@@ -87,7 +87,7 @@ class RecipeIngredientOutput:
         else:
             referenced_recipe = self.referenced_recipe
 
-        note: None | str | Unset
+        note: str | Unset | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
@@ -95,13 +95,13 @@ class RecipeIngredientOutput:
 
         display = self.display
 
-        title: None | str | Unset
+        title: str | Unset | None
         if isinstance(self.title, Unset):
             title = UNSET
         else:
             title = self.title
 
-        original_text: None | str | Unset
+        original_text: str | Unset | None
         if isinstance(self.original_text, Unset):
             original_text = UNSET
         else:
@@ -145,7 +145,7 @@ class RecipeIngredientOutput:
 
         d = dict(src_dict)
 
-        def _parse_quantity(data: object) -> float | None | Unset:
+        def _parse_quantity(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -154,7 +154,7 @@ class RecipeIngredientOutput:
 
         quantity = _parse_quantity(d.pop("quantity", UNSET))
 
-        def _parse_unit(data: object) -> CreateIngredientUnit | IngredientUnitOutput | None | Unset:
+        def _parse_unit(data: object) -> CreateIngredientUnit | IngredientUnitOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -179,7 +179,7 @@ class RecipeIngredientOutput:
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
-        def _parse_food(data: object) -> CreateIngredientFood | IngredientFoodOutput | None | Unset:
+        def _parse_food(data: object) -> CreateIngredientFood | IngredientFoodOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -204,7 +204,7 @@ class RecipeIngredientOutput:
 
         food = _parse_food(d.pop("food", UNSET))
 
-        def _parse_referenced_recipe(data: object) -> None | RecipeOutput | Unset:
+        def _parse_referenced_recipe(data: object) -> RecipeOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -221,7 +221,7 @@ class RecipeIngredientOutput:
 
         referenced_recipe = _parse_referenced_recipe(d.pop("referencedRecipe", UNSET))
 
-        def _parse_note(data: object) -> None | str | Unset:
+        def _parse_note(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -232,7 +232,7 @@ class RecipeIngredientOutput:
 
         display = d.pop("display", UNSET)
 
-        def _parse_title(data: object) -> None | str | Unset:
+        def _parse_title(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -241,7 +241,7 @@ class RecipeIngredientOutput:
 
         title = _parse_title(d.pop("title", UNSET))
 
-        def _parse_original_text(data: object) -> None | str | Unset:
+        def _parse_original_text(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

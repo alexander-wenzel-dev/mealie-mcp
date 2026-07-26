@@ -15,7 +15,7 @@ def _get_kwargs(
     slug: str,
     *,
     body: ScrapeRecipe,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -69,7 +69,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipe,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Scrape Image Url
 
@@ -105,7 +105,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipe,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Scrape Image Url
 
@@ -136,7 +136,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipe,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Scrape Image Url
 
@@ -170,7 +170,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ScrapeRecipe,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Scrape Image Url
 

@@ -29,7 +29,7 @@ class RecipeTimelineEventOut:
         updated_at (datetime.datetime):
         event_message (None | str | Unset):
         image (None | TimelineEventImage | Unset):  Default: TimelineEventImage.DOES_NOT_HAVE_IMAGE.
-        timestamp (datetime.datetime | Unset):  Default: datetime.datetime.fromisoformat('2026-06-27T04:10:24.507252Z').
+        timestamp (datetime.datetime | Unset):  Default: datetime.datetime.fromisoformat('2026-07-26T13:16:31.498407Z').
     """
 
     recipe_id: str
@@ -41,10 +41,10 @@ class RecipeTimelineEventOut:
     household_id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    event_message: None | str | Unset = UNSET
-    image: None | TimelineEventImage | Unset = TimelineEventImage.DOES_NOT_HAVE_IMAGE
+    event_message: str | Unset | None = UNSET
+    image: TimelineEventImage | Unset | None = TimelineEventImage.DOES_NOT_HAVE_IMAGE
     timestamp: datetime.datetime | Unset = datetime.datetime.fromisoformat(
-        "2026-06-27T04:10:24.507252Z"
+        "2026-07-26T13:16:31.498407Z"
     )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -67,13 +67,13 @@ class RecipeTimelineEventOut:
 
         updated_at = self.updated_at.isoformat()
 
-        event_message: None | str | Unset
+        event_message: str | Unset | None
         if isinstance(self.event_message, Unset):
             event_message = UNSET
         else:
             event_message = self.event_message
 
-        image: None | str | Unset
+        image: str | Unset | None
         if isinstance(self.image, Unset):
             image = UNSET
         elif isinstance(self.image, TimelineEventImage):
@@ -130,7 +130,7 @@ class RecipeTimelineEventOut:
 
         updated_at = datetime.datetime.fromisoformat(d.pop("updatedAt"))
 
-        def _parse_event_message(data: object) -> None | str | Unset:
+        def _parse_event_message(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -139,7 +139,7 @@ class RecipeTimelineEventOut:
 
         event_message = _parse_event_message(d.pop("eventMessage", UNSET))
 
-        def _parse_image(data: object) -> None | TimelineEventImage | Unset:
+        def _parse_image(data: object) -> TimelineEventImage | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

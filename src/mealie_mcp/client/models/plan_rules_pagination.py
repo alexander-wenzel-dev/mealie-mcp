@@ -33,8 +33,8 @@ class PlanRulesPagination:
     per_page: int | Unset = 10
     total: int | Unset = 0
     total_pages: int | Unset = 0
-    next_: None | str | Unset = UNSET
-    previous: None | str | Unset = UNSET
+    next_: str | Unset | None = UNSET
+    previous: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,13 +51,13 @@ class PlanRulesPagination:
 
         total_pages = self.total_pages
 
-        next_: None | str | Unset
+        next_: str | Unset | None
         if isinstance(self.next_, Unset):
             next_ = UNSET
         else:
             next_ = self.next_
 
-        previous: None | str | Unset
+        previous: str | Unset | None
         if isinstance(self.previous, Unset):
             previous = UNSET
         else:
@@ -105,7 +105,7 @@ class PlanRulesPagination:
 
         total_pages = d.pop("total_pages", UNSET)
 
-        def _parse_next_(data: object) -> None | str | Unset:
+        def _parse_next_(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -114,7 +114,7 @@ class PlanRulesPagination:
 
         next_ = _parse_next_(d.pop("next", UNSET))
 
-        def _parse_previous(data: object) -> None | str | Unset:
+        def _parse_previous(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

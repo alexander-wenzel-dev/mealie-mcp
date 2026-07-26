@@ -21,13 +21,13 @@ class HouseholdRecipeSummary:
     """
 
     recipe_id: str
-    last_made: datetime.datetime | None | Unset = UNSET
+    last_made: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         recipe_id = self.recipe_id
 
-        last_made: None | str | Unset
+        last_made: str | Unset | None
         if isinstance(self.last_made, Unset):
             last_made = UNSET
         elif isinstance(self.last_made, datetime.datetime):
@@ -52,7 +52,7 @@ class HouseholdRecipeSummary:
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")
 
-        def _parse_last_made(data: object) -> datetime.datetime | None | Unset:
+        def _parse_last_made(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

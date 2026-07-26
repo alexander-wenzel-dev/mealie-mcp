@@ -42,14 +42,14 @@ class UserIn:
     full_name: str
     email: str
     password: str
-    id: None | str | Unset = UNSET
+    id: str | Unset | None = UNSET
     auth_method: AuthMethod | Unset = UNSET
     admin: bool | Unset = False
-    group: None | str | Unset = UNSET
-    household: None | str | Unset = UNSET
+    group: str | Unset | None = UNSET
+    household: str | Unset | None = UNSET
     advanced: bool | Unset = False
     show_announcements: bool | Unset = True
-    last_read_announcement: None | str | Unset = UNSET
+    last_read_announcement: str | Unset | None = UNSET
     can_invite: bool | Unset = False
     can_manage: bool | Unset = False
     can_manage_household: bool | Unset = False
@@ -65,7 +65,7 @@ class UserIn:
 
         password = self.password
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         else:
@@ -77,13 +77,13 @@ class UserIn:
 
         admin = self.admin
 
-        group: None | str | Unset
+        group: str | Unset | None
         if isinstance(self.group, Unset):
             group = UNSET
         else:
             group = self.group
 
-        household: None | str | Unset
+        household: str | Unset | None
         if isinstance(self.household, Unset):
             household = UNSET
         else:
@@ -93,7 +93,7 @@ class UserIn:
 
         show_announcements = self.show_announcements
 
-        last_read_announcement: None | str | Unset
+        last_read_announcement: str | Unset | None
         if isinstance(self.last_read_announcement, Unset):
             last_read_announcement = UNSET
         else:
@@ -155,7 +155,7 @@ class UserIn:
 
         password = d.pop("password")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -173,7 +173,7 @@ class UserIn:
 
         admin = d.pop("admin", UNSET)
 
-        def _parse_group(data: object) -> None | str | Unset:
+        def _parse_group(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -182,7 +182,7 @@ class UserIn:
 
         group = _parse_group(d.pop("group", UNSET))
 
-        def _parse_household(data: object) -> None | str | Unset:
+        def _parse_household(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -195,7 +195,7 @@ class UserIn:
 
         show_announcements = d.pop("showAnnouncements", UNSET)
 
-        def _parse_last_read_announcement(data: object) -> None | str | Unset:
+        def _parse_last_read_announcement(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

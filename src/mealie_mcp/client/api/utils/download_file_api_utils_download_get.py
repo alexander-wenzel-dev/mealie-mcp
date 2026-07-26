@@ -11,12 +11,12 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    token: None | str | Unset = UNSET,
+    token: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
 
     params: dict[str, Any] = {}
 
-    json_token: None | str | Unset
+    json_token: str | Unset | None
     if isinstance(token, Unset):
         json_token = UNSET
     else:
@@ -65,7 +65,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    token: None | str | Unset = UNSET,
+    token: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Download File
 
@@ -97,7 +97,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    token: None | str | Unset = UNSET,
+    token: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Download File
 
@@ -124,7 +124,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    token: None | str | Unset = UNSET,
+    token: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Download File
 
@@ -154,7 +154,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    token: None | str | Unset = UNSET,
+    token: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Download File
 

@@ -24,17 +24,17 @@ class RecipeTimelineEventIn:
         user_id (None | str | Unset):
         event_message (None | str | Unset):
         image (None | TimelineEventImage | Unset):  Default: TimelineEventImage.DOES_NOT_HAVE_IMAGE.
-        timestamp (datetime.datetime | Unset):  Default: datetime.datetime.fromisoformat('2026-06-27T04:10:24.507252Z').
+        timestamp (datetime.datetime | Unset):  Default: datetime.datetime.fromisoformat('2026-07-26T13:16:31.498407Z').
     """
 
     recipe_id: str
     subject: str
     event_type: TimelineEventType
-    user_id: None | str | Unset = UNSET
-    event_message: None | str | Unset = UNSET
-    image: None | TimelineEventImage | Unset = TimelineEventImage.DOES_NOT_HAVE_IMAGE
+    user_id: str | Unset | None = UNSET
+    event_message: str | Unset | None = UNSET
+    image: TimelineEventImage | Unset | None = TimelineEventImage.DOES_NOT_HAVE_IMAGE
     timestamp: datetime.datetime | Unset = datetime.datetime.fromisoformat(
-        "2026-06-27T04:10:24.507252Z"
+        "2026-07-26T13:16:31.498407Z"
     )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -45,19 +45,19 @@ class RecipeTimelineEventIn:
 
         event_type = self.event_type.value
 
-        user_id: None | str | Unset
+        user_id: str | Unset | None
         if isinstance(self.user_id, Unset):
             user_id = UNSET
         else:
             user_id = self.user_id
 
-        event_message: None | str | Unset
+        event_message: str | Unset | None
         if isinstance(self.event_message, Unset):
             event_message = UNSET
         else:
             event_message = self.event_message
 
-        image: None | str | Unset
+        image: str | Unset | None
         if isinstance(self.image, Unset):
             image = UNSET
         elif isinstance(self.image, TimelineEventImage):
@@ -98,7 +98,7 @@ class RecipeTimelineEventIn:
 
         event_type = TimelineEventType(d.pop("eventType"))
 
-        def _parse_user_id(data: object) -> None | str | Unset:
+        def _parse_user_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -107,7 +107,7 @@ class RecipeTimelineEventIn:
 
         user_id = _parse_user_id(d.pop("userId", UNSET))
 
-        def _parse_event_message(data: object) -> None | str | Unset:
+        def _parse_event_message(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -116,7 +116,7 @@ class RecipeTimelineEventIn:
 
         event_message = _parse_event_message(d.pop("eventMessage", UNSET))
 
-        def _parse_image(data: object) -> None | TimelineEventImage | Unset:
+        def _parse_image(data: object) -> TimelineEventImage | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: LongLiveTokenIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -66,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: LongLiveTokenIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | LongLiveTokenCreateResponse]:
     """Create Api Token
 
@@ -100,7 +100,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: LongLiveTokenIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | LongLiveTokenCreateResponse | None:
     """Create Api Token
 
@@ -129,7 +129,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: LongLiveTokenIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | LongLiveTokenCreateResponse]:
     """Create Api Token
 
@@ -161,7 +161,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: LongLiveTokenIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | LongLiveTokenCreateResponse | None:
     """Create Api Token
 

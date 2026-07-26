@@ -65,46 +65,46 @@ class Recipe:
         comments (list[RecipeCommentOut] | None | Unset):
     """
 
-    id: None | str | Unset = UNSET
+    id: str | Unset | None = UNSET
     user_id: str | Unset = UNSET
     household_id: str | Unset = UNSET
     group_id: str | Unset = UNSET
-    name: None | str | Unset = UNSET
+    name: str | Unset | None = UNSET
     slug: str | Unset = ""
-    image: Any | None | Unset = UNSET
+    image: Any | Unset | None = UNSET
     recipe_servings: float | Unset = 0.0
     recipe_yield_quantity: float | Unset = 0.0
-    recipe_yield: None | str | Unset = UNSET
-    total_time: None | str | Unset = UNSET
-    prep_time: None | str | Unset = UNSET
-    cook_time: None | str | Unset = UNSET
-    perform_time: None | str | Unset = UNSET
-    description: None | str | Unset = ""
-    recipe_category: list[RecipeCategory] | None | Unset = UNSET
-    tags: list[RecipeTag] | None | Unset = UNSET
+    recipe_yield: str | Unset | None = UNSET
+    total_time: str | Unset | None = UNSET
+    prep_time: str | Unset | None = UNSET
+    cook_time: str | Unset | None = UNSET
+    perform_time: str | Unset | None = UNSET
+    description: str | Unset | None = ""
+    recipe_category: list[RecipeCategory] | Unset | None = UNSET
+    tags: list[RecipeTag] | Unset | None = UNSET
     tools: list[RecipeTool] | Unset = UNSET
-    rating: float | None | Unset = UNSET
-    org_url: None | str | Unset = UNSET
-    date_added: datetime.date | None | Unset = UNSET
-    date_updated: datetime.datetime | None | Unset = UNSET
-    created_at: datetime.datetime | None | Unset = UNSET
-    update_at: datetime.datetime | None | Unset = UNSET
-    last_made: datetime.datetime | None | Unset = UNSET
+    rating: float | Unset | None = UNSET
+    org_url: str | Unset | None = UNSET
+    date_added: datetime.date | Unset | None = UNSET
+    date_updated: datetime.datetime | Unset | None = UNSET
+    created_at: datetime.datetime | Unset | None = UNSET
+    update_at: datetime.datetime | Unset | None = UNSET
+    last_made: datetime.datetime | Unset | None = UNSET
     recipe_ingredient: list[RecipeIngredient] | Unset = UNSET
-    recipe_instructions: list[RecipeStep] | None | Unset = UNSET
-    nutrition: None | Nutrition | Unset = UNSET
-    settings: None | RecipeSettings | Unset = UNSET
-    assets: list[RecipeAsset] | None | Unset = UNSET
-    notes: list[RecipeNote] | None | Unset = UNSET
-    extras: None | RecipeExtrasType0 | Unset = RecipeExtrasType0()
-    comments: list[RecipeCommentOut] | None | Unset = UNSET
+    recipe_instructions: list[RecipeStep] | Unset | None = UNSET
+    nutrition: Nutrition | Unset | None = UNSET
+    settings: RecipeSettings | Unset | None = UNSET
+    assets: list[RecipeAsset] | Unset | None = UNSET
+    notes: list[RecipeNote] | Unset | None = UNSET
+    extras: RecipeExtrasType0 | Unset | None = RecipeExtrasType0()
+    comments: list[RecipeCommentOut] | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.nutrition import Nutrition
         from ..models.recipe_settings import RecipeSettings
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         else:
@@ -116,7 +116,7 @@ class Recipe:
 
         group_id = self.group_id
 
-        name: None | str | Unset
+        name: str | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
@@ -124,7 +124,7 @@ class Recipe:
 
         slug = self.slug
 
-        image: Any | None | Unset
+        image: Any | Unset | None
         if isinstance(self.image, Unset):
             image = UNSET
         else:
@@ -134,43 +134,43 @@ class Recipe:
 
         recipe_yield_quantity = self.recipe_yield_quantity
 
-        recipe_yield: None | str | Unset
+        recipe_yield: str | Unset | None
         if isinstance(self.recipe_yield, Unset):
             recipe_yield = UNSET
         else:
             recipe_yield = self.recipe_yield
 
-        total_time: None | str | Unset
+        total_time: str | Unset | None
         if isinstance(self.total_time, Unset):
             total_time = UNSET
         else:
             total_time = self.total_time
 
-        prep_time: None | str | Unset
+        prep_time: str | Unset | None
         if isinstance(self.prep_time, Unset):
             prep_time = UNSET
         else:
             prep_time = self.prep_time
 
-        cook_time: None | str | Unset
+        cook_time: str | Unset | None
         if isinstance(self.cook_time, Unset):
             cook_time = UNSET
         else:
             cook_time = self.cook_time
 
-        perform_time: None | str | Unset
+        perform_time: str | Unset | None
         if isinstance(self.perform_time, Unset):
             perform_time = UNSET
         else:
             perform_time = self.perform_time
 
-        description: None | str | Unset
+        description: str | Unset | None
         if isinstance(self.description, Unset):
             description = UNSET
         else:
             description = self.description
 
-        recipe_category: list[dict[str, Any]] | None | Unset
+        recipe_category: list[dict[str, Any]] | Unset | None
         if isinstance(self.recipe_category, Unset):
             recipe_category = UNSET
         elif isinstance(self.recipe_category, list):
@@ -182,7 +182,7 @@ class Recipe:
         else:
             recipe_category = self.recipe_category
 
-        tags: list[dict[str, Any]] | None | Unset
+        tags: list[dict[str, Any]] | Unset | None
         if isinstance(self.tags, Unset):
             tags = UNSET
         elif isinstance(self.tags, list):
@@ -201,19 +201,19 @@ class Recipe:
                 tools_item = tools_item_data.to_dict()
                 tools.append(tools_item)
 
-        rating: float | None | Unset
+        rating: float | Unset | None
         if isinstance(self.rating, Unset):
             rating = UNSET
         else:
             rating = self.rating
 
-        org_url: None | str | Unset
+        org_url: str | Unset | None
         if isinstance(self.org_url, Unset):
             org_url = UNSET
         else:
             org_url = self.org_url
 
-        date_added: None | str | Unset
+        date_added: str | Unset | None
         if isinstance(self.date_added, Unset):
             date_added = UNSET
         elif isinstance(self.date_added, datetime.date):
@@ -221,7 +221,7 @@ class Recipe:
         else:
             date_added = self.date_added
 
-        date_updated: None | str | Unset
+        date_updated: str | Unset | None
         if isinstance(self.date_updated, Unset):
             date_updated = UNSET
         elif isinstance(self.date_updated, datetime.datetime):
@@ -229,7 +229,7 @@ class Recipe:
         else:
             date_updated = self.date_updated
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -237,7 +237,7 @@ class Recipe:
         else:
             created_at = self.created_at
 
-        update_at: None | str | Unset
+        update_at: str | Unset | None
         if isinstance(self.update_at, Unset):
             update_at = UNSET
         elif isinstance(self.update_at, datetime.datetime):
@@ -245,7 +245,7 @@ class Recipe:
         else:
             update_at = self.update_at
 
-        last_made: None | str | Unset
+        last_made: str | Unset | None
         if isinstance(self.last_made, Unset):
             last_made = UNSET
         elif isinstance(self.last_made, datetime.datetime):
@@ -260,7 +260,7 @@ class Recipe:
                 recipe_ingredient_item = recipe_ingredient_item_data.to_dict()
                 recipe_ingredient.append(recipe_ingredient_item)
 
-        recipe_instructions: list[dict[str, Any]] | None | Unset
+        recipe_instructions: list[dict[str, Any]] | Unset | None
         if isinstance(self.recipe_instructions, Unset):
             recipe_instructions = UNSET
         elif isinstance(self.recipe_instructions, list):
@@ -272,7 +272,7 @@ class Recipe:
         else:
             recipe_instructions = self.recipe_instructions
 
-        nutrition: dict[str, Any] | None | Unset
+        nutrition: dict[str, Any] | Unset | None
         if isinstance(self.nutrition, Unset):
             nutrition = UNSET
         elif isinstance(self.nutrition, Nutrition):
@@ -280,7 +280,7 @@ class Recipe:
         else:
             nutrition = self.nutrition
 
-        settings: dict[str, Any] | None | Unset
+        settings: dict[str, Any] | Unset | None
         if isinstance(self.settings, Unset):
             settings = UNSET
         elif isinstance(self.settings, RecipeSettings):
@@ -288,7 +288,7 @@ class Recipe:
         else:
             settings = self.settings
 
-        assets: list[dict[str, Any]] | None | Unset
+        assets: list[dict[str, Any]] | Unset | None
         if isinstance(self.assets, Unset):
             assets = UNSET
         elif isinstance(self.assets, list):
@@ -300,7 +300,7 @@ class Recipe:
         else:
             assets = self.assets
 
-        notes: list[dict[str, Any]] | None | Unset
+        notes: list[dict[str, Any]] | Unset | None
         if isinstance(self.notes, Unset):
             notes = UNSET
         elif isinstance(self.notes, list):
@@ -312,7 +312,7 @@ class Recipe:
         else:
             notes = self.notes
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, RecipeExtrasType0):
@@ -320,7 +320,7 @@ class Recipe:
         else:
             extras = self.extras
 
-        comments: list[dict[str, Any]] | None | Unset
+        comments: list[dict[str, Any]] | Unset | None
         if isinstance(self.comments, Unset):
             comments = UNSET
         elif isinstance(self.comments, list):
@@ -419,7 +419,7 @@ class Recipe:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -434,7 +434,7 @@ class Recipe:
 
         group_id = d.pop("groupId", UNSET)
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -445,7 +445,7 @@ class Recipe:
 
         slug = d.pop("slug", UNSET)
 
-        def _parse_image(data: object) -> Any | None | Unset:
+        def _parse_image(data: object) -> Any | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -458,7 +458,7 @@ class Recipe:
 
         recipe_yield_quantity = d.pop("recipeYieldQuantity", UNSET)
 
-        def _parse_recipe_yield(data: object) -> None | str | Unset:
+        def _parse_recipe_yield(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -467,7 +467,7 @@ class Recipe:
 
         recipe_yield = _parse_recipe_yield(d.pop("recipeYield", UNSET))
 
-        def _parse_total_time(data: object) -> None | str | Unset:
+        def _parse_total_time(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -476,7 +476,7 @@ class Recipe:
 
         total_time = _parse_total_time(d.pop("totalTime", UNSET))
 
-        def _parse_prep_time(data: object) -> None | str | Unset:
+        def _parse_prep_time(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -485,7 +485,7 @@ class Recipe:
 
         prep_time = _parse_prep_time(d.pop("prepTime", UNSET))
 
-        def _parse_cook_time(data: object) -> None | str | Unset:
+        def _parse_cook_time(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -494,7 +494,7 @@ class Recipe:
 
         cook_time = _parse_cook_time(d.pop("cookTime", UNSET))
 
-        def _parse_perform_time(data: object) -> None | str | Unset:
+        def _parse_perform_time(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -503,7 +503,7 @@ class Recipe:
 
         perform_time = _parse_perform_time(d.pop("performTime", UNSET))
 
-        def _parse_description(data: object) -> None | str | Unset:
+        def _parse_description(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -512,7 +512,7 @@ class Recipe:
 
         description = _parse_description(d.pop("description", UNSET))
 
-        def _parse_recipe_category(data: object) -> list[RecipeCategory] | None | Unset:
+        def _parse_recipe_category(data: object) -> list[RecipeCategory] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -536,7 +536,7 @@ class Recipe:
 
         recipe_category = _parse_recipe_category(d.pop("recipeCategory", UNSET))
 
-        def _parse_tags(data: object) -> list[RecipeTag] | None | Unset:
+        def _parse_tags(data: object) -> list[RecipeTag] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -567,7 +567,7 @@ class Recipe:
 
                 tools.append(tools_item)
 
-        def _parse_rating(data: object) -> float | None | Unset:
+        def _parse_rating(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -576,7 +576,7 @@ class Recipe:
 
         rating = _parse_rating(d.pop("rating", UNSET))
 
-        def _parse_org_url(data: object) -> None | str | Unset:
+        def _parse_org_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -585,7 +585,7 @@ class Recipe:
 
         org_url = _parse_org_url(d.pop("orgURL", UNSET))
 
-        def _parse_date_added(data: object) -> datetime.date | None | Unset:
+        def _parse_date_added(data: object) -> datetime.date | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -602,7 +602,7 @@ class Recipe:
 
         date_added = _parse_date_added(d.pop("dateAdded", UNSET))
 
-        def _parse_date_updated(data: object) -> datetime.datetime | None | Unset:
+        def _parse_date_updated(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -619,7 +619,7 @@ class Recipe:
 
         date_updated = _parse_date_updated(d.pop("dateUpdated", UNSET))
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -636,7 +636,7 @@ class Recipe:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_update_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_update_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -653,7 +653,7 @@ class Recipe:
 
         update_at = _parse_update_at(d.pop("update_at", UNSET))
 
-        def _parse_last_made(data: object) -> datetime.datetime | None | Unset:
+        def _parse_last_made(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -679,7 +679,7 @@ class Recipe:
 
                 recipe_ingredient.append(recipe_ingredient_item)
 
-        def _parse_recipe_instructions(data: object) -> list[RecipeStep] | None | Unset:
+        def _parse_recipe_instructions(data: object) -> list[RecipeStep] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -703,7 +703,7 @@ class Recipe:
 
         recipe_instructions = _parse_recipe_instructions(d.pop("recipeInstructions", UNSET))
 
-        def _parse_nutrition(data: object) -> None | Nutrition | Unset:
+        def _parse_nutrition(data: object) -> Nutrition | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -720,7 +720,7 @@ class Recipe:
 
         nutrition = _parse_nutrition(d.pop("nutrition", UNSET))
 
-        def _parse_settings(data: object) -> None | RecipeSettings | Unset:
+        def _parse_settings(data: object) -> RecipeSettings | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -737,7 +737,7 @@ class Recipe:
 
         settings = _parse_settings(d.pop("settings", UNSET))
 
-        def _parse_assets(data: object) -> list[RecipeAsset] | None | Unset:
+        def _parse_assets(data: object) -> list[RecipeAsset] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -759,7 +759,7 @@ class Recipe:
 
         assets = _parse_assets(d.pop("assets", UNSET))
 
-        def _parse_notes(data: object) -> list[RecipeNote] | None | Unset:
+        def _parse_notes(data: object) -> list[RecipeNote] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -781,7 +781,7 @@ class Recipe:
 
         notes = _parse_notes(d.pop("notes", UNSET))
 
-        def _parse_extras(data: object) -> None | RecipeExtrasType0 | Unset:
+        def _parse_extras(data: object) -> RecipeExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -798,7 +798,7 @@ class Recipe:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_comments(data: object) -> list[RecipeCommentOut] | None | Unset:
+        def _parse_comments(data: object) -> list[RecipeCommentOut] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -55,10 +55,10 @@ class AdminAboutInfo:
     default_household: str
     build_id: str
     recipe_scraper_version: str
-    default_group_slug: None | str | Unset = UNSET
-    default_household_slug: None | str | Unset = UNSET
+    default_group_slug: str | Unset | None = UNSET
+    default_household_slug: str | Unset | None = UNSET
     allowed_iframe_hosts: list[str] | Unset = UNSET
-    db_url: None | str | Unset = UNSET
+    db_url: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,13 +96,13 @@ class AdminAboutInfo:
 
         recipe_scraper_version = self.recipe_scraper_version
 
-        default_group_slug: None | str | Unset
+        default_group_slug: str | Unset | None
         if isinstance(self.default_group_slug, Unset):
             default_group_slug = UNSET
         else:
             default_group_slug = self.default_group_slug
 
-        default_household_slug: None | str | Unset
+        default_household_slug: str | Unset | None
         if isinstance(self.default_household_slug, Unset):
             default_household_slug = UNSET
         else:
@@ -112,7 +112,7 @@ class AdminAboutInfo:
         if not isinstance(self.allowed_iframe_hosts, Unset):
             allowed_iframe_hosts = self.allowed_iframe_hosts
 
-        db_url: None | str | Unset
+        db_url: str | Unset | None
         if isinstance(self.db_url, Unset):
             db_url = UNSET
         else:
@@ -189,7 +189,7 @@ class AdminAboutInfo:
 
         recipe_scraper_version = d.pop("recipeScraperVersion")
 
-        def _parse_default_group_slug(data: object) -> None | str | Unset:
+        def _parse_default_group_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -198,7 +198,7 @@ class AdminAboutInfo:
 
         default_group_slug = _parse_default_group_slug(d.pop("defaultGroupSlug", UNSET))
 
-        def _parse_default_household_slug(data: object) -> None | str | Unset:
+        def _parse_default_household_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -209,7 +209,7 @@ class AdminAboutInfo:
 
         allowed_iframe_hosts = cast(list[str], d.pop("allowedIframeHosts", UNSET))
 
-        def _parse_db_url(data: object) -> None | str | Unset:
+        def _parse_db_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

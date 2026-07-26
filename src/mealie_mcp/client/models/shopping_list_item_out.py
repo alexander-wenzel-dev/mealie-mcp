@@ -52,21 +52,21 @@ class ShoppingListItemOut:
     group_id: str
     household_id: str
     quantity: float | Unset = 1.0
-    unit: IngredientUnit | None | Unset = UNSET
-    food: IngredientFood | None | Unset = UNSET
-    referenced_recipe: None | Recipe | Unset = UNSET
-    note: None | str | Unset = ""
+    unit: IngredientUnit | Unset | None = UNSET
+    food: IngredientFood | Unset | None = UNSET
+    referenced_recipe: Recipe | Unset | None = UNSET
+    note: str | Unset | None = ""
     display: str | Unset = ""
     checked: bool | Unset = False
     position: int | Unset = 0
-    food_id: None | str | Unset = UNSET
-    label_id: None | str | Unset = UNSET
-    unit_id: None | str | Unset = UNSET
-    extras: None | ShoppingListItemOutExtrasType0 | Unset = ShoppingListItemOutExtrasType0()
-    label: MultiPurposeLabelSummary | None | Unset = UNSET
+    food_id: str | Unset | None = UNSET
+    label_id: str | Unset | None = UNSET
+    unit_id: str | Unset | None = UNSET
+    extras: ShoppingListItemOutExtrasType0 | Unset | None = ShoppingListItemOutExtrasType0()
+    label: MultiPurposeLabelSummary | Unset | None = UNSET
     recipe_references: list[ShoppingListItemRecipeRefOut] | Unset = UNSET
-    created_at: datetime.datetime | None | Unset = UNSET
-    update_at: datetime.datetime | None | Unset = UNSET
+    created_at: datetime.datetime | Unset | None = UNSET
+    update_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -85,7 +85,7 @@ class ShoppingListItemOut:
 
         quantity = self.quantity
 
-        unit: dict[str, Any] | None | Unset
+        unit: dict[str, Any] | Unset | None
         if isinstance(self.unit, Unset):
             unit = UNSET
         elif isinstance(self.unit, IngredientUnit):
@@ -93,7 +93,7 @@ class ShoppingListItemOut:
         else:
             unit = self.unit
 
-        food: dict[str, Any] | None | Unset
+        food: dict[str, Any] | Unset | None
         if isinstance(self.food, Unset):
             food = UNSET
         elif isinstance(self.food, IngredientFood):
@@ -101,7 +101,7 @@ class ShoppingListItemOut:
         else:
             food = self.food
 
-        referenced_recipe: dict[str, Any] | None | Unset
+        referenced_recipe: dict[str, Any] | Unset | None
         if isinstance(self.referenced_recipe, Unset):
             referenced_recipe = UNSET
         elif isinstance(self.referenced_recipe, Recipe):
@@ -109,7 +109,7 @@ class ShoppingListItemOut:
         else:
             referenced_recipe = self.referenced_recipe
 
-        note: None | str | Unset
+        note: str | Unset | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
@@ -121,25 +121,25 @@ class ShoppingListItemOut:
 
         position = self.position
 
-        food_id: None | str | Unset
+        food_id: str | Unset | None
         if isinstance(self.food_id, Unset):
             food_id = UNSET
         else:
             food_id = self.food_id
 
-        label_id: None | str | Unset
+        label_id: str | Unset | None
         if isinstance(self.label_id, Unset):
             label_id = UNSET
         else:
             label_id = self.label_id
 
-        unit_id: None | str | Unset
+        unit_id: str | Unset | None
         if isinstance(self.unit_id, Unset):
             unit_id = UNSET
         else:
             unit_id = self.unit_id
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, ShoppingListItemOutExtrasType0):
@@ -147,7 +147,7 @@ class ShoppingListItemOut:
         else:
             extras = self.extras
 
-        label: dict[str, Any] | None | Unset
+        label: dict[str, Any] | Unset | None
         if isinstance(self.label, Unset):
             label = UNSET
         elif isinstance(self.label, MultiPurposeLabelSummary):
@@ -162,7 +162,7 @@ class ShoppingListItemOut:
                 recipe_references_item = recipe_references_item_data.to_dict()
                 recipe_references.append(recipe_references_item)
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -170,7 +170,7 @@ class ShoppingListItemOut:
         else:
             created_at = self.created_at
 
-        update_at: None | str | Unset
+        update_at: str | Unset | None
         if isinstance(self.update_at, Unset):
             update_at = UNSET
         elif isinstance(self.update_at, datetime.datetime):
@@ -242,7 +242,7 @@ class ShoppingListItemOut:
 
         quantity = d.pop("quantity", UNSET)
 
-        def _parse_unit(data: object) -> IngredientUnit | None | Unset:
+        def _parse_unit(data: object) -> IngredientUnit | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -259,7 +259,7 @@ class ShoppingListItemOut:
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
-        def _parse_food(data: object) -> IngredientFood | None | Unset:
+        def _parse_food(data: object) -> IngredientFood | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -276,7 +276,7 @@ class ShoppingListItemOut:
 
         food = _parse_food(d.pop("food", UNSET))
 
-        def _parse_referenced_recipe(data: object) -> None | Recipe | Unset:
+        def _parse_referenced_recipe(data: object) -> Recipe | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -293,7 +293,7 @@ class ShoppingListItemOut:
 
         referenced_recipe = _parse_referenced_recipe(d.pop("referencedRecipe", UNSET))
 
-        def _parse_note(data: object) -> None | str | Unset:
+        def _parse_note(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -308,7 +308,7 @@ class ShoppingListItemOut:
 
         position = d.pop("position", UNSET)
 
-        def _parse_food_id(data: object) -> None | str | Unset:
+        def _parse_food_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -317,7 +317,7 @@ class ShoppingListItemOut:
 
         food_id = _parse_food_id(d.pop("foodId", UNSET))
 
-        def _parse_label_id(data: object) -> None | str | Unset:
+        def _parse_label_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -326,7 +326,7 @@ class ShoppingListItemOut:
 
         label_id = _parse_label_id(d.pop("labelId", UNSET))
 
-        def _parse_unit_id(data: object) -> None | str | Unset:
+        def _parse_unit_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -335,7 +335,7 @@ class ShoppingListItemOut:
 
         unit_id = _parse_unit_id(d.pop("unitId", UNSET))
 
-        def _parse_extras(data: object) -> None | ShoppingListItemOutExtrasType0 | Unset:
+        def _parse_extras(data: object) -> ShoppingListItemOutExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -352,7 +352,7 @@ class ShoppingListItemOut:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_label(data: object) -> MultiPurposeLabelSummary | None | Unset:
+        def _parse_label(data: object) -> MultiPurposeLabelSummary | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -380,7 +380,7 @@ class ShoppingListItemOut:
 
                 recipe_references.append(recipe_references_item)
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -397,7 +397,7 @@ class ShoppingListItemOut:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_update_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_update_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

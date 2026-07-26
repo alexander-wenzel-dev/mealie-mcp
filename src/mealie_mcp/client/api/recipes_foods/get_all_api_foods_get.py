@@ -14,15 +14,15 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    search: None | str | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -30,21 +30,21 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_search: None | str | Unset
+    json_search: str | Unset | None
     if isinstance(search, Unset):
         json_search = UNSET
     else:
         json_search = search
     params["search"] = json_search
 
-    json_order_by: None | str | Unset
+    json_order_by: str | Unset | None
     if isinstance(order_by, Unset):
         json_order_by = UNSET
     else:
         json_order_by = order_by
     params["orderBy"] = json_order_by
 
-    json_order_by_null_position: None | str | Unset
+    json_order_by_null_position: str | Unset | None
     if isinstance(order_by_null_position, Unset):
         json_order_by_null_position = UNSET
     elif isinstance(order_by_null_position, OrderByNullPosition):
@@ -59,14 +59,14 @@ def _get_kwargs(
 
     params["orderDirection"] = json_order_direction
 
-    json_query_filter: None | str | Unset
+    json_query_filter: str | Unset | None
     if isinstance(query_filter, Unset):
         json_query_filter = UNSET
     else:
         json_query_filter = query_filter
     params["queryFilter"] = json_query_filter
 
-    json_pagination_seed: None | str | Unset
+    json_pagination_seed: str | Unset | None
     if isinstance(pagination_seed, Unset):
         json_pagination_seed = UNSET
     else:
@@ -121,15 +121,15 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    search: None | str | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | IngredientFoodPagination]:
     """Get All
 
@@ -174,15 +174,15 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    search: None | str | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | IngredientFoodPagination | None:
     """Get All
 
@@ -222,15 +222,15 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    search: None | str | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | IngredientFoodPagination]:
     """Get All
 
@@ -273,15 +273,15 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    search: None | str | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | IngredientFoodPagination | None:
     """Get All
 

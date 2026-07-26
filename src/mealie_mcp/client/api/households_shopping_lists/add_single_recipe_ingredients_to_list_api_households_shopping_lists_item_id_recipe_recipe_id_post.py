@@ -16,8 +16,8 @@ def _get_kwargs(
     item_id: str,
     recipe_id: str,
     *,
-    body: None | ShoppingListAddRecipeParams | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    body: ShoppingListAddRecipeParams | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -76,8 +76,8 @@ def sync_detailed(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    body: None | ShoppingListAddRecipeParams | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    body: ShoppingListAddRecipeParams | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ShoppingListOut]:
     """Add Single Recipe Ingredients To List
 
@@ -114,8 +114,8 @@ def sync(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    body: None | ShoppingListAddRecipeParams | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    body: ShoppingListAddRecipeParams | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ShoppingListOut | None:
     """Add Single Recipe Ingredients To List
 
@@ -147,8 +147,8 @@ async def asyncio_detailed(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    body: None | ShoppingListAddRecipeParams | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    body: ShoppingListAddRecipeParams | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ShoppingListOut]:
     """Add Single Recipe Ingredients To List
 
@@ -183,8 +183,8 @@ async def asyncio(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    body: None | ShoppingListAddRecipeParams | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    body: ShoppingListAddRecipeParams | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ShoppingListOut | None:
     """Add Single Recipe Ingredients To List
 

@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     id: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | UserRatingsUserRatingOut]:
     """Get Ratings
 
@@ -98,7 +98,7 @@ def sync(
     id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | UserRatingsUserRatingOut | None:
     """Get Ratings
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
     id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | UserRatingsUserRatingOut]:
     """Get Ratings
 
@@ -159,7 +159,7 @@ async def asyncio(
     id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | UserRatingsUserRatingOut | None:
     """Get Ratings
 

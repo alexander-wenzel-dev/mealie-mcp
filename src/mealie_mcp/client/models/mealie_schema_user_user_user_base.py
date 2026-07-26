@@ -38,16 +38,16 @@ class MealieSchemaUserUserUserBase:
     """
 
     email: str
-    id: None | str | Unset = UNSET
-    username: None | str | Unset = UNSET
-    full_name: None | str | Unset = UNSET
+    id: str | Unset | None = UNSET
+    username: str | Unset | None = UNSET
+    full_name: str | Unset | None = UNSET
     auth_method: AuthMethod | Unset = UNSET
     admin: bool | Unset = False
-    group: None | str | Unset = UNSET
-    household: None | str | Unset = UNSET
+    group: str | Unset | None = UNSET
+    household: str | Unset | None = UNSET
     advanced: bool | Unset = False
     show_announcements: bool | Unset = True
-    last_read_announcement: None | str | Unset = UNSET
+    last_read_announcement: str | Unset | None = UNSET
     can_invite: bool | Unset = False
     can_manage: bool | Unset = False
     can_manage_household: bool | Unset = False
@@ -57,19 +57,19 @@ class MealieSchemaUserUserUserBase:
     def to_dict(self) -> dict[str, Any]:
         email = self.email
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         else:
             id = self.id
 
-        username: None | str | Unset
+        username: str | Unset | None
         if isinstance(self.username, Unset):
             username = UNSET
         else:
             username = self.username
 
-        full_name: None | str | Unset
+        full_name: str | Unset | None
         if isinstance(self.full_name, Unset):
             full_name = UNSET
         else:
@@ -81,13 +81,13 @@ class MealieSchemaUserUserUserBase:
 
         admin = self.admin
 
-        group: None | str | Unset
+        group: str | Unset | None
         if isinstance(self.group, Unset):
             group = UNSET
         else:
             group = self.group
 
-        household: None | str | Unset
+        household: str | Unset | None
         if isinstance(self.household, Unset):
             household = UNSET
         else:
@@ -97,7 +97,7 @@ class MealieSchemaUserUserUserBase:
 
         show_announcements = self.show_announcements
 
-        last_read_announcement: None | str | Unset
+        last_read_announcement: str | Unset | None
         if isinstance(self.last_read_announcement, Unset):
             last_read_announcement = UNSET
         else:
@@ -154,7 +154,7 @@ class MealieSchemaUserUserUserBase:
         d = dict(src_dict)
         email = d.pop("email")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -163,7 +163,7 @@ class MealieSchemaUserUserUserBase:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_username(data: object) -> None | str | Unset:
+        def _parse_username(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -172,7 +172,7 @@ class MealieSchemaUserUserUserBase:
 
         username = _parse_username(d.pop("username", UNSET))
 
-        def _parse_full_name(data: object) -> None | str | Unset:
+        def _parse_full_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -190,7 +190,7 @@ class MealieSchemaUserUserUserBase:
 
         admin = d.pop("admin", UNSET)
 
-        def _parse_group(data: object) -> None | str | Unset:
+        def _parse_group(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -199,7 +199,7 @@ class MealieSchemaUserUserUserBase:
 
         group = _parse_group(d.pop("group", UNSET))
 
-        def _parse_household(data: object) -> None | str | Unset:
+        def _parse_household(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -212,7 +212,7 @@ class MealieSchemaUserUserUserBase:
 
         show_announcements = d.pop("showAnnouncements", UNSET)
 
-        def _parse_last_read_announcement(data: object) -> None | str | Unset:
+        def _parse_last_read_announcement(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

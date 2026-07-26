@@ -18,7 +18,7 @@ def _get_kwargs(
     provider_id: str,
     *,
     body: BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -74,7 +74,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[DebugResponse | HTTPValidationError]:
     """Debug Openai
 
@@ -109,7 +109,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> DebugResponse | HTTPValidationError | None:
     """Debug Openai
 
@@ -139,7 +139,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[DebugResponse | HTTPValidationError]:
     """Debug Openai
 
@@ -172,7 +172,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> DebugResponse | HTTPValidationError | None:
     """Debug Openai
 

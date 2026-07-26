@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     recipe_slug: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     recipe_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | HouseholdRecipeSummary]:
     """Get Household Recipe
 
@@ -98,7 +98,7 @@ def sync(
     recipe_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | HouseholdRecipeSummary | None:
     """Get Household Recipe
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
     recipe_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | HouseholdRecipeSummary]:
     """Get Household Recipe
 
@@ -159,7 +159,7 @@ async def asyncio(
     recipe_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | HouseholdRecipeSummary | None:
     """Get Household Recipe
 

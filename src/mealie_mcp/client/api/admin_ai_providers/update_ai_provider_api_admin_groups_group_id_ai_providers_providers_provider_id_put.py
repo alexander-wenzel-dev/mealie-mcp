@@ -17,7 +17,7 @@ def _get_kwargs(
     provider_id: str,
     *,
     body: AIProviderUpdate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -74,7 +74,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: AIProviderUpdate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[AIProviderOut | HTTPValidationError]:
     """Update Ai Provider
 
@@ -112,7 +112,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: AIProviderUpdate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> AIProviderOut | HTTPValidationError | None:
     """Update Ai Provider
 
@@ -145,7 +145,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: AIProviderUpdate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[AIProviderOut | HTTPValidationError]:
     """Update Ai Provider
 
@@ -181,7 +181,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: AIProviderUpdate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> AIProviderOut | HTTPValidationError | None:
     """Update Ai Provider
 

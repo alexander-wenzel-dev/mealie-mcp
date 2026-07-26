@@ -13,7 +13,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     category_slug: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -62,7 +62,7 @@ def sync_detailed(
     category_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Get One By Slug
 
@@ -96,7 +96,7 @@ def sync(
     category_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Get One By Slug
 
@@ -125,7 +125,7 @@ async def asyncio_detailed(
     category_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Get One By Slug
 
@@ -157,7 +157,7 @@ async def asyncio(
     category_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Get One By Slug
 

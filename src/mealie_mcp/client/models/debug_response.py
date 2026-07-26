@@ -20,13 +20,13 @@ class DebugResponse:
     """
 
     success: bool
-    response: None | str | Unset = UNSET
+    response: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         success = self.success
 
-        response: None | str | Unset
+        response: str | Unset | None
         if isinstance(self.response, Unset):
             response = UNSET
         else:
@@ -49,7 +49,7 @@ class DebugResponse:
         d = dict(src_dict)
         success = d.pop("success")
 
-        def _parse_response(data: object) -> None | str | Unset:
+        def _parse_response(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -20,13 +20,13 @@ class HouseholdCreate:
     """
 
     name: str
-    group_id: None | str | Unset = UNSET
+    group_id: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        group_id: None | str | Unset
+        group_id: str | Unset | None
         if isinstance(self.group_id, Unset):
             group_id = UNSET
         else:
@@ -49,7 +49,7 @@ class HouseholdCreate:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_group_id(data: object) -> None | str | Unset:
+        def _parse_group_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

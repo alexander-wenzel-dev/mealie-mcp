@@ -34,10 +34,10 @@ class ShoppingListUpdate:
     group_id: str
     user_id: str
     id: str
-    name: None | str | Unset = UNSET
-    extras: None | ShoppingListUpdateExtrasType0 | Unset = ShoppingListUpdateExtrasType0()
-    created_at: datetime.datetime | None | Unset = UNSET
-    update_at: datetime.datetime | None | Unset = UNSET
+    name: str | Unset | None = UNSET
+    extras: ShoppingListUpdateExtrasType0 | Unset | None = ShoppingListUpdateExtrasType0()
+    created_at: datetime.datetime | Unset | None = UNSET
+    update_at: datetime.datetime | Unset | None = UNSET
     list_items: list[ShoppingListItemOut] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -48,13 +48,13 @@ class ShoppingListUpdate:
 
         id = self.id
 
-        name: None | str | Unset
+        name: str | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
             name = self.name
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, ShoppingListUpdateExtrasType0):
@@ -62,7 +62,7 @@ class ShoppingListUpdate:
         else:
             extras = self.extras
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -70,7 +70,7 @@ class ShoppingListUpdate:
         else:
             created_at = self.created_at
 
-        update_at: None | str | Unset
+        update_at: str | Unset | None
         if isinstance(self.update_at, Unset):
             update_at = UNSET
         elif isinstance(self.update_at, datetime.datetime):
@@ -118,7 +118,7 @@ class ShoppingListUpdate:
 
         id = d.pop("id")
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -127,7 +127,7 @@ class ShoppingListUpdate:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_extras(data: object) -> None | ShoppingListUpdateExtrasType0 | Unset:
+        def _parse_extras(data: object) -> ShoppingListUpdateExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -144,7 +144,7 @@ class ShoppingListUpdate:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -161,7 +161,7 @@ class ShoppingListUpdate:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_update_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_update_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

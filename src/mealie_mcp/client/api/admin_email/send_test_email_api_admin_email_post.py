@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: EmailTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -66,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: EmailTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[EmailSuccess | HTTPValidationError]:
     """Send Test Email
 
@@ -98,7 +98,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: EmailTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> EmailSuccess | HTTPValidationError | None:
     """Send Test Email
 
@@ -125,7 +125,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: EmailTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[EmailSuccess | HTTPValidationError]:
     """Send Test Email
 
@@ -155,7 +155,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: EmailTest,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> EmailSuccess | HTTPValidationError | None:
     """Send Test Email
 

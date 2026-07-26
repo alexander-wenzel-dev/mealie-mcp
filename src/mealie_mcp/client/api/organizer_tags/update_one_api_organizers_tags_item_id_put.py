@@ -16,7 +16,7 @@ def _get_kwargs(
     item_id: str,
     *,
     body: TagIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -71,7 +71,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: TagIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeTagResponse]:
     """Update One
 
@@ -108,7 +108,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: TagIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeTagResponse | None:
     """Update One
 
@@ -140,7 +140,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: TagIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeTagResponse]:
     """Update One
 
@@ -175,7 +175,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: TagIn,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeTagResponse | None:
     """Update One
 

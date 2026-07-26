@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     tag_slug: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     tag_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeTagResponse]:
     """Get One By Slug
 
@@ -96,7 +96,7 @@ def sync(
     tag_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeTagResponse | None:
     """Get One By Slug
 
@@ -123,7 +123,7 @@ async def asyncio_detailed(
     tag_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeTagResponse]:
     """Get One By Slug
 
@@ -153,7 +153,7 @@ async def asyncio(
     tag_slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeTagResponse | None:
     """Get One By Slug
 

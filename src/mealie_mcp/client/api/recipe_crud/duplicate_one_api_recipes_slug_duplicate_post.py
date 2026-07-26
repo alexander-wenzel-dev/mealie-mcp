@@ -16,7 +16,7 @@ def _get_kwargs(
     slug: str,
     *,
     body: RecipeDuplicate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -71,7 +71,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: RecipeDuplicate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeOutput]:
     """Duplicate One
 
@@ -108,7 +108,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: RecipeDuplicate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeOutput | None:
     """Duplicate One
 
@@ -140,7 +140,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: RecipeDuplicate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeOutput]:
     """Duplicate One
 
@@ -175,7 +175,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: RecipeDuplicate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeOutput | None:
     """Duplicate One
 

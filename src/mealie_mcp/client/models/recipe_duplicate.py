@@ -18,11 +18,11 @@ class RecipeDuplicate:
         name (None | str | Unset):
     """
 
-    name: None | str | Unset = UNSET
+    name: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: None | str | Unset
+        name: str | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
@@ -40,7 +40,7 @@ class RecipeDuplicate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

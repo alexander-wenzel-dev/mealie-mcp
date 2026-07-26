@@ -19,11 +19,11 @@ class IngredientReferences:
         reference_id (None | str | Unset):
     """
 
-    reference_id: None | str | Unset = UNSET
+    reference_id: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        reference_id: None | str | Unset
+        reference_id: str | Unset | None
         if isinstance(self.reference_id, Unset):
             reference_id = UNSET
         else:
@@ -41,7 +41,7 @@ class IngredientReferences:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_reference_id(data: object) -> None | str | Unset:
+        def _parse_reference_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

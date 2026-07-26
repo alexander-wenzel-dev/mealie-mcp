@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: UpdateGroupPreferences,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -66,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: UpdateGroupPreferences,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ReadGroupPreferences]:
     """Update Group Preferences
 
@@ -98,7 +98,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: UpdateGroupPreferences,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ReadGroupPreferences | None:
     """Update Group Preferences
 
@@ -125,7 +125,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: UpdateGroupPreferences,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ReadGroupPreferences]:
     """Update Group Preferences
 
@@ -155,7 +155,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: UpdateGroupPreferences,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ReadGroupPreferences | None:
     """Update Group Preferences
 

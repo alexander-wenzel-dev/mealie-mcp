@@ -23,8 +23,8 @@ class ShoppingListItemRecipeRefCreate:
 
     recipe_id: str
     recipe_quantity: float | Unset = 0.0
-    recipe_scale: float | None | Unset = 1.0
-    recipe_note: None | str | Unset = UNSET
+    recipe_scale: float | Unset | None = 1.0
+    recipe_note: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,13 +32,13 @@ class ShoppingListItemRecipeRefCreate:
 
         recipe_quantity = self.recipe_quantity
 
-        recipe_scale: float | None | Unset
+        recipe_scale: float | Unset | None
         if isinstance(self.recipe_scale, Unset):
             recipe_scale = UNSET
         else:
             recipe_scale = self.recipe_scale
 
-        recipe_note: None | str | Unset
+        recipe_note: str | Unset | None
         if isinstance(self.recipe_note, Unset):
             recipe_note = UNSET
         else:
@@ -67,7 +67,7 @@ class ShoppingListItemRecipeRefCreate:
 
         recipe_quantity = d.pop("recipeQuantity", UNSET)
 
-        def _parse_recipe_scale(data: object) -> float | None | Unset:
+        def _parse_recipe_scale(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -76,7 +76,7 @@ class ShoppingListItemRecipeRefCreate:
 
         recipe_scale = _parse_recipe_scale(d.pop("recipeScale", UNSET))
 
-        def _parse_recipe_note(data: object) -> None | str | Unset:
+        def _parse_recipe_note(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: ShoppingListItemCreate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -66,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: ShoppingListItemCreate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ShoppingListItemsCollectionOut]:
     """Create One
 
@@ -98,7 +98,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: ShoppingListItemCreate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ShoppingListItemsCollectionOut | None:
     """Create One
 
@@ -125,7 +125,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: ShoppingListItemCreate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | ShoppingListItemsCollectionOut]:
     """Create One
 
@@ -155,7 +155,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: ShoppingListItemCreate,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | ShoppingListItemsCollectionOut | None:
     """Create One
 

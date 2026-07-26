@@ -34,7 +34,7 @@ class GroupEventNotifierUpdate:
     group_id: str
     household_id: str
     id: str
-    apprise_url: None | str | Unset = UNSET
+    apprise_url: str | Unset | None = UNSET
     enabled: bool | Unset = True
     options: GroupEventNotifierOptions | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -48,7 +48,7 @@ class GroupEventNotifierUpdate:
 
         id = self.id
 
-        apprise_url: None | str | Unset
+        apprise_url: str | Unset | None
         if isinstance(self.apprise_url, Unset):
             apprise_url = UNSET
         else:
@@ -92,7 +92,7 @@ class GroupEventNotifierUpdate:
 
         id = d.pop("id")
 
-        def _parse_apprise_url(data: object) -> None | str | Unset:
+        def _parse_apprise_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

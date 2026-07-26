@@ -28,81 +28,81 @@ class Nutrition:
         unsaturated_fat_content (None | str | Unset):
     """
 
-    calories: None | str | Unset = UNSET
-    carbohydrate_content: None | str | Unset = UNSET
-    cholesterol_content: None | str | Unset = UNSET
-    fat_content: None | str | Unset = UNSET
-    fiber_content: None | str | Unset = UNSET
-    protein_content: None | str | Unset = UNSET
-    saturated_fat_content: None | str | Unset = UNSET
-    sodium_content: None | str | Unset = UNSET
-    sugar_content: None | str | Unset = UNSET
-    trans_fat_content: None | str | Unset = UNSET
-    unsaturated_fat_content: None | str | Unset = UNSET
+    calories: str | Unset | None = UNSET
+    carbohydrate_content: str | Unset | None = UNSET
+    cholesterol_content: str | Unset | None = UNSET
+    fat_content: str | Unset | None = UNSET
+    fiber_content: str | Unset | None = UNSET
+    protein_content: str | Unset | None = UNSET
+    saturated_fat_content: str | Unset | None = UNSET
+    sodium_content: str | Unset | None = UNSET
+    sugar_content: str | Unset | None = UNSET
+    trans_fat_content: str | Unset | None = UNSET
+    unsaturated_fat_content: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        calories: None | str | Unset
+        calories: str | Unset | None
         if isinstance(self.calories, Unset):
             calories = UNSET
         else:
             calories = self.calories
 
-        carbohydrate_content: None | str | Unset
+        carbohydrate_content: str | Unset | None
         if isinstance(self.carbohydrate_content, Unset):
             carbohydrate_content = UNSET
         else:
             carbohydrate_content = self.carbohydrate_content
 
-        cholesterol_content: None | str | Unset
+        cholesterol_content: str | Unset | None
         if isinstance(self.cholesterol_content, Unset):
             cholesterol_content = UNSET
         else:
             cholesterol_content = self.cholesterol_content
 
-        fat_content: None | str | Unset
+        fat_content: str | Unset | None
         if isinstance(self.fat_content, Unset):
             fat_content = UNSET
         else:
             fat_content = self.fat_content
 
-        fiber_content: None | str | Unset
+        fiber_content: str | Unset | None
         if isinstance(self.fiber_content, Unset):
             fiber_content = UNSET
         else:
             fiber_content = self.fiber_content
 
-        protein_content: None | str | Unset
+        protein_content: str | Unset | None
         if isinstance(self.protein_content, Unset):
             protein_content = UNSET
         else:
             protein_content = self.protein_content
 
-        saturated_fat_content: None | str | Unset
+        saturated_fat_content: str | Unset | None
         if isinstance(self.saturated_fat_content, Unset):
             saturated_fat_content = UNSET
         else:
             saturated_fat_content = self.saturated_fat_content
 
-        sodium_content: None | str | Unset
+        sodium_content: str | Unset | None
         if isinstance(self.sodium_content, Unset):
             sodium_content = UNSET
         else:
             sodium_content = self.sodium_content
 
-        sugar_content: None | str | Unset
+        sugar_content: str | Unset | None
         if isinstance(self.sugar_content, Unset):
             sugar_content = UNSET
         else:
             sugar_content = self.sugar_content
 
-        trans_fat_content: None | str | Unset
+        trans_fat_content: str | Unset | None
         if isinstance(self.trans_fat_content, Unset):
             trans_fat_content = UNSET
         else:
             trans_fat_content = self.trans_fat_content
 
-        unsaturated_fat_content: None | str | Unset
+        unsaturated_fat_content: str | Unset | None
         if isinstance(self.unsaturated_fat_content, Unset):
             unsaturated_fat_content = UNSET
         else:
@@ -140,7 +140,7 @@ class Nutrition:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_calories(data: object) -> None | str | Unset:
+        def _parse_calories(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,7 +149,7 @@ class Nutrition:
 
         calories = _parse_calories(d.pop("calories", UNSET))
 
-        def _parse_carbohydrate_content(data: object) -> None | str | Unset:
+        def _parse_carbohydrate_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -158,7 +158,7 @@ class Nutrition:
 
         carbohydrate_content = _parse_carbohydrate_content(d.pop("carbohydrateContent", UNSET))
 
-        def _parse_cholesterol_content(data: object) -> None | str | Unset:
+        def _parse_cholesterol_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -167,7 +167,7 @@ class Nutrition:
 
         cholesterol_content = _parse_cholesterol_content(d.pop("cholesterolContent", UNSET))
 
-        def _parse_fat_content(data: object) -> None | str | Unset:
+        def _parse_fat_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -176,7 +176,7 @@ class Nutrition:
 
         fat_content = _parse_fat_content(d.pop("fatContent", UNSET))
 
-        def _parse_fiber_content(data: object) -> None | str | Unset:
+        def _parse_fiber_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -185,7 +185,7 @@ class Nutrition:
 
         fiber_content = _parse_fiber_content(d.pop("fiberContent", UNSET))
 
-        def _parse_protein_content(data: object) -> None | str | Unset:
+        def _parse_protein_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -194,7 +194,7 @@ class Nutrition:
 
         protein_content = _parse_protein_content(d.pop("proteinContent", UNSET))
 
-        def _parse_saturated_fat_content(data: object) -> None | str | Unset:
+        def _parse_saturated_fat_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -203,7 +203,7 @@ class Nutrition:
 
         saturated_fat_content = _parse_saturated_fat_content(d.pop("saturatedFatContent", UNSET))
 
-        def _parse_sodium_content(data: object) -> None | str | Unset:
+        def _parse_sodium_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -212,7 +212,7 @@ class Nutrition:
 
         sodium_content = _parse_sodium_content(d.pop("sodiumContent", UNSET))
 
-        def _parse_sugar_content(data: object) -> None | str | Unset:
+        def _parse_sugar_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -221,7 +221,7 @@ class Nutrition:
 
         sugar_content = _parse_sugar_content(d.pop("sugarContent", UNSET))
 
-        def _parse_trans_fat_content(data: object) -> None | str | Unset:
+        def _parse_trans_fat_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -230,7 +230,7 @@ class Nutrition:
 
         trans_fat_content = _parse_trans_fat_content(d.pop("transFatContent", UNSET))
 
-        def _parse_unsaturated_fat_content(data: object) -> None | str | Unset:
+        def _parse_unsaturated_fat_content(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -28,8 +28,8 @@ class GroupAdminUpdate:
 
     id: str
     name: str
-    preferences: None | Unset | UpdateGroupPreferences = UNSET
-    ai_provider_settings: AIProviderSettingsUpdate | None | Unset = UNSET
+    preferences: Unset | UpdateGroupPreferences | None = UNSET
+    ai_provider_settings: AIProviderSettingsUpdate | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +40,7 @@ class GroupAdminUpdate:
 
         name = self.name
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, UpdateGroupPreferences):
@@ -48,7 +48,7 @@ class GroupAdminUpdate:
         else:
             preferences = self.preferences
 
-        ai_provider_settings: dict[str, Any] | None | Unset
+        ai_provider_settings: dict[str, Any] | Unset | None
         if isinstance(self.ai_provider_settings, Unset):
             ai_provider_settings = UNSET
         elif isinstance(self.ai_provider_settings, AIProviderSettingsUpdate):
@@ -81,7 +81,7 @@ class GroupAdminUpdate:
 
         name = d.pop("name")
 
-        def _parse_preferences(data: object) -> None | Unset | UpdateGroupPreferences:
+        def _parse_preferences(data: object) -> Unset | UpdateGroupPreferences | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -98,7 +98,7 @@ class GroupAdminUpdate:
 
         preferences = _parse_preferences(d.pop("preferences", UNSET))
 
-        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsUpdate | None | Unset:
+        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsUpdate | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

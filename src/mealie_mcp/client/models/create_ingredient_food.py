@@ -31,11 +31,11 @@ class CreateIngredientFood:
     """
 
     name: str
-    id: None | str | Unset = UNSET
-    plural_name: None | str | Unset = UNSET
+    id: str | Unset | None = UNSET
+    plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: CreateIngredientFoodExtrasType0 | None | Unset = CreateIngredientFoodExtrasType0()
-    label_id: None | str | Unset = UNSET
+    extras: CreateIngredientFoodExtrasType0 | Unset | None = CreateIngredientFoodExtrasType0()
+    label_id: str | Unset | None = UNSET
     aliases: list[CreateIngredientFoodAlias] | Unset = UNSET
     households_with_ingredient_food: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -43,13 +43,13 @@ class CreateIngredientFood:
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         else:
             id = self.id
 
-        plural_name: None | str | Unset
+        plural_name: str | Unset | None
         if isinstance(self.plural_name, Unset):
             plural_name = UNSET
         else:
@@ -57,7 +57,7 @@ class CreateIngredientFood:
 
         description = self.description
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, CreateIngredientFoodExtrasType0):
@@ -65,7 +65,7 @@ class CreateIngredientFood:
         else:
             extras = self.extras
 
-        label_id: None | str | Unset
+        label_id: str | Unset | None
         if isinstance(self.label_id, Unset):
             label_id = UNSET
         else:
@@ -113,7 +113,7 @@ class CreateIngredientFood:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -122,7 +122,7 @@ class CreateIngredientFood:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_plural_name(data: object) -> None | str | Unset:
+        def _parse_plural_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,7 +133,7 @@ class CreateIngredientFood:
 
         description = d.pop("description", UNSET)
 
-        def _parse_extras(data: object) -> CreateIngredientFoodExtrasType0 | None | Unset:
+        def _parse_extras(data: object) -> CreateIngredientFoodExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,7 +150,7 @@ class CreateIngredientFood:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_label_id(data: object) -> None | str | Unset:
+        def _parse_label_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
