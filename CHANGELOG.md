@@ -6,8 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `mealie_update_recipe` now takes `recipe_servings` and `recipe_yield_quantity`,
+  the two numeric fields Mealie's ingredient scaler reads.
+
 ### Fixed
 
+- `mealie_update_recipe` now states that an ingredient's `food` and `unit` each
+  need both the `id` and the `name` of an existing record; either alone is
+  rejected.
 - The meal plan tools now state the slot Mealie seeds for an omitted
   `entry_type`: `breakfast` on `mealie_create_mealplan`, `dinner` on
   `mealie_create_random_mealplan`.
