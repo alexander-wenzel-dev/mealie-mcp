@@ -31,8 +31,8 @@ mealie-mcp = "mealie_mcp.server:main"
 regen-client = "mealie_mcp._scripts.regen_client:main"
 
 [tool.mealie-mcp.spec]
-version = "v3.20.1"
-sha256 = "10bb3c3e18da14753227996f0dadfb5c5a5ee56b40c1261e9a00b906407f5bbd"
+version = "v3.21.0"
+sha256 = "a620f8de479cf0d6d8c9a20ff67b94ebc0ef0368f2dc0715e2dba1bdc9e89838"
 
 [build-system]
 requires = ["hatchling"]
