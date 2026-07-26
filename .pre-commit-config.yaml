@@ -26,12 +26,12 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         files: ^src/
         additional_dependencies:
-          - fastmcp>=3.3.1
+          - fastmcp>=3.4.4
 
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.16.3
