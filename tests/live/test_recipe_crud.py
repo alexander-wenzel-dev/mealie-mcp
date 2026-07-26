@@ -37,6 +37,7 @@ from mealie_mcp.tools import (
     organizer_tools,
     recipe_crud,
     recipes_foods,
+    recipes_units,
 )
 from mealie_mcp.tools._common import decode, expect_dict
 
@@ -247,6 +248,53 @@ def test_update_recipe_category_without_id_is_rejected(
     finally:
         with contextlib.suppress(ToolError):
             organizer_categories.delete_category(mealie_client, item_id=category["id"])
+
+
+@pytest.mark.live
+def test_update_recipe_ingredient_food_and_unit_need_id_and_name(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A food and a unit each need id and name together; either alone is rejected.
+
+    The name-only arm returns a 500 because Mealie's schema offers create-by-name
+    but its persistence layer looks the record up by id unconditionally. Pinning
+    that status makes this fail if Mealie ever honours the arm or rejects it
+    cleanly, which is when the tool docstring needs revisiting.
+    """
+    slug = created_recipe["slug"]
+    food = recipes_foods.create_food(mealie_client, name=f"{sentinel_name}-food")
+    unit = recipes_units.create_unit(mealie_client, name=f"{sentinel_name}-unit")
+    unlisted_food = f"{sentinel_name}-newfood"
+    unlisted_unit = f"{sentinel_name}-newunit"
+    try:
+        for id_only in ({"food": {"id": food["id"]}}, {"unit": {"id": unit["id"]}}):
+            with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(422"):
+                recipe_crud.update_recipe(
+                    mealie_client,
+                    slug_or_id=slug,
+                    recipe_ingredient=[{"note": sentinel_name, **id_only}],
+                )
+
+        for name_only in ({"food": {"name": unlisted_food}}, {"unit": {"name": unlisted_unit}}):
+            with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(500"):
+                recipe_crud.update_recipe(
+                    mealie_client,
+                    slug_or_id=slug,
+                    recipe_ingredient=[{"note": sentinel_name, **name_only}],
+                )
+
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        assert sentinel_name not in {ing["note"] for ing in refreshed["recipeIngredient"]}
+
+        foods = recipes_foods.list_foods(mealie_client, per_page=100)
+        assert unlisted_food not in {item["name"] for item in foods["items"]}
+        units = recipes_units.list_units(mealie_client, per_page=100)
+        assert unlisted_unit not in {item["name"] for item in units["items"]}
+    finally:
+        with contextlib.suppress(ToolError):
+            recipes_foods.delete_food(mealie_client, item_id=food["id"])
+        with contextlib.suppress(ToolError):
+            recipes_units.delete_unit(mealie_client, item_id=unit["id"])
 
 
 @pytest.mark.live

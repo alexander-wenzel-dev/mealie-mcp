@@ -517,7 +517,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             perform_time: Human-readable active cooking time.
             recipe_ingredient: Full ingredient list as Mealie ingredient dicts.
                 Each item accepts keys like ``note``, ``quantity``, ``unit``,
-                ``food``, ``title``, ``display``, ``originalText``.
+                ``food``, ``title``, ``display``, ``originalText``. ``food`` and
+                ``unit`` each need both the ``id`` and the ``name`` of an
+                existing record; either alone is rejected. Fetch them via
+                ``mealie_list_foods`` and ``mealie_list_units``.
             recipe_instructions: Full step list. Each item must have ``text``
                 and may include ``title`` and ``summary``.
             notes: Full notes list. Each item must have ``title`` and ``text``.
