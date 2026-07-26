@@ -34,7 +34,7 @@ repos:
           - fastmcp>=3.4.4
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.3
+    rev: v4.16.5
     hooks:
       - id: commitizen
         stages: [commit-msg]
