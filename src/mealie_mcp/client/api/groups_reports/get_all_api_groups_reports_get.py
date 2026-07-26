@@ -13,8 +13,8 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    report_type: None | ReportCategory | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    report_type: ReportCategory | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -22,7 +22,7 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_report_type: None | str | Unset
+    json_report_type: str | Unset | None
     if isinstance(report_type, Unset):
         json_report_type = UNSET
     elif isinstance(report_type, ReportCategory):
@@ -80,8 +80,8 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    report_type: None | ReportCategory | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    report_type: ReportCategory | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReportSummary]]:
     """Get All
 
@@ -112,8 +112,8 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    report_type: None | ReportCategory | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    report_type: ReportCategory | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReportSummary] | None:
     """Get All
 
@@ -139,8 +139,8 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    report_type: None | ReportCategory | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    report_type: ReportCategory | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReportSummary]]:
     """Get All
 
@@ -169,8 +169,8 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    report_type: None | ReportCategory | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    report_type: ReportCategory | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReportSummary] | None:
     """Get All
 

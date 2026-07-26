@@ -37,15 +37,15 @@ class IngredientFood:
 
     id: str
     name: str
-    plural_name: None | str | Unset = UNSET
+    plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: IngredientFoodExtrasType0 | None | Unset = IngredientFoodExtrasType0()
-    label_id: None | str | Unset = UNSET
+    extras: IngredientFoodExtrasType0 | Unset | None = IngredientFoodExtrasType0()
+    label_id: str | Unset | None = UNSET
     aliases: list[IngredientFoodAlias] | Unset = UNSET
     households_with_ingredient_food: list[str] | Unset = UNSET
-    label: MultiPurposeLabelSummary | None | Unset = UNSET
-    created_at: datetime.datetime | None | Unset = UNSET
-    update_at: datetime.datetime | None | Unset = UNSET
+    label: MultiPurposeLabelSummary | Unset | None = UNSET
+    created_at: datetime.datetime | Unset | None = UNSET
+    update_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,7 +55,7 @@ class IngredientFood:
 
         name = self.name
 
-        plural_name: None | str | Unset
+        plural_name: str | Unset | None
         if isinstance(self.plural_name, Unset):
             plural_name = UNSET
         else:
@@ -63,7 +63,7 @@ class IngredientFood:
 
         description = self.description
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, IngredientFoodExtrasType0):
@@ -71,7 +71,7 @@ class IngredientFood:
         else:
             extras = self.extras
 
-        label_id: None | str | Unset
+        label_id: str | Unset | None
         if isinstance(self.label_id, Unset):
             label_id = UNSET
         else:
@@ -88,7 +88,7 @@ class IngredientFood:
         if not isinstance(self.households_with_ingredient_food, Unset):
             households_with_ingredient_food = self.households_with_ingredient_food
 
-        label: dict[str, Any] | None | Unset
+        label: dict[str, Any] | Unset | None
         if isinstance(self.label, Unset):
             label = UNSET
         elif isinstance(self.label, MultiPurposeLabelSummary):
@@ -96,7 +96,7 @@ class IngredientFood:
         else:
             label = self.label
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -104,7 +104,7 @@ class IngredientFood:
         else:
             created_at = self.created_at
 
-        update_at: None | str | Unset
+        update_at: str | Unset | None
         if isinstance(self.update_at, Unset):
             update_at = UNSET
         elif isinstance(self.update_at, datetime.datetime):
@@ -151,7 +151,7 @@ class IngredientFood:
 
         name = d.pop("name")
 
-        def _parse_plural_name(data: object) -> None | str | Unset:
+        def _parse_plural_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -162,7 +162,7 @@ class IngredientFood:
 
         description = d.pop("description", UNSET)
 
-        def _parse_extras(data: object) -> IngredientFoodExtrasType0 | None | Unset:
+        def _parse_extras(data: object) -> IngredientFoodExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -179,7 +179,7 @@ class IngredientFood:
 
         extras = _parse_extras(d.pop("extras", UNSET))
 
-        def _parse_label_id(data: object) -> None | str | Unset:
+        def _parse_label_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -201,7 +201,7 @@ class IngredientFood:
             list[str], d.pop("householdsWithIngredientFood", UNSET)
         )
 
-        def _parse_label(data: object) -> MultiPurposeLabelSummary | None | Unset:
+        def _parse_label(data: object) -> MultiPurposeLabelSummary | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -218,7 +218,7 @@ class IngredientFood:
 
         label = _parse_label(d.pop("label", UNSET))
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -235,7 +235,7 @@ class IngredientFood:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_update_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_update_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

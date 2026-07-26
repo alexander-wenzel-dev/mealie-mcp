@@ -36,8 +36,8 @@ class HouseholdInDB:
     id: str
     slug: str
     group: str
-    preferences: None | ReadHouseholdPreferences | Unset = UNSET
-    users: list[HouseholdUserSummary] | None | Unset = UNSET
+    preferences: ReadHouseholdPreferences | Unset | None = UNSET
+    users: list[HouseholdUserSummary] | Unset | None = UNSET
     webhooks: list[ReadWebhook] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -54,7 +54,7 @@ class HouseholdInDB:
 
         group = self.group
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, ReadHouseholdPreferences):
@@ -62,7 +62,7 @@ class HouseholdInDB:
         else:
             preferences = self.preferences
 
-        users: list[dict[str, Any]] | None | Unset
+        users: list[dict[str, Any]] | Unset | None
         if isinstance(self.users, Unset):
             users = UNSET
         elif isinstance(self.users, list):
@@ -118,7 +118,7 @@ class HouseholdInDB:
 
         group = d.pop("group")
 
-        def _parse_preferences(data: object) -> None | ReadHouseholdPreferences | Unset:
+        def _parse_preferences(data: object) -> ReadHouseholdPreferences | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -135,7 +135,7 @@ class HouseholdInDB:
 
         preferences = _parse_preferences(d.pop("preferences", UNSET))
 
-        def _parse_users(data: object) -> list[HouseholdUserSummary] | None | Unset:
+        def _parse_users(data: object) -> list[HouseholdUserSummary] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

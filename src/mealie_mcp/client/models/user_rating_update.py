@@ -19,18 +19,18 @@ class UserRatingUpdate:
         is_favorite (bool | None | Unset):
     """
 
-    rating: float | None | Unset = UNSET
-    is_favorite: bool | None | Unset = UNSET
+    rating: float | Unset | None = UNSET
+    is_favorite: bool | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        rating: float | None | Unset
+        rating: float | Unset | None
         if isinstance(self.rating, Unset):
             rating = UNSET
         else:
             rating = self.rating
 
-        is_favorite: bool | None | Unset
+        is_favorite: bool | Unset | None
         if isinstance(self.is_favorite, Unset):
             is_favorite = UNSET
         else:
@@ -50,7 +50,7 @@ class UserRatingUpdate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_rating(data: object) -> float | None | Unset:
+        def _parse_rating(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -59,7 +59,7 @@ class UserRatingUpdate:
 
         rating = _parse_rating(d.pop("rating", UNSET))
 
-        def _parse_is_favorite(data: object) -> bool | None | Unset:
+        def _parse_is_favorite(data: object) -> bool | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

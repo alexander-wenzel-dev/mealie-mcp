@@ -28,16 +28,16 @@ class RecipeStep:
     """
 
     text: str
-    id: None | Unset | UUID = UNSET
-    title: None | str | Unset = ""
-    summary: None | str | Unset = ""
+    id: Unset | UUID | None = UNSET
+    title: str | Unset | None = ""
+    summary: str | Unset | None = ""
     ingredient_references: list[IngredientReferences] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         text = self.text
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         elif isinstance(self.id, UUID):
@@ -45,13 +45,13 @@ class RecipeStep:
         else:
             id = self.id
 
-        title: None | str | Unset
+        title: str | Unset | None
         if isinstance(self.title, Unset):
             title = UNSET
         else:
             title = self.title
 
-        summary: None | str | Unset
+        summary: str | Unset | None
         if isinstance(self.summary, Unset):
             summary = UNSET
         else:
@@ -89,7 +89,7 @@ class RecipeStep:
         d = dict(src_dict)
         text = d.pop("text")
 
-        def _parse_id(data: object) -> None | Unset | UUID:
+        def _parse_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -106,7 +106,7 @@ class RecipeStep:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_title(data: object) -> None | str | Unset:
+        def _parse_title(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -115,7 +115,7 @@ class RecipeStep:
 
         title = _parse_title(d.pop("title", UNSET))
 
-        def _parse_summary(data: object) -> None | str | Unset:
+        def _parse_summary(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

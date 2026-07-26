@@ -25,7 +25,7 @@ class RecipeTool:
     id: str
     name: str
     slug: str
-    group_id: None | str | Unset = UNSET
+    group_id: str | Unset | None = UNSET
     households_with_tool: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -36,7 +36,7 @@ class RecipeTool:
 
         slug = self.slug
 
-        group_id: None | str | Unset
+        group_id: str | Unset | None
         if isinstance(self.group_id, Unset):
             group_id = UNSET
         else:
@@ -71,7 +71,7 @@ class RecipeTool:
 
         slug = d.pop("slug")
 
-        def _parse_group_id(data: object) -> None | str | Unset:
+        def _parse_group_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

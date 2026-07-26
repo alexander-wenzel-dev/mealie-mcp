@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     recipe_id: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | UserRatingSummary]:
     """Get Logged In User Rating For Recipe
 
@@ -96,7 +96,7 @@ def sync(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | UserRatingSummary | None:
     """Get Logged In User Rating For Recipe
 
@@ -123,7 +123,7 @@ async def asyncio_detailed(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | UserRatingSummary]:
     """Get Logged In User Rating For Recipe
 
@@ -153,7 +153,7 @@ async def asyncio(
     recipe_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | UserRatingSummary | None:
     """Get Logged In User Rating For Recipe
 

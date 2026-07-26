@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     file_name: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     file_name: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[FileTokenResponse | HTTPValidationError]:
     """Get One
 
@@ -98,7 +98,7 @@ def sync(
     file_name: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> FileTokenResponse | HTTPValidationError | None:
     """Get One
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
     file_name: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[FileTokenResponse | HTTPValidationError]:
     """Get One
 
@@ -159,7 +159,7 @@ async def asyncio(
     file_name: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> FileTokenResponse | HTTPValidationError | None:
     """Get One
 

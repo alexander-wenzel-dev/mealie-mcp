@@ -25,7 +25,7 @@ class UserRatingOut:
     recipe_id: str
     user_id: str
     id: str
-    rating: float | None | Unset = UNSET
+    rating: float | Unset | None = UNSET
     is_favorite: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -36,7 +36,7 @@ class UserRatingOut:
 
         id = self.id
 
-        rating: float | None | Unset
+        rating: float | Unset | None
         if isinstance(self.rating, Unset):
             rating = UNSET
         else:
@@ -69,7 +69,7 @@ class UserRatingOut:
 
         id = d.pop("id")
 
-        def _parse_rating(data: object) -> float | None | Unset:
+        def _parse_rating(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

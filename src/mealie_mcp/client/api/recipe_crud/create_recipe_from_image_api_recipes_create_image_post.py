@@ -15,8 +15,8 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    translate_language: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -24,7 +24,7 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_translate_language: None | str | Unset
+    json_translate_language: str | Unset | None
     if isinstance(translate_language, Unset):
         json_translate_language = UNSET
     else:
@@ -79,8 +79,8 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    translate_language: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Create Recipe From Image
 
@@ -117,8 +117,8 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    translate_language: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Create Recipe From Image
 
@@ -150,8 +150,8 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    translate_language: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Create Recipe From Image
 
@@ -186,8 +186,8 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    translate_language: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Create Recipe From Image
 

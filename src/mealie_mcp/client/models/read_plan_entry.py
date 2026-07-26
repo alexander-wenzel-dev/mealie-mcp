@@ -42,8 +42,8 @@ class ReadPlanEntry:
     entry_type: PlanEntryType | Unset = UNSET
     title: str | Unset = ""
     text: str | Unset = ""
-    recipe_id: None | Unset | UUID = UNSET
-    recipe: None | RecipeSummary | Unset = UNSET
+    recipe_id: Unset | UUID | None = UNSET
+    recipe: RecipeSummary | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -67,7 +67,7 @@ class ReadPlanEntry:
 
         text = self.text
 
-        recipe_id: None | str | Unset
+        recipe_id: str | Unset | None
         if isinstance(self.recipe_id, Unset):
             recipe_id = UNSET
         elif isinstance(self.recipe_id, UUID):
@@ -75,7 +75,7 @@ class ReadPlanEntry:
         else:
             recipe_id = self.recipe_id
 
-        recipe: dict[str, Any] | None | Unset
+        recipe: dict[str, Any] | Unset | None
         if isinstance(self.recipe, Unset):
             recipe = UNSET
         elif isinstance(self.recipe, RecipeSummary):
@@ -133,7 +133,7 @@ class ReadPlanEntry:
 
         text = d.pop("text", UNSET)
 
-        def _parse_recipe_id(data: object) -> None | Unset | UUID:
+        def _parse_recipe_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,7 +150,7 @@ class ReadPlanEntry:
 
         recipe_id = _parse_recipe_id(d.pop("recipeId", UNSET))
 
-        def _parse_recipe(data: object) -> None | RecipeSummary | Unset:
+        def _parse_recipe(data: object) -> RecipeSummary | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

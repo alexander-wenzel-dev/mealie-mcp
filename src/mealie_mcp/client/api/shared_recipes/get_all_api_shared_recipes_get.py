@@ -12,8 +12,8 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    recipe_id: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    recipe_id: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -21,7 +21,7 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_recipe_id: None | str | Unset
+    json_recipe_id: str | Unset | None
     if isinstance(recipe_id, Unset):
         json_recipe_id = UNSET
     else:
@@ -77,8 +77,8 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    recipe_id: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    recipe_id: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[RecipeShareTokenSummary]]:
     """Get All
 
@@ -109,8 +109,8 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    recipe_id: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    recipe_id: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[RecipeShareTokenSummary] | None:
     """Get All
 
@@ -136,8 +136,8 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    recipe_id: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    recipe_id: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[RecipeShareTokenSummary]]:
     """Get All
 
@@ -166,8 +166,8 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    recipe_id: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    recipe_id: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[RecipeShareTokenSummary] | None:
     """Get All
 

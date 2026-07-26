@@ -13,7 +13,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     ids: list[str] | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -72,7 +72,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     ids: list[str] | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | SuccessResponse]:
     """Delete Many
 
@@ -104,7 +104,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     ids: list[str] | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | SuccessResponse | None:
     """Delete Many
 
@@ -131,7 +131,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     ids: list[str] | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | SuccessResponse]:
     """Delete Many
 
@@ -161,7 +161,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     ids: list[str] | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | SuccessResponse | None:
     """Delete Many
 

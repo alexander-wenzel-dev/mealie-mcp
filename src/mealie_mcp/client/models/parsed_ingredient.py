@@ -26,14 +26,14 @@ class ParsedIngredient:
     """
 
     ingredient: RecipeIngredientOutput
-    input_: None | str | Unset = UNSET
+    input_: str | Unset | None = UNSET
     confidence: IngredientConfidence | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         ingredient = self.ingredient.to_dict()
 
-        input_: None | str | Unset
+        input_: str | Unset | None
         if isinstance(self.input_, Unset):
             input_ = UNSET
         else:
@@ -65,7 +65,7 @@ class ParsedIngredient:
         d = dict(src_dict)
         ingredient = RecipeIngredientOutput.from_dict(d.pop("ingredient"))
 
-        def _parse_input_(data: object) -> None | str | Unset:
+        def _parse_input_(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

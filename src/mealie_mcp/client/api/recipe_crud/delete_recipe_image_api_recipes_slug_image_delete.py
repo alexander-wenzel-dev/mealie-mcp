@@ -13,7 +13,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     slug: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -62,7 +62,7 @@ def sync_detailed(
     slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Delete Recipe Image
 
@@ -94,7 +94,7 @@ def sync(
     slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Delete Recipe Image
 
@@ -121,7 +121,7 @@ async def asyncio_detailed(
     slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Delete Recipe Image
 
@@ -151,7 +151,7 @@ async def asyncio(
     slug: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Delete Recipe Image
 

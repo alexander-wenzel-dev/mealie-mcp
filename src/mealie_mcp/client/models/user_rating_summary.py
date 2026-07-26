@@ -21,14 +21,14 @@ class UserRatingSummary:
     """
 
     recipe_id: str
-    rating: float | None | Unset = UNSET
+    rating: float | Unset | None = UNSET
     is_favorite: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         recipe_id = self.recipe_id
 
-        rating: float | None | Unset
+        rating: float | Unset | None
         if isinstance(self.rating, Unset):
             rating = UNSET
         else:
@@ -55,7 +55,7 @@ class UserRatingSummary:
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")
 
-        def _parse_rating(data: object) -> float | None | Unset:
+        def _parse_rating(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

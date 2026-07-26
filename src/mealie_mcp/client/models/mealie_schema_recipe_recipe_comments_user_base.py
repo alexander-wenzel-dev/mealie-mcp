@@ -23,8 +23,8 @@ class MealieSchemaRecipeRecipeCommentsUserBase:
 
     id: str
     admin: bool
-    username: None | str | Unset = UNSET
-    full_name: None | str | Unset = UNSET
+    username: str | Unset | None = UNSET
+    full_name: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,13 +32,13 @@ class MealieSchemaRecipeRecipeCommentsUserBase:
 
         admin = self.admin
 
-        username: None | str | Unset
+        username: str | Unset | None
         if isinstance(self.username, Unset):
             username = UNSET
         else:
             username = self.username
 
-        full_name: None | str | Unset
+        full_name: str | Unset | None
         if isinstance(self.full_name, Unset):
             full_name = UNSET
         else:
@@ -66,7 +66,7 @@ class MealieSchemaRecipeRecipeCommentsUserBase:
 
         admin = d.pop("admin")
 
-        def _parse_username(data: object) -> None | str | Unset:
+        def _parse_username(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -75,7 +75,7 @@ class MealieSchemaRecipeRecipeCommentsUserBase:
 
         username = _parse_username(d.pop("username", UNSET))
 
-        def _parse_full_name(data: object) -> None | str | Unset:
+        def _parse_full_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

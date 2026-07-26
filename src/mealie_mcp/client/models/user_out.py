@@ -56,18 +56,18 @@ class UserOut:
     household_id: str
     household_slug: str
     cache_key: str
-    username: None | str | Unset = UNSET
-    full_name: None | str | Unset = UNSET
+    username: str | Unset | None = UNSET
+    full_name: str | Unset | None = UNSET
     auth_method: AuthMethod | Unset = UNSET
     admin: bool | Unset = False
     advanced: bool | Unset = False
     show_announcements: bool | Unset = True
-    last_read_announcement: None | str | Unset = UNSET
+    last_read_announcement: str | Unset | None = UNSET
     can_invite: bool | Unset = False
     can_manage: bool | Unset = False
     can_manage_household: bool | Unset = False
     can_organize: bool | Unset = False
-    tokens: list[LongLiveTokenOut] | None | Unset = UNSET
+    tokens: list[LongLiveTokenOut] | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -89,13 +89,13 @@ class UserOut:
 
         cache_key = self.cache_key
 
-        username: None | str | Unset
+        username: str | Unset | None
         if isinstance(self.username, Unset):
             username = UNSET
         else:
             username = self.username
 
-        full_name: None | str | Unset
+        full_name: str | Unset | None
         if isinstance(self.full_name, Unset):
             full_name = UNSET
         else:
@@ -111,7 +111,7 @@ class UserOut:
 
         show_announcements = self.show_announcements
 
-        last_read_announcement: None | str | Unset
+        last_read_announcement: str | Unset | None
         if isinstance(self.last_read_announcement, Unset):
             last_read_announcement = UNSET
         else:
@@ -125,7 +125,7 @@ class UserOut:
 
         can_organize = self.can_organize
 
-        tokens: list[dict[str, Any]] | None | Unset
+        tokens: list[dict[str, Any]] | Unset | None
         if isinstance(self.tokens, Unset):
             tokens = UNSET
         elif isinstance(self.tokens, list):
@@ -202,7 +202,7 @@ class UserOut:
 
         cache_key = d.pop("cacheKey")
 
-        def _parse_username(data: object) -> None | str | Unset:
+        def _parse_username(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -211,7 +211,7 @@ class UserOut:
 
         username = _parse_username(d.pop("username", UNSET))
 
-        def _parse_full_name(data: object) -> None | str | Unset:
+        def _parse_full_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -233,7 +233,7 @@ class UserOut:
 
         show_announcements = d.pop("showAnnouncements", UNSET)
 
-        def _parse_last_read_announcement(data: object) -> None | str | Unset:
+        def _parse_last_read_announcement(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -250,7 +250,7 @@ class UserOut:
 
         can_organize = d.pop("canOrganize", UNSET)
 
-        def _parse_tokens(data: object) -> list[LongLiveTokenOut] | None | Unset:
+        def _parse_tokens(data: object) -> list[LongLiveTokenOut] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

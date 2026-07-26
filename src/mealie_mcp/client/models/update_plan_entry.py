@@ -35,7 +35,7 @@ class UpdatePlanEntry:
     entry_type: PlanEntryType | Unset = UNSET
     title: str | Unset = ""
     text: str | Unset = ""
-    recipe_id: None | Unset | UUID = UNSET
+    recipe_id: Unset | UUID | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,7 +55,7 @@ class UpdatePlanEntry:
 
         text = self.text
 
-        recipe_id: None | str | Unset
+        recipe_id: str | Unset | None
         if isinstance(self.recipe_id, Unset):
             recipe_id = UNSET
         elif isinstance(self.recipe_id, UUID):
@@ -106,7 +106,7 @@ class UpdatePlanEntry:
 
         text = d.pop("text", UNSET)
 
-        def _parse_recipe_id(data: object) -> None | Unset | UUID:
+        def _parse_recipe_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

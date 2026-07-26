@@ -20,13 +20,13 @@ class EmailInitationResponse:
     """
 
     success: bool
-    error: None | str | Unset = UNSET
+    error: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         success = self.success
 
-        error: None | str | Unset
+        error: str | Unset | None
         if isinstance(self.error, Unset):
             error = UNSET
         else:
@@ -49,7 +49,7 @@ class EmailInitationResponse:
         d = dict(src_dict)
         success = d.pop("success")
 
-        def _parse_error(data: object) -> None | str | Unset:
+        def _parse_error(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

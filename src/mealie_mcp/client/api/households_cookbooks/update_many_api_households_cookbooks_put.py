@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: list[UpdateCookBook],
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -74,7 +74,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: list[UpdateCookBook],
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReadCookBook]]:
     """Update Many
 
@@ -106,7 +106,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: list[UpdateCookBook],
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReadCookBook] | None:
     """Update Many
 
@@ -133,7 +133,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: list[UpdateCookBook],
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | list[ReadCookBook]]:
     """Update Many
 
@@ -163,7 +163,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: list[UpdateCookBook],
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | list[ReadCookBook] | None:
     """Update Many
 

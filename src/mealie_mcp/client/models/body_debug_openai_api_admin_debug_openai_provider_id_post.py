@@ -19,11 +19,11 @@ class BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost:
         image (None | str | Unset):
     """
 
-    image: None | str | Unset = UNSET
+    image: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        image: None | str | Unset
+        image: str | Unset | None
         if isinstance(self.image, Unset):
             image = UNSET
         else:
@@ -55,7 +55,7 @@ class BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_image(data: object) -> None | str | Unset:
+        def _parse_image(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

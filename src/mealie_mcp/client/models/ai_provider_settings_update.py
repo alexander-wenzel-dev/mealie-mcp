@@ -18,19 +18,19 @@ class AIProviderSettingsUpdate:
         image_provider_id (None | str):
     """
 
-    default_provider_id: None | str
-    audio_provider_id: None | str
-    image_provider_id: None | str
+    default_provider_id: str | None
+    audio_provider_id: str | None
+    image_provider_id: str | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        default_provider_id: None | str
+        default_provider_id: str | None
         default_provider_id = self.default_provider_id
 
-        audio_provider_id: None | str
+        audio_provider_id: str | None
         audio_provider_id = self.audio_provider_id
 
-        image_provider_id: None | str
+        image_provider_id: str | None
         image_provider_id = self.image_provider_id
 
         field_dict: dict[str, Any] = {}
@@ -49,21 +49,21 @@ class AIProviderSettingsUpdate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_default_provider_id(data: object) -> None | str:
+        def _parse_default_provider_id(data: object) -> str | None:
             if data is None:
                 return data
             return cast(None | str, data)
 
         default_provider_id = _parse_default_provider_id(d.pop("defaultProviderId"))
 
-        def _parse_audio_provider_id(data: object) -> None | str:
+        def _parse_audio_provider_id(data: object) -> str | None:
             if data is None:
                 return data
             return cast(None | str, data)
 
         audio_provider_id = _parse_audio_provider_id(d.pop("audioProviderId"))
 
-        def _parse_image_provider_id(data: object) -> None | str:
+        def _parse_image_provider_id(data: object) -> str | None:
             if data is None:
                 return data
             return cast(None | str, data)

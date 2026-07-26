@@ -30,8 +30,8 @@ class GroupSummary:
     name: str
     id: str
     slug: str
-    preferences: None | ReadGroupPreferences | Unset = UNSET
-    ai_provider_settings: AIProviderSettingsOut | None | Unset = UNSET
+    preferences: ReadGroupPreferences | Unset | None = UNSET
+    ai_provider_settings: AIProviderSettingsOut | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +44,7 @@ class GroupSummary:
 
         slug = self.slug
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, ReadGroupPreferences):
@@ -52,7 +52,7 @@ class GroupSummary:
         else:
             preferences = self.preferences
 
-        ai_provider_settings: dict[str, Any] | None | Unset
+        ai_provider_settings: dict[str, Any] | Unset | None
         if isinstance(self.ai_provider_settings, Unset):
             ai_provider_settings = UNSET
         elif isinstance(self.ai_provider_settings, AIProviderSettingsOut):
@@ -88,7 +88,7 @@ class GroupSummary:
 
         slug = d.pop("slug")
 
-        def _parse_preferences(data: object) -> None | ReadGroupPreferences | Unset:
+        def _parse_preferences(data: object) -> ReadGroupPreferences | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -105,7 +105,7 @@ class GroupSummary:
 
         preferences = _parse_preferences(d.pop("preferences", UNSET))
 
-        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | None | Unset:
+        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

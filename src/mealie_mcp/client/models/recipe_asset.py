@@ -22,7 +22,7 @@ class RecipeAsset:
 
     name: str
     icon: str
-    file_name: None | str | Unset = UNSET
+    file_name: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,7 +30,7 @@ class RecipeAsset:
 
         icon = self.icon
 
-        file_name: None | str | Unset
+        file_name: str | Unset | None
         if isinstance(self.file_name, Unset):
             file_name = UNSET
         else:
@@ -56,7 +56,7 @@ class RecipeAsset:
 
         icon = d.pop("icon")
 
-        def _parse_file_name(data: object) -> None | str | Unset:
+        def _parse_file_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

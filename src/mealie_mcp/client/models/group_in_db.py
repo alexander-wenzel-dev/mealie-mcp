@@ -38,12 +38,12 @@ class GroupInDB:
     name: str
     id: str
     slug: str
-    categories: list[CategoryBase] | None | Unset = UNSET
+    categories: list[CategoryBase] | Unset | None = UNSET
     webhooks: list[ReadWebhook] | Unset = UNSET
-    households: list[GroupHouseholdSummary] | None | Unset = UNSET
-    users: list[UserSummary] | None | Unset = UNSET
-    preferences: None | ReadGroupPreferences | Unset = UNSET
-    ai_provider_settings: AIProviderSettingsOut | None | Unset = UNSET
+    households: list[GroupHouseholdSummary] | Unset | None = UNSET
+    users: list[UserSummary] | Unset | None = UNSET
+    preferences: ReadGroupPreferences | Unset | None = UNSET
+    ai_provider_settings: AIProviderSettingsOut | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,7 +56,7 @@ class GroupInDB:
 
         slug = self.slug
 
-        categories: list[dict[str, Any]] | None | Unset
+        categories: list[dict[str, Any]] | Unset | None
         if isinstance(self.categories, Unset):
             categories = UNSET
         elif isinstance(self.categories, list):
@@ -75,7 +75,7 @@ class GroupInDB:
                 webhooks_item = webhooks_item_data.to_dict()
                 webhooks.append(webhooks_item)
 
-        households: list[dict[str, Any]] | None | Unset
+        households: list[dict[str, Any]] | Unset | None
         if isinstance(self.households, Unset):
             households = UNSET
         elif isinstance(self.households, list):
@@ -87,7 +87,7 @@ class GroupInDB:
         else:
             households = self.households
 
-        users: list[dict[str, Any]] | None | Unset
+        users: list[dict[str, Any]] | Unset | None
         if isinstance(self.users, Unset):
             users = UNSET
         elif isinstance(self.users, list):
@@ -99,7 +99,7 @@ class GroupInDB:
         else:
             users = self.users
 
-        preferences: dict[str, Any] | None | Unset
+        preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
         elif isinstance(self.preferences, ReadGroupPreferences):
@@ -107,7 +107,7 @@ class GroupInDB:
         else:
             preferences = self.preferences
 
-        ai_provider_settings: dict[str, Any] | None | Unset
+        ai_provider_settings: dict[str, Any] | Unset | None
         if isinstance(self.ai_provider_settings, Unset):
             ai_provider_settings = UNSET
         elif isinstance(self.ai_provider_settings, AIProviderSettingsOut):
@@ -155,7 +155,7 @@ class GroupInDB:
 
         slug = d.pop("slug")
 
-        def _parse_categories(data: object) -> list[CategoryBase] | None | Unset:
+        def _parse_categories(data: object) -> list[CategoryBase] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -186,7 +186,7 @@ class GroupInDB:
 
                 webhooks.append(webhooks_item)
 
-        def _parse_households(data: object) -> list[GroupHouseholdSummary] | None | Unset:
+        def _parse_households(data: object) -> list[GroupHouseholdSummary] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -210,7 +210,7 @@ class GroupInDB:
 
         households = _parse_households(d.pop("households", UNSET))
 
-        def _parse_users(data: object) -> list[UserSummary] | None | Unset:
+        def _parse_users(data: object) -> list[UserSummary] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -232,7 +232,7 @@ class GroupInDB:
 
         users = _parse_users(d.pop("users", UNSET))
 
-        def _parse_preferences(data: object) -> None | ReadGroupPreferences | Unset:
+        def _parse_preferences(data: object) -> ReadGroupPreferences | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -249,7 +249,7 @@ class GroupInDB:
 
         preferences = _parse_preferences(d.pop("preferences", UNSET))
 
-        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | None | Unset:
+        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

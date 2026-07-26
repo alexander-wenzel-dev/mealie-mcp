@@ -26,14 +26,14 @@ class CreateRecipeBulk:
     """
 
     url: str
-    categories: list[RecipeCategory] | None | Unset = UNSET
-    tags: list[RecipeTag] | None | Unset = UNSET
+    categories: list[RecipeCategory] | Unset | None = UNSET
+    tags: list[RecipeTag] | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         url = self.url
 
-        categories: list[dict[str, Any]] | None | Unset
+        categories: list[dict[str, Any]] | Unset | None
         if isinstance(self.categories, Unset):
             categories = UNSET
         elif isinstance(self.categories, list):
@@ -45,7 +45,7 @@ class CreateRecipeBulk:
         else:
             categories = self.categories
 
-        tags: list[dict[str, Any]] | None | Unset
+        tags: list[dict[str, Any]] | Unset | None
         if isinstance(self.tags, Unset):
             tags = UNSET
         elif isinstance(self.tags, list):
@@ -79,7 +79,7 @@ class CreateRecipeBulk:
         d = dict(src_dict)
         url = d.pop("url")
 
-        def _parse_categories(data: object) -> list[RecipeCategory] | None | Unset:
+        def _parse_categories(data: object) -> list[RecipeCategory] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -101,7 +101,7 @@ class CreateRecipeBulk:
 
         categories = _parse_categories(d.pop("categories", UNSET))
 
-        def _parse_tags(data: object) -> list[RecipeTag] | None | Unset:
+        def _parse_tags(data: object) -> list[RecipeTag] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

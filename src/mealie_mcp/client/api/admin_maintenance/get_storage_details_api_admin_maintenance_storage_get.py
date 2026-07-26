@@ -12,7 +12,7 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -59,7 +59,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | MaintenanceStorageDetails]:
     """Get Storage Details
 
@@ -88,7 +88,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | MaintenanceStorageDetails | None:
     """Get Storage Details
 
@@ -112,7 +112,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | MaintenanceStorageDetails]:
     """Get Storage Details
 
@@ -139,7 +139,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | MaintenanceStorageDetails | None:
     """Get Storage Details
 

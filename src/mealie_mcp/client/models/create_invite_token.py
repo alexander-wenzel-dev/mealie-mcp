@@ -22,14 +22,14 @@ class CreateInviteToken:
     """
 
     uses: int
-    group_id: None | Unset | UUID = UNSET
-    household_id: None | Unset | UUID = UNSET
+    group_id: Unset | UUID | None = UNSET
+    household_id: Unset | UUID | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         uses = self.uses
 
-        group_id: None | str | Unset
+        group_id: str | Unset | None
         if isinstance(self.group_id, Unset):
             group_id = UNSET
         elif isinstance(self.group_id, UUID):
@@ -37,7 +37,7 @@ class CreateInviteToken:
         else:
             group_id = self.group_id
 
-        household_id: None | str | Unset
+        household_id: str | Unset | None
         if isinstance(self.household_id, Unset):
             household_id = UNSET
         elif isinstance(self.household_id, UUID):
@@ -64,7 +64,7 @@ class CreateInviteToken:
         d = dict(src_dict)
         uses = d.pop("uses")
 
-        def _parse_group_id(data: object) -> None | Unset | UUID:
+        def _parse_group_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -81,7 +81,7 @@ class CreateInviteToken:
 
         group_id = _parse_group_id(d.pop("groupId", UNSET))
 
-        def _parse_household_id(data: object) -> None | Unset | UUID:
+        def _parse_household_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

@@ -15,7 +15,7 @@ def _get_kwargs(
     group_id: str,
     provider_id: str,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -67,7 +67,7 @@ def sync_detailed(
     provider_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[AIProviderOut | HTTPValidationError]:
     """Get Ai Provider
 
@@ -102,7 +102,7 @@ def sync(
     provider_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> AIProviderOut | HTTPValidationError | None:
     """Get Ai Provider
 
@@ -132,7 +132,7 @@ async def asyncio_detailed(
     provider_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[AIProviderOut | HTTPValidationError]:
     """Get Ai Provider
 
@@ -165,7 +165,7 @@ async def asyncio(
     provider_id: str,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> AIProviderOut | HTTPValidationError | None:
     """Get Ai Provider
 

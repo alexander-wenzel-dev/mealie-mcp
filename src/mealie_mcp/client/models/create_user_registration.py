@@ -34,9 +34,9 @@ class CreateUserRegistration:
     full_name: str
     password: str
     password_confirm: str
-    group: None | str | Unset = UNSET
-    household: None | str | Unset = UNSET
-    group_token: None | str | Unset = UNSET
+    group: str | Unset | None = UNSET
+    household: str | Unset | None = UNSET
+    group_token: str | Unset | None = UNSET
     advanced: bool | Unset = False
     private: bool | Unset = False
     seed_data: bool | Unset = False
@@ -54,19 +54,19 @@ class CreateUserRegistration:
 
         password_confirm = self.password_confirm
 
-        group: None | str | Unset
+        group: str | Unset | None
         if isinstance(self.group, Unset):
             group = UNSET
         else:
             group = self.group
 
-        household: None | str | Unset
+        household: str | Unset | None
         if isinstance(self.household, Unset):
             household = UNSET
         else:
             household = self.household
 
-        group_token: None | str | Unset
+        group_token: str | Unset | None
         if isinstance(self.group_token, Unset):
             group_token = UNSET
         else:
@@ -121,7 +121,7 @@ class CreateUserRegistration:
 
         password_confirm = d.pop("passwordConfirm")
 
-        def _parse_group(data: object) -> None | str | Unset:
+        def _parse_group(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -130,7 +130,7 @@ class CreateUserRegistration:
 
         group = _parse_group(d.pop("group", UNSET))
 
-        def _parse_household(data: object) -> None | str | Unset:
+        def _parse_household(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -139,7 +139,7 @@ class CreateUserRegistration:
 
         household = _parse_household(d.pop("household", UNSET))
 
-        def _parse_group_token(data: object) -> None | str | Unset:
+        def _parse_group_token(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

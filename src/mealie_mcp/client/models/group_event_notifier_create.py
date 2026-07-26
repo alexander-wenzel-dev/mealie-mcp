@@ -20,13 +20,13 @@ class GroupEventNotifierCreate:
     """
 
     name: str
-    apprise_url: None | str | Unset = UNSET
+    apprise_url: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        apprise_url: None | str | Unset
+        apprise_url: str | Unset | None
         if isinstance(self.apprise_url, Unset):
             apprise_url = UNSET
         else:
@@ -49,7 +49,7 @@ class GroupEventNotifierCreate:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_apprise_url(data: object) -> None | str | Unset:
+        def _parse_apprise_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

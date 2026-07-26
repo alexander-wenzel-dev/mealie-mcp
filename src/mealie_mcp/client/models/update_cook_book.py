@@ -31,7 +31,7 @@ class UpdateCookBook:
     household_id: str
     id: str
     description: str | Unset = ""
-    slug: None | str | Unset = UNSET
+    slug: str | Unset | None = UNSET
     position: int | Unset = 1
     public: bool | Unset = False
     query_filter_string: str | Unset = ""
@@ -48,7 +48,7 @@ class UpdateCookBook:
 
         description = self.description
 
-        slug: None | str | Unset
+        slug: str | Unset | None
         if isinstance(self.slug, Unset):
             slug = UNSET
         else:
@@ -96,7 +96,7 @@ class UpdateCookBook:
 
         description = d.pop("description", UNSET)
 
-        def _parse_slug(data: object) -> None | str | Unset:
+        def _parse_slug(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

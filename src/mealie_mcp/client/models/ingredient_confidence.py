@@ -23,46 +23,46 @@ class IngredientConfidence:
         food (float | None | Unset):
     """
 
-    average: float | None | Unset = UNSET
-    comment: float | None | Unset = UNSET
-    name: float | None | Unset = UNSET
-    unit: float | None | Unset = UNSET
-    quantity: float | None | Unset = UNSET
-    food: float | None | Unset = UNSET
+    average: float | Unset | None = UNSET
+    comment: float | Unset | None = UNSET
+    name: float | Unset | None = UNSET
+    unit: float | Unset | None = UNSET
+    quantity: float | Unset | None = UNSET
+    food: float | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        average: float | None | Unset
+        average: float | Unset | None
         if isinstance(self.average, Unset):
             average = UNSET
         else:
             average = self.average
 
-        comment: float | None | Unset
+        comment: float | Unset | None
         if isinstance(self.comment, Unset):
             comment = UNSET
         else:
             comment = self.comment
 
-        name: float | None | Unset
+        name: float | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
             name = self.name
 
-        unit: float | None | Unset
+        unit: float | Unset | None
         if isinstance(self.unit, Unset):
             unit = UNSET
         else:
             unit = self.unit
 
-        quantity: float | None | Unset
+        quantity: float | Unset | None
         if isinstance(self.quantity, Unset):
             quantity = UNSET
         else:
             quantity = self.quantity
 
-        food: float | None | Unset
+        food: float | Unset | None
         if isinstance(self.food, Unset):
             food = UNSET
         else:
@@ -90,7 +90,7 @@ class IngredientConfidence:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_average(data: object) -> float | None | Unset:
+        def _parse_average(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -99,7 +99,7 @@ class IngredientConfidence:
 
         average = _parse_average(d.pop("average", UNSET))
 
-        def _parse_comment(data: object) -> float | None | Unset:
+        def _parse_comment(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -108,7 +108,7 @@ class IngredientConfidence:
 
         comment = _parse_comment(d.pop("comment", UNSET))
 
-        def _parse_name(data: object) -> float | None | Unset:
+        def _parse_name(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -117,7 +117,7 @@ class IngredientConfidence:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_unit(data: object) -> float | None | Unset:
+        def _parse_unit(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -126,7 +126,7 @@ class IngredientConfidence:
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
-        def _parse_quantity(data: object) -> float | None | Unset:
+        def _parse_quantity(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -135,7 +135,7 @@ class IngredientConfidence:
 
         quantity = _parse_quantity(d.pop("quantity", UNSET))
 
-        def _parse_food(data: object) -> float | None | Unset:
+        def _parse_food(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

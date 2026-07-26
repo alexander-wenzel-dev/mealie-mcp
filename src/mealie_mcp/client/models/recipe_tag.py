@@ -23,8 +23,8 @@ class RecipeTag:
 
     name: str
     slug: str
-    id: None | str | Unset = UNSET
-    group_id: None | str | Unset = UNSET
+    id: str | Unset | None = UNSET
+    group_id: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,13 +32,13 @@ class RecipeTag:
 
         slug = self.slug
 
-        id: None | str | Unset
+        id: str | Unset | None
         if isinstance(self.id, Unset):
             id = UNSET
         else:
             id = self.id
 
-        group_id: None | str | Unset
+        group_id: str | Unset | None
         if isinstance(self.group_id, Unset):
             group_id = UNSET
         else:
@@ -66,7 +66,7 @@ class RecipeTag:
 
         slug = d.pop("slug")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -75,7 +75,7 @@ class RecipeTag:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_group_id(data: object) -> None | str | Unset:
+        def _parse_group_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

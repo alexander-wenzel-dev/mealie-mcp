@@ -39,18 +39,18 @@ class IngredientUnit:
 
     id: str
     name: str
-    plural_name: None | str | Unset = UNSET
+    plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: IngredientUnitExtrasType0 | None | Unset = IngredientUnitExtrasType0()
+    extras: IngredientUnitExtrasType0 | Unset | None = IngredientUnitExtrasType0()
     fraction: bool | Unset = True
     abbreviation: str | Unset = ""
-    plural_abbreviation: None | str | Unset = ""
+    plural_abbreviation: str | Unset | None = ""
     use_abbreviation: bool | Unset = False
     aliases: list[IngredientUnitAlias] | Unset = UNSET
-    standard_quantity: float | None | Unset = UNSET
-    standard_unit: None | str | Unset = UNSET
-    created_at: datetime.datetime | None | Unset = UNSET
-    update_at: datetime.datetime | None | Unset = UNSET
+    standard_quantity: float | Unset | None = UNSET
+    standard_unit: str | Unset | None = UNSET
+    created_at: datetime.datetime | Unset | None = UNSET
+    update_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +58,7 @@ class IngredientUnit:
 
         name = self.name
 
-        plural_name: None | str | Unset
+        plural_name: str | Unset | None
         if isinstance(self.plural_name, Unset):
             plural_name = UNSET
         else:
@@ -66,7 +66,7 @@ class IngredientUnit:
 
         description = self.description
 
-        extras: dict[str, Any] | None | Unset
+        extras: dict[str, Any] | Unset | None
         if isinstance(self.extras, Unset):
             extras = UNSET
         elif isinstance(self.extras, IngredientUnitExtrasType0):
@@ -78,7 +78,7 @@ class IngredientUnit:
 
         abbreviation = self.abbreviation
 
-        plural_abbreviation: None | str | Unset
+        plural_abbreviation: str | Unset | None
         if isinstance(self.plural_abbreviation, Unset):
             plural_abbreviation = UNSET
         else:
@@ -93,19 +93,19 @@ class IngredientUnit:
                 aliases_item = aliases_item_data.to_dict()
                 aliases.append(aliases_item)
 
-        standard_quantity: float | None | Unset
+        standard_quantity: float | Unset | None
         if isinstance(self.standard_quantity, Unset):
             standard_quantity = UNSET
         else:
             standard_quantity = self.standard_quantity
 
-        standard_unit: None | str | Unset
+        standard_unit: str | Unset | None
         if isinstance(self.standard_unit, Unset):
             standard_unit = UNSET
         else:
             standard_unit = self.standard_unit
 
-        created_at: None | str | Unset
+        created_at: str | Unset | None
         if isinstance(self.created_at, Unset):
             created_at = UNSET
         elif isinstance(self.created_at, datetime.datetime):
@@ -113,7 +113,7 @@ class IngredientUnit:
         else:
             created_at = self.created_at
 
-        update_at: None | str | Unset
+        update_at: str | Unset | None
         if isinstance(self.update_at, Unset):
             update_at = UNSET
         elif isinstance(self.update_at, datetime.datetime):
@@ -165,7 +165,7 @@ class IngredientUnit:
 
         name = d.pop("name")
 
-        def _parse_plural_name(data: object) -> None | str | Unset:
+        def _parse_plural_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -176,7 +176,7 @@ class IngredientUnit:
 
         description = d.pop("description", UNSET)
 
-        def _parse_extras(data: object) -> IngredientUnitExtrasType0 | None | Unset:
+        def _parse_extras(data: object) -> IngredientUnitExtrasType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -197,7 +197,7 @@ class IngredientUnit:
 
         abbreviation = d.pop("abbreviation", UNSET)
 
-        def _parse_plural_abbreviation(data: object) -> None | str | Unset:
+        def _parse_plural_abbreviation(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -217,7 +217,7 @@ class IngredientUnit:
 
                 aliases.append(aliases_item)
 
-        def _parse_standard_quantity(data: object) -> float | None | Unset:
+        def _parse_standard_quantity(data: object) -> float | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -226,7 +226,7 @@ class IngredientUnit:
 
         standard_quantity = _parse_standard_quantity(d.pop("standardQuantity", UNSET))
 
-        def _parse_standard_unit(data: object) -> None | str | Unset:
+        def _parse_standard_unit(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -235,7 +235,7 @@ class IngredientUnit:
 
         standard_unit = _parse_standard_unit(d.pop("standardUnit", UNSET))
 
-        def _parse_created_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -252,7 +252,7 @@ class IngredientUnit:
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
 
-        def _parse_update_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_update_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

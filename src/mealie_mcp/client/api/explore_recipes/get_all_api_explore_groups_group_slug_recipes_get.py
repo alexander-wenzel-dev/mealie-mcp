@@ -16,25 +16,25 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     group_slug: str,
     *,
-    categories: list[str] | None | Unset = UNSET,
-    tags: list[str] | None | Unset = UNSET,
-    tools: list[str] | None | Unset = UNSET,
-    foods: list[str] | None | Unset = UNSET,
-    households: list[str] | None | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    categories: list[str] | Unset | None = UNSET,
+    tags: list[str] | Unset | None = UNSET,
+    tools: list[str] | Unset | None = UNSET,
+    foods: list[str] | Unset | None = UNSET,
+    households: list[str] | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    cookbook: None | str | Unset = UNSET,
+    cookbook: str | Unset | None = UNSET,
     require_all_categories: bool | Unset = False,
     require_all_tags: bool | Unset = False,
     require_all_tools: bool | Unset = False,
     require_all_foods: bool | Unset = False,
-    search: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -42,7 +42,7 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_categories: list[str] | None | Unset
+    json_categories: list[str] | Unset | None
     if isinstance(categories, Unset):
         json_categories = UNSET
     elif isinstance(categories, list):
@@ -56,7 +56,7 @@ def _get_kwargs(
         json_categories = categories
     params["categories"] = json_categories
 
-    json_tags: list[str] | None | Unset
+    json_tags: list[str] | Unset | None
     if isinstance(tags, Unset):
         json_tags = UNSET
     elif isinstance(tags, list):
@@ -70,7 +70,7 @@ def _get_kwargs(
         json_tags = tags
     params["tags"] = json_tags
 
-    json_tools: list[str] | None | Unset
+    json_tools: list[str] | Unset | None
     if isinstance(tools, Unset):
         json_tools = UNSET
     elif isinstance(tools, list):
@@ -84,7 +84,7 @@ def _get_kwargs(
         json_tools = tools
     params["tools"] = json_tools
 
-    json_foods: list[str] | None | Unset
+    json_foods: list[str] | Unset | None
     if isinstance(foods, Unset):
         json_foods = UNSET
     elif isinstance(foods, list):
@@ -98,7 +98,7 @@ def _get_kwargs(
         json_foods = foods
     params["foods"] = json_foods
 
-    json_households: list[str] | None | Unset
+    json_households: list[str] | Unset | None
     if isinstance(households, Unset):
         json_households = UNSET
     elif isinstance(households, list):
@@ -112,14 +112,14 @@ def _get_kwargs(
         json_households = households
     params["households"] = json_households
 
-    json_order_by: None | str | Unset
+    json_order_by: str | Unset | None
     if isinstance(order_by, Unset):
         json_order_by = UNSET
     else:
         json_order_by = order_by
     params["orderBy"] = json_order_by
 
-    json_order_by_null_position: None | str | Unset
+    json_order_by_null_position: str | Unset | None
     if isinstance(order_by_null_position, Unset):
         json_order_by_null_position = UNSET
     elif isinstance(order_by_null_position, OrderByNullPosition):
@@ -134,14 +134,14 @@ def _get_kwargs(
 
     params["orderDirection"] = json_order_direction
 
-    json_query_filter: None | str | Unset
+    json_query_filter: str | Unset | None
     if isinstance(query_filter, Unset):
         json_query_filter = UNSET
     else:
         json_query_filter = query_filter
     params["queryFilter"] = json_query_filter
 
-    json_pagination_seed: None | str | Unset
+    json_pagination_seed: str | Unset | None
     if isinstance(pagination_seed, Unset):
         json_pagination_seed = UNSET
     else:
@@ -152,7 +152,7 @@ def _get_kwargs(
 
     params["perPage"] = per_page
 
-    json_cookbook: None | str | Unset
+    json_cookbook: str | Unset | None
     if isinstance(cookbook, Unset):
         json_cookbook = UNSET
     else:
@@ -167,7 +167,7 @@ def _get_kwargs(
 
     params["requireAllFoods"] = require_all_foods
 
-    json_search: None | str | Unset
+    json_search: str | Unset | None
     if isinstance(search, Unset):
         json_search = UNSET
     else:
@@ -221,25 +221,25 @@ def sync_detailed(
     group_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    categories: list[str] | None | Unset = UNSET,
-    tags: list[str] | None | Unset = UNSET,
-    tools: list[str] | None | Unset = UNSET,
-    foods: list[str] | None | Unset = UNSET,
-    households: list[str] | None | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    categories: list[str] | Unset | None = UNSET,
+    tags: list[str] | Unset | None = UNSET,
+    tools: list[str] | Unset | None = UNSET,
+    foods: list[str] | Unset | None = UNSET,
+    households: list[str] | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    cookbook: None | str | Unset = UNSET,
+    cookbook: str | Unset | None = UNSET,
     require_all_categories: bool | Unset = False,
     require_all_tags: bool | Unset = False,
     require_all_tools: bool | Unset = False,
     require_all_foods: bool | Unset = False,
-    search: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | PaginationBaseRecipeSummary]:
     """Get All
 
@@ -307,25 +307,25 @@ def sync(
     group_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    categories: list[str] | None | Unset = UNSET,
-    tags: list[str] | None | Unset = UNSET,
-    tools: list[str] | None | Unset = UNSET,
-    foods: list[str] | None | Unset = UNSET,
-    households: list[str] | None | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    categories: list[str] | Unset | None = UNSET,
+    tags: list[str] | Unset | None = UNSET,
+    tools: list[str] | Unset | None = UNSET,
+    foods: list[str] | Unset | None = UNSET,
+    households: list[str] | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    cookbook: None | str | Unset = UNSET,
+    cookbook: str | Unset | None = UNSET,
     require_all_categories: bool | Unset = False,
     require_all_tags: bool | Unset = False,
     require_all_tools: bool | Unset = False,
     require_all_foods: bool | Unset = False,
-    search: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | PaginationBaseRecipeSummary | None:
     """Get All
 
@@ -388,25 +388,25 @@ async def asyncio_detailed(
     group_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    categories: list[str] | None | Unset = UNSET,
-    tags: list[str] | None | Unset = UNSET,
-    tools: list[str] | None | Unset = UNSET,
-    foods: list[str] | None | Unset = UNSET,
-    households: list[str] | None | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    categories: list[str] | Unset | None = UNSET,
+    tags: list[str] | Unset | None = UNSET,
+    tools: list[str] | Unset | None = UNSET,
+    foods: list[str] | Unset | None = UNSET,
+    households: list[str] | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    cookbook: None | str | Unset = UNSET,
+    cookbook: str | Unset | None = UNSET,
     require_all_categories: bool | Unset = False,
     require_all_tags: bool | Unset = False,
     require_all_tools: bool | Unset = False,
     require_all_foods: bool | Unset = False,
-    search: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | PaginationBaseRecipeSummary]:
     """Get All
 
@@ -472,25 +472,25 @@ async def asyncio(
     group_slug: str,
     *,
     client: AuthenticatedClient | Client,
-    categories: list[str] | None | Unset = UNSET,
-    tags: list[str] | None | Unset = UNSET,
-    tools: list[str] | None | Unset = UNSET,
-    foods: list[str] | None | Unset = UNSET,
-    households: list[str] | None | Unset = UNSET,
-    order_by: None | str | Unset = UNSET,
-    order_by_null_position: None | OrderByNullPosition | Unset = UNSET,
+    categories: list[str] | Unset | None = UNSET,
+    tags: list[str] | Unset | None = UNSET,
+    tools: list[str] | Unset | None = UNSET,
+    foods: list[str] | Unset | None = UNSET,
+    households: list[str] | Unset | None = UNSET,
+    order_by: str | Unset | None = UNSET,
+    order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
-    query_filter: None | str | Unset = UNSET,
-    pagination_seed: None | str | Unset = UNSET,
+    query_filter: str | Unset | None = UNSET,
+    pagination_seed: str | Unset | None = UNSET,
     page: int | Unset = 1,
     per_page: int | Unset = 50,
-    cookbook: None | str | Unset = UNSET,
+    cookbook: str | Unset | None = UNSET,
     require_all_categories: bool | Unset = False,
     require_all_tags: bool | Unset = False,
     require_all_tools: bool | Unset = False,
     require_all_foods: bool | Unset = False,
-    search: None | str | Unset = UNSET,
-    accept_language: None | str | Unset = UNSET,
+    search: str | Unset | None = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | PaginationBaseRecipeSummary | None:
     """Get All
 

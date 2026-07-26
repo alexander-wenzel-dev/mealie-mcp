@@ -14,7 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     token_id: int,
     *,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -64,7 +64,7 @@ def sync_detailed(
     token_id: int,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[DeleteTokenResponse | HTTPValidationError]:
     """Delete Api Token
 
@@ -98,7 +98,7 @@ def sync(
     token_id: int,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> DeleteTokenResponse | HTTPValidationError | None:
     """Delete Api Token
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
     token_id: int,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[DeleteTokenResponse | HTTPValidationError]:
     """Delete Api Token
 
@@ -159,7 +159,7 @@ async def asyncio(
     token_id: int,
     *,
     client: AuthenticatedClient,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> DeleteTokenResponse | HTTPValidationError | None:
     """Delete Api Token
 

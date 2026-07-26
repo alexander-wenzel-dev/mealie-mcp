@@ -22,20 +22,20 @@ class RecipeTimelineEventUpdate:
     """
 
     subject: str
-    event_message: None | str | Unset = UNSET
-    image: None | TimelineEventImage | Unset = UNSET
+    event_message: str | Unset | None = UNSET
+    image: TimelineEventImage | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         subject = self.subject
 
-        event_message: None | str | Unset
+        event_message: str | Unset | None
         if isinstance(self.event_message, Unset):
             event_message = UNSET
         else:
             event_message = self.event_message
 
-        image: None | str | Unset
+        image: str | Unset | None
         if isinstance(self.image, Unset):
             image = UNSET
         elif isinstance(self.image, TimelineEventImage):
@@ -62,7 +62,7 @@ class RecipeTimelineEventUpdate:
         d = dict(src_dict)
         subject = d.pop("subject")
 
-        def _parse_event_message(data: object) -> None | str | Unset:
+        def _parse_event_message(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -71,7 +71,7 @@ class RecipeTimelineEventUpdate:
 
         event_message = _parse_event_message(d.pop("eventMessage", UNSET))
 
-        def _parse_image(data: object) -> None | TimelineEventImage | Unset:
+        def _parse_image(data: object) -> TimelineEventImage | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

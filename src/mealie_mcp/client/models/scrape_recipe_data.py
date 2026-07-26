@@ -24,7 +24,7 @@ class ScrapeRecipeData:
     data: str
     include_tags: bool | Unset = False
     include_categories: bool | Unset = False
-    url: None | str | Unset = UNSET
+    url: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +34,7 @@ class ScrapeRecipeData:
 
         include_categories = self.include_categories
 
-        url: None | str | Unset
+        url: str | Unset | None
         if isinstance(self.url, Unset):
             url = UNSET
         else:
@@ -65,7 +65,7 @@ class ScrapeRecipeData:
 
         include_categories = d.pop("includeCategories", UNSET)
 
-        def _parse_url(data: object) -> None | str | Unset:
+        def _parse_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):

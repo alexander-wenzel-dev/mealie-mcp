@@ -15,7 +15,7 @@ def _get_kwargs(
     item_id: str,
     *,
     body: MealieSchemaUserUserUserBase,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
@@ -69,7 +69,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: MealieSchemaUserUserUserBase,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Update User
 
@@ -106,7 +106,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: MealieSchemaUserUserUserBase,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Update User
 
@@ -138,7 +138,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: MealieSchemaUserUserUserBase,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Update User
 
@@ -173,7 +173,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: MealieSchemaUserUserUserBase,
-    accept_language: None | str | Unset = UNSET,
+    accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Update User
 

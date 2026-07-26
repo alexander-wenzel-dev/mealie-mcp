@@ -26,7 +26,7 @@ class ShoppingListAddRecipeParamsBulk:
 
     recipe_id: str
     recipe_increment_quantity: float | Unset = 1.0
-    recipe_ingredients: list[RecipeIngredient] | None | Unset = UNSET
+    recipe_ingredients: list[RecipeIngredient] | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +34,7 @@ class ShoppingListAddRecipeParamsBulk:
 
         recipe_increment_quantity = self.recipe_increment_quantity
 
-        recipe_ingredients: list[dict[str, Any]] | None | Unset
+        recipe_ingredients: list[dict[str, Any]] | Unset | None
         if isinstance(self.recipe_ingredients, Unset):
             recipe_ingredients = UNSET
         elif isinstance(self.recipe_ingredients, list):
@@ -69,7 +69,7 @@ class ShoppingListAddRecipeParamsBulk:
 
         recipe_increment_quantity = d.pop("recipeIncrementQuantity", UNSET)
 
-        def _parse_recipe_ingredients(data: object) -> list[RecipeIngredient] | None | Unset:
+        def _parse_recipe_ingredients(data: object) -> list[RecipeIngredient] | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
