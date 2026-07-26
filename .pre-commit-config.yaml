@@ -19,7 +19,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.15
+    rev: v0.16.0
     hooks:
       - id: ruff-format
       - id: ruff-check
