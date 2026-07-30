@@ -185,11 +185,14 @@ _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "total_time": "totalTime",
     "prep_time": "prepTime",
     "perform_time": "performTime",
+    "cook_time": "cookTime",
     "recipe_ingredient": "recipeIngredient",
     "recipe_instructions": "recipeInstructions",
     "notes": "notes",
     "tags": "tags",
     "recipe_category": "recipeCategory",
+    "tools": "tools",
+    "org_url": "orgURL",
 }
 
 
@@ -205,11 +208,14 @@ def update_recipe(
     total_time: str | None = None,
     prep_time: str | None = None,
     perform_time: str | None = None,
+    cook_time: str | None = None,
     recipe_ingredient: list[dict[str, Any]] | None = None,
     recipe_instructions: list[dict[str, Any]] | None = None,
     notes: list[dict[str, Any]] | None = None,
     tags: list[dict[str, Any]] | None = None,
     recipe_category: list[dict[str, Any]] | None = None,
+    tools: list[dict[str, Any]] | None = None,
+    org_url: str | None = None,
 ) -> dict[str, Any]:
     """Patch selected fields on a recipe. Returns the updated recipe payload."""
     require_non_empty("slug_or_id", slug_or_id)
@@ -223,11 +229,14 @@ def update_recipe(
         "total_time": total_time,
         "prep_time": prep_time,
         "perform_time": perform_time,
+        "cook_time": cook_time,
         "recipe_ingredient": recipe_ingredient,
         "recipe_instructions": recipe_instructions,
         "notes": notes,
         "tags": tags,
         "recipe_category": recipe_category,
+        "tools": tools,
+        "org_url": org_url,
     }
     patch: dict[str, Any] = {
         _UPDATE_RECIPE_FIELD_MAP[key]: value for key, value in supplied.items() if value is not None
@@ -501,17 +510,25 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         total_time: str | None = None,
         prep_time: str | None = None,
         perform_time: str | None = None,
+        cook_time: str | None = None,
         recipe_ingredient: list[dict[str, Any]] | None = None,
         recipe_instructions: list[dict[str, Any]] | None = None,
         notes: list[dict[str, Any]] | None = None,
         tags: list[dict[str, Any]] | None = None,
         recipe_category: list[dict[str, Any]] | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        org_url: str | None = None,
     ) -> dict[str, Any]:
         """Edit fields on an existing Mealie recipe.
 
         Only the fields supplied are sent; omitted fields are left unchanged.
         At least one field beyond ``slug_or_id`` must be provided. List fields
         replace the existing value wholesale; there is no per-item merge.
+
+        ``tools`` reaches beyond this recipe: the name and slug sent with a tool
+        overwrite that tool's catalogue entry for every recipe using it, and an
+        ``id`` matching no tool creates a new entry. Rename a tool through
+        ``mealie_update_tool``.
 
         Args:
             slug_or_id: Recipe slug or UUID.
@@ -529,6 +546,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             total_time: Human-readable total time (e.g. ``"45 minutes"``).
             prep_time: Human-readable preparation time.
             perform_time: Human-readable active cooking time.
+            cook_time: Human-readable cooking time (e.g. ``"25 minutes"``).
+                Mealie never fills this field itself; its importers put a source
+                recipe's cook time in ``perform_time``.
             recipe_ingredient: Full ingredient list as Mealie ingredient dicts.
                 Each item accepts keys like ``note``, ``quantity``, ``unit``,
                 ``food``, ``title``, ``display``, ``originalText``. ``food`` and
@@ -546,6 +566,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 ``id`` of an existing category; ``name`` and ``slug`` alone are
                 rejected the same way. Fetch the id via
                 ``mealie_list_categories``.
+            tools: Full equipment list. Each item needs ``id``, ``name`` and
+                ``slug``; fetch them via ``mealie_list_tools``.
+            org_url: Source URL of the recipe (e.g.
+                ``"https://example.com/recipes/stew"``).
 
         Returns:
             The updated recipe payload as a JSON-compatible dict.
@@ -561,11 +585,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             total_time=total_time,
             prep_time=prep_time,
             perform_time=perform_time,
+            cook_time=cook_time,
             recipe_ingredient=recipe_ingredient,
             recipe_instructions=recipe_instructions,
             notes=notes,
             tags=tags,
             recipe_category=recipe_category,
+            tools=tools,
+            org_url=org_url,
         )
 
     @mcp.tool(name="mealie_update_last_made")

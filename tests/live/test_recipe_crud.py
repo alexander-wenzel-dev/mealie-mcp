@@ -12,6 +12,7 @@ import datetime as dt
 import json
 import os
 from collections.abc import Iterator
+from uuid import uuid4
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -26,11 +27,9 @@ from mealie_mcp.client.api.households_cookbooks import (
     create_one_api_households_cookbooks_post,
     delete_one_api_households_cookbooks_item_id_delete,
 )
-from mealie_mcp.client.api.recipe_crud import patch_one_api_recipes_slug_patch
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_cook_book import CreateCookBook
 from mealie_mcp.client.models.household_create import HouseholdCreate
-from mealie_mcp.client.models.recipe import Recipe
 from mealie_mcp.tools import (
     organizer_categories,
     organizer_tags,
@@ -43,7 +42,7 @@ from mealie_mcp.tools._common import decode, expect_dict
 
 
 def _organizer_ref(item: dict[str, str]) -> dict[str, str]:
-    """A tag or category reference as the recipe PATCH body expects it."""
+    """A tag, category or tool reference as the recipe PATCH body expects it."""
     return {"id": item["id"], "name": item["name"], "slug": item["slug"]}
 
 
@@ -123,6 +122,9 @@ def test_update_recipe_patches_scalars_and_lists(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
 ) -> None:
     slug = created_recipe["slug"]
+    org_url = f"https://example.com/{created_recipe['name']}"
+    # Mealie leaves cookTime empty on its own, so the update turns absence into a value.
+    assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["cookTime"] is None
     updated = recipe_crud.update_recipe(
         mealie_client,
         slug_or_id=slug,
@@ -131,6 +133,8 @@ def test_update_recipe_patches_scalars_and_lists(
         total_time="55 minutes",
         prep_time="15 minutes",
         perform_time="40 minutes",
+        cook_time="25 minutes",
+        org_url=org_url,
         recipe_ingredient=[{"note": "1 cup flour"}, {"note": "2 eggs"}],
         notes=[{"title": "mcp", "text": "patched note"}],
         recipe_instructions=[{"text": "Step one."}, {"text": "Step two."}],
@@ -144,6 +148,8 @@ def test_update_recipe_patches_scalars_and_lists(
     assert refreshed["totalTime"] == "55 minutes"
     assert refreshed["prepTime"] == "15 minutes"
     assert refreshed["performTime"] == "40 minutes"
+    assert refreshed["cookTime"] == "25 minutes"
+    assert refreshed["orgURL"] == org_url
     assert [ing["note"] for ing in refreshed["recipeIngredient"]] == [
         "1 cup flour",
         "2 eggs",
@@ -229,6 +235,59 @@ def test_update_recipe_attaches_tag_and_category(
             organizer_tags.delete_tag(mealie_client, item_id=tag["id"])
         with contextlib.suppress(ToolError):
             organizer_categories.delete_category(mealie_client, item_id=category["id"])
+
+
+@pytest.mark.live
+def test_update_recipe_attaches_tool_and_rewrites_its_catalogue_entry(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A tool attaches by id, and the supplied name and slug land on the catalogue entry.
+
+    The second update sends a slug that is neither the stored one nor derivable
+    from the new name, so an ignored slug fails the same as a re-derived one.
+    """
+    slug = created_recipe["slug"]
+    tool = organizer_tools.create_tool(mealie_client, name=f"{sentinel_name}-tool")
+    try:
+        recipe_crud.update_recipe(mealie_client, slug_or_id=slug, tools=[_organizer_ref(tool)])
+        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        assert [t["slug"] for t in refreshed["tools"]] == [tool["slug"]]
+
+        renamed = f"{sentinel_name}-renamed"
+        reslugged = f"{tool['slug']}-rewritten"
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            tools=[{"id": tool["id"], "name": renamed, "slug": reslugged}],
+        )
+        stored = organizer_tools.get_tool(mealie_client, item_id=tool["id"])
+        assert stored["name"] == renamed
+        assert stored["slug"] == reslugged
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_tools.delete_tool(mealie_client, item_id=tool["id"])
+
+
+@pytest.mark.live
+def test_update_recipe_tool_reference_with_unknown_id_creates_a_catalogue_entry(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """An id matching no tool does not fail; Mealie mints a catalogue entry under it."""
+    slug = created_recipe["slug"]
+    unknown_id = str(uuid4())
+    ghost_name = f"{sentinel_name}-ghost"
+    try:
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            tools=[{"id": unknown_id, "name": ghost_name, "slug": ghost_name}],
+        )
+        attached = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["tools"]
+        assert [(t["id"], t["name"]) for t in attached] == [(unknown_id, ghost_name)]
+        assert organizer_tools.get_tool(mealie_client, item_id=unknown_id)["name"] == ghost_name
+    finally:
+        with contextlib.suppress(ToolError):
+            organizer_tools.delete_tool(mealie_client, item_id=unknown_id)
 
 
 @pytest.mark.live
@@ -389,6 +448,7 @@ def test_create_recipe_from_html_or_json(
         "@context": "https://schema.org",
         "@type": "Recipe",
         "name": sentinel_name,
+        "cookTime": "PT25M",
         "recipeIngredient": ["1 cup flour", "2 eggs"],
         "recipeInstructions": [{"@type": "HowToStep", "text": "Mix and bake."}],
     }
@@ -397,6 +457,9 @@ def test_create_recipe_from_html_or_json(
     try:
         fetched = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
         assert fetched["slug"] == slug
+        # The importer routes schema.org cookTime to performTime, leaving cookTime empty.
+        assert fetched["performTime"] == "25 minutes"
+        assert fetched["cookTime"] is None
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
@@ -497,16 +560,7 @@ def test_list_recipes_filters_by_tools(
     with_tool = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-with")["slug"]
     without_tool = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-without")["slug"]
     try:
-        # No tool exposes recipe-equipment linkage, so attach via the raw PATCH.
-        patch_body = Recipe.from_dict(
-            {"tools": [{"id": tool["id"], "name": tool["name"], "slug": tool["slug"]}]}
-        )
-        expect_dict(
-            "seed_recipe_tools",
-            patch_one_api_recipes_slug_patch.sync_detailed(
-                with_tool, client=mealie_client, body=patch_body
-            ),
-        )
+        recipe_crud.update_recipe(mealie_client, slug_or_id=with_tool, tools=[_organizer_ref(tool)])
 
         matched = _result_slugs(
             recipe_crud.list_recipes(mealie_client, tools=[tool["slug"]], per_page=100)

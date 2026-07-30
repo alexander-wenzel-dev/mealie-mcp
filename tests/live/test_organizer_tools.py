@@ -17,9 +17,7 @@ from mealie_mcp.client.api.households_self_service import (
     get_logged_in_user_household_api_households_self_get,
 )
 from mealie_mcp.client.api.organizer_tools import update_one_api_organizers_tools_item_id_put
-from mealie_mcp.client.api.recipe_crud import patch_one_api_recipes_slug_patch
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.recipe import Recipe
 from mealie_mcp.client.models.recipe_tool_create import RecipeToolCreate
 from mealie_mcp.tools import organizer_tools, recipe_crud
 from mealie_mcp.tools._common import expect_dict
@@ -112,17 +110,10 @@ def test_get_tool_by_id_omits_recipes_while_by_slug_hydrates(
     recipe_slug: str | None = None
     try:
         recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
-        # `update_recipe` does not expose the tools field, so the tool is attached
-        # to the recipe through the generated recipe PATCH endpoint.
-        expect_dict(
-            "attach_tool_to_recipe",
-            patch_one_api_recipes_slug_patch.sync_detailed(
-                recipe_slug,
-                client=mealie_client,
-                body=Recipe.from_dict(
-                    {"tools": [{"id": tool_id, "name": tool["name"], "slug": tool["slug"]}]}
-                ),
-            ),
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe_slug,
+            tools=[{"id": tool_id, "name": tool["name"], "slug": tool["slug"]}],
         )
 
         # The by-id read returns a compact payload with no recipes list.
