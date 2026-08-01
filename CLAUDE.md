@@ -16,7 +16,13 @@ YAGNI and KISS. Build what the task requires now. Resist abstractions, configura
 
 ## Writing style
 
-Committed prose uses simple technical English, short sentences, and no em dashes. The same holds for any pull request or issue comment you write. Code comments and docstrings describe behaviour or a non-obvious why. They do not restate durable rules from this file, name this file, or reference the current task.
+Everything we leave behind states the current state of the thing, at the shortest length that stays exact: docstrings, comments, docs, the changelog, commit messages, and any pull request or issue comment. Not the path that led there, not the options we weighed, not how sure we feel. Simple technical English, short sentences, no em dashes. Precision outranks brevity, because a dropped constraint costs the reader more than the words it saved.
+
+Tool docstrings carry the tightest budget: FastMCP sends them to the calling model on every request. State what the caller passes and what breaks when they get it wrong, and drop what a reader infers from what is already there.
+
+A comment earns its place by saying what the code below it does not, such as a hidden constraint, a subtle invariant, or a workaround and its cause. Restating the code is noise, and so is restating a durable rule from this file or naming this file.
+
+Uncertainty goes in the PR Risks block, the task file, or the conversation. A hedge in a docstring is a fact we stopped measuring too early.
 
 Names for tests, modules, functions, and sections describe what the thing is or verifies, not the procedure or the current task's framing. A name should still read correctly when the original context is gone.
 
@@ -153,7 +159,7 @@ Never commit `.env` or any file that contains real tokens, hostnames, IPs, or us
 
 ## Branches, commits, and PRs
 
-Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. A commit message states what the change leaves behind, not the in-branch journey to it. When you amend or rebuild, write it as if it were the first commit, with no review-fix narration. Commit in small steps and keep generated artifacts isolated in their own commit.
+Never commit to `main`. Create a branch named `<type>/<scope>-<slug>` where `<type>` and `<scope>` match the conventional commit and `<slug>` is a short summary. Use conventional commits with lower-case subjects. Keep the subject within 72 characters and wrap the body at 72. When you amend or rebuild, write the message as if it were the first commit. Commit in small steps and keep generated artifacts isolated in their own commit.
 
 Push as soon as the merge-gate checks are green. The PR title is the conventional commit subject for the headline change. The PR body must contain, in order: a link to the task file by slug if one exists; a "Tools added" or "Changes" bullet list with name and one line each; a "How tested" block with the tail of `pytest` and `pytest -m live` output; and a "Risks" block, even if it says "none". The body contract binds when the PR is marked ready for review.
 
