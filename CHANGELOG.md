@@ -16,6 +16,13 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a tool overwrite that tool's catalogue entry for every recipe using it, and an
   unknown `id` creates a new entry.
 
+### Fixed
+
+- `mealie_update_recipe` documents `referenceId` on an ingredient and
+  `ingredientReferences` on a step. Rewriting the ingredient list without
+  sending each item's `referenceId` back makes Mealie mint new ids and leaves
+  the step links pointing at ingredients that no longer exist.
+
 ## [0.2.0] - 2026-07-26
 
 ### Added
