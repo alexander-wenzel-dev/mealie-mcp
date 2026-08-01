@@ -208,7 +208,7 @@ probes `/health` over the loopback, stays green.
 
 ## Tools
 
-The server exposes 97 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
+The server exposes 99 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
 
 <details>
 <summary>All tool groups</summary>
@@ -240,7 +240,7 @@ The server exposes 97 tools across 16 groups, one per Mealie OpenAPI tag. New gr
 | `households_mealplans`           | Create, read, list, update, and delete meal plan entries; get today's plan and add a server-picked random entry. |
 | `households_mealplan_rules`      | Create, read, list, update, and delete meal plan rules.                                                          |
 | `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients, one recipe or several. |
-| `households_shopping_list_items` | List, add, update, delete, and bulk-delete shopping list items.                                                  |
+| `households_shopping_list_items` | List, add, update, and delete shopping list items, one at a time or several in one call, with food, unit, and label links. |
 | `households_cookbooks`           | Create, read, list, update, and delete cookbooks.                                                                |
 
 ### Users
