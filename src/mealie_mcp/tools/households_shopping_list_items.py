@@ -3,9 +3,9 @@
 Mirrors `mealie_mcp.client.api.households_shopping_list_items`. Exposes the
 per-item lifecycle on a shopping list: list items across the household's
 lists, add an item, update an item (toggle checked, edit quantity, note, or
-label), remove an item, and delete several items in one call. Bulk create and
-bulk update, and recipe-derived items, are out of scope. The lists themselves
-live in `households_shopping_lists`.
+label), remove an item, and create, update, or delete several items in one
+call. Recipe-derived items are out of scope. The lists themselves live in
+`households_shopping_lists`.
 """
 
 from __future__ import annotations
@@ -17,16 +17,19 @@ from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.households_shopping_list_items import (
+    create_many_api_households_shopping_items_create_bulk_post,
     create_one_api_households_shopping_items_post,
     delete_many_api_households_shopping_items_delete,
     delete_one_api_households_shopping_items_item_id_delete,
     get_all_api_households_shopping_items_get,
     get_one_api_households_shopping_items_item_id_get,
+    update_many_api_households_shopping_items_put,
     update_one_api_households_shopping_items_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.shopping_list_item_create import ShoppingListItemCreate
 from mealie_mcp.client.models.shopping_list_item_update import ShoppingListItemUpdate
+from mealie_mcp.client.models.shopping_list_item_update_bulk import ShoppingListItemUpdateBulk
 from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
@@ -40,6 +43,9 @@ from mealie_mcp.tools._common import (
     require_pagination,
     to_unset,
 )
+
+CREATE_ITEM_FIELDS = ("shopping_list_id", "note", "quantity", "food_id", "unit_id", "label_id")
+UPDATE_ITEM_FIELDS = ("id", "note", "quantity", "checked", "label_id")
 
 
 def _single_item(action: str, response: Response[Any], keys: tuple[str, ...]) -> dict[str, Any]:
@@ -66,6 +72,27 @@ def _single_item(action: str, response: Response[Any], keys: tuple[str, ...]) ->
     raise ToolError(f"Mealie {action} returned no {' or '.join(keys)}")
 
 
+def _item_string(action: str, index: int, item: dict[str, Any], field: str) -> str:
+    """Return a required string field of a bulk item, or raise `ToolError`."""
+    value = item.get(field)
+    if not isinstance(value, str):
+        raise ToolError(f"{action} items[{index}].{field} must be a non-empty string")
+    require_non_empty(f"items[{index}].{field}", value)
+    return value
+
+
+def _require_item_fields(action: str, index: int, item: Any, allowed: tuple[str, ...]) -> None:
+    """Reject a bulk item that is not an object or carries a field the tool cannot send."""
+    if not isinstance(item, dict):
+        raise ToolError(f"{action} items[{index}] must be an object")
+    unsupported = sorted(set(item) - set(allowed))
+    if unsupported:
+        raise ToolError(
+            f"{action} items[{index}] has unsupported fields {unsupported}; "
+            f"supported fields are {list(allowed)}"
+        )
+
+
 def _create_body(
     shopping_list_id: str,
     note: str,
@@ -86,7 +113,7 @@ def _create_body(
 
 
 def _apply_item_edits(
-    body: ShoppingListItemUpdate,
+    body: ShoppingListItemUpdate | ShoppingListItemUpdateBulk,
     note: str | None = None,
     quantity: float | None = None,
     checked: bool | None = None,
@@ -141,6 +168,32 @@ def add_shopping_list_item(
     return _single_item("add_shopping_list_item", response, ("createdItems", "updatedItems"))
 
 
+def add_shopping_list_items(
+    client: AuthenticatedClient, items: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Create several shopping list items in one call. Returns the collection envelope."""
+    action = "add_shopping_list_items"
+    if not items:
+        raise ToolError("items must contain at least one item")
+    bodies = []
+    for index, item in enumerate(items):
+        _require_item_fields(action, index, item, CREATE_ITEM_FIELDS)
+        bodies.append(
+            _create_body(
+                _item_string(action, index, item, "shopping_list_id"),
+                _item_string(action, index, item, "note"),
+                item.get("quantity"),
+                item.get("food_id"),
+                item.get("unit_id"),
+                item.get("label_id"),
+            )
+        )
+    response = create_many_api_households_shopping_items_create_bulk_post.sync_detailed(
+        client=client, body=bodies
+    )
+    return expect_dict(action, response, HTTPStatus.CREATED)
+
+
 def update_shopping_list_item(
     client: AuthenticatedClient,
     item_id: str,
@@ -177,6 +230,46 @@ def update_shopping_list_item(
     if response.status_code != HTTPStatus.OK:
         raise_api_error("update_shopping_list_item", int(response.status_code), response.content)
     return _single_item("update_shopping_list_item", response, ("updatedItems",))
+
+
+def update_shopping_list_items(
+    client: AuthenticatedClient, items: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Update several shopping list items in one call. Returns the collection envelope.
+
+    The endpoint PUT-replaces every item in the body, so each item is fetched
+    first and its body rebuilt from the current state with the caller's edits
+    applied on top. Every item is validated before the first fetch, so a
+    malformed entry raises before any request is sent.
+    """
+    action = "update_shopping_list_items"
+    if not items:
+        raise ToolError("items must contain at least one item")
+
+    edits: list[tuple[str, dict[str, Any]]] = []
+    for index, item in enumerate(items):
+        _require_item_fields(action, index, item, UPDATE_ITEM_FIELDS)
+        item_id = _item_string(action, index, item, "id")
+        fields = {key: value for key, value in item.items() if key != "id" and value is not None}
+        if not fields:
+            raise ToolError(f"{action} items[{index}] requires at least one field to update")
+        edits.append((item_id, fields))
+
+    bodies = []
+    for item_id, fields in edits:
+        fetched = get_one_api_households_shopping_items_item_id_get.sync_detailed(
+            item_id, client=client
+        )
+        current = expect_dict(action, fetched)
+        body = ShoppingListItemUpdateBulk.from_dict(current)
+        body.additional_properties = {}
+        _apply_item_edits(body, **fields)
+        bodies.append(body)
+
+    response = update_many_api_households_shopping_items_put.sync_detailed(
+        client=client, body=bodies
+    )
+    return expect_dict(action, response)
 
 
 def delete_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
@@ -285,6 +378,31 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             label_id=label_id,
         )
 
+    @mcp.tool(name="mealie_add_shopping_list_items")
+    def _add_shopping_list_items(items: list[dict[str, Any]]) -> dict[str, Any]:
+        """Create several shopping list items in one call.
+
+        One request instead of one per item. Each item names its own target
+        list, so a single call can fill several lists. Aggregation applies as in
+        ``mealie_add_shopping_list_item``: items sharing a food and a unit with
+        an unchecked existing item, or with each other, are merged, so fewer
+        items can come back than were sent. The write is not atomic; if one item
+        fails, the items before it are already created.
+
+        Args:
+            items: Item objects, at least one. Each takes
+                ``shopping_list_id`` (UUID, required), ``note`` (required),
+                ``quantity``, ``food_id``, ``unit_id`` and ``label_id``, with
+                the same meaning as in ``mealie_add_shopping_list_item``. Any
+                other field is rejected.
+
+        Returns:
+            A collection envelope with ``createdItems``, ``updatedItems`` and
+            ``deletedItems``. An item merged into an existing one appears under
+            ``updatedItems``, not ``createdItems``.
+        """
+        return add_shopping_list_items(get_client(), items=items)
+
     @mcp.tool(name="mealie_update_shopping_list_item")
     def _update_shopping_list_item(
         item_id: str,
@@ -321,6 +439,32 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             checked=checked,
             label_id=label_id,
         )
+
+    @mcp.tool(name="mealie_update_shopping_list_items")
+    def _update_shopping_list_items(items: list[dict[str, Any]]) -> dict[str, Any]:
+        """Edit several shopping list items in one call, or check them off.
+
+        One request instead of one per item. Each item is identified by its own
+        ``id``, so a single call can span several lists. Only the fields
+        supplied on an item change; its other fields, including its food, unit,
+        and recipe links, keep their current values. Every item is read before
+        anything is written, so an id matching no item fails the call and leaves
+        the other items unchanged. Unchecking an item whose food and unit match
+        another unchecked item merges the two: the survivor comes back under
+        ``updatedItems`` and the absorbed one under ``deletedItems``.
+
+        Args:
+            items: Item objects, at least one. Each takes ``id`` (UUID of the
+                item, required) plus at least one of ``note``, ``quantity``,
+                ``checked`` and ``label_id``, with the same meaning as in
+                ``mealie_update_shopping_list_item``. Any other field is
+                rejected.
+
+        Returns:
+            A collection envelope with ``createdItems``, ``updatedItems`` and
+            ``deletedItems``.
+        """
+        return update_shopping_list_items(get_client(), items=items)
 
     @mcp.tool(name="mealie_delete_shopping_list_item")
     def _delete_shopping_list_item(item_id: str) -> dict[str, Any]:

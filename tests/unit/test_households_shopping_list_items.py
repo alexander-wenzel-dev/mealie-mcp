@@ -46,6 +46,38 @@ class TestAddShoppingListItem:
             )
 
 
+class TestAddShoppingListItems:
+    def test_rejects_empty_list(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="items must contain at least one item"):
+            households_shopping_list_items.add_shopping_list_items(client, items=[])
+
+    def test_rejects_non_object_item(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"items\[0\] must be an object"):
+            households_shopping_list_items.add_shopping_list_items(client, items=["milk"])
+
+    def test_rejects_unsupported_field(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"items\[1\] has unsupported fields \['checked'\]"):
+            households_shopping_list_items.add_shopping_list_items(
+                client,
+                items=[
+                    {"shopping_list_id": "abc", "note": "milk"},
+                    {"shopping_list_id": "abc", "note": "eggs", "checked": True},
+                ],
+            )
+
+    def test_rejects_missing_shopping_list_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(
+            ToolError, match=r"items\[0\].shopping_list_id must be a non-empty string"
+        ):
+            households_shopping_list_items.add_shopping_list_items(client, items=[{"note": "milk"}])
+
+    def test_rejects_blank_note(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"items\[0\].note must be a non-empty string"):
+            households_shopping_list_items.add_shopping_list_items(
+                client, items=[{"shopping_list_id": "abc", "note": "  "}]
+            )
+
+
 class TestUpdateShoppingListItem:
     def test_rejects_blank_item_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
@@ -54,6 +86,40 @@ class TestUpdateShoppingListItem:
     def test_rejects_no_fields(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="requires at least one field to update"):
             households_shopping_list_items.update_shopping_list_item(client, item_id="abc")
+
+
+class TestUpdateShoppingListItems:
+    def test_rejects_empty_list(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="items must contain at least one item"):
+            households_shopping_list_items.update_shopping_list_items(client, items=[])
+
+    def test_rejects_unsupported_field(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(
+            ToolError, match=r"items\[0\] has unsupported fields \['shopping_list_id'\]"
+        ):
+            households_shopping_list_items.update_shopping_list_items(
+                client, items=[{"id": "abc", "shopping_list_id": "def", "checked": True}]
+            )
+
+    def test_rejects_missing_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"items\[0\].id must be a non-empty string"):
+            households_shopping_list_items.update_shopping_list_items(
+                client, items=[{"checked": True}]
+            )
+
+    def test_rejects_item_without_edits(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"items\[1\] requires at least one field to update"):
+            households_shopping_list_items.update_shopping_list_items(
+                client, items=[{"id": "abc", "checked": True}, {"id": "def"}]
+            )
+
+    def test_rejects_item_whose_only_field_is_null(self, client: AuthenticatedClient) -> None:
+        # A null field is not an edit. Letting it through writes the item back
+        # unchanged and reports it as updated.
+        with pytest.raises(ToolError, match=r"items\[0\] requires at least one field to update"):
+            households_shopping_list_items.update_shopping_list_items(
+                client, items=[{"id": "abc", "note": None}]
+            )
 
 
 class TestDeleteShoppingListItem:

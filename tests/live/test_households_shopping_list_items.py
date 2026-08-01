@@ -1,13 +1,13 @@
 """Live tests for the household shopping list item tools.
 
-Stages a sentinel shopping list, adds sentinel items, and exercises the item
-tools against it. The partial updates change one field at a time and assert
-that the unsupplied fields and the item's food and unit links survive the
-PUT-replace, so a regression in fetch-then-merge fails the test. Food, unit,
-and label sentinels back the aggregation and labelling assertions. Every test
-signature requests the list fixture last so pytest tears the list (and cascades
-its items) down before the label, unit, and food, and cleanup runs even when
-the body fails so no `mcp-test-` data lingers.
+Stages a sentinel shopping list, adds sentinel items, and exercises the single
+and bulk write tools against it. The partial updates change one field at a time
+and assert that the unsupplied fields and the item's food and unit links
+survive the PUT-replace, so a regression in fetch-then-merge fails the test.
+Food, unit, and label sentinels back the aggregation and labelling assertions.
+Every test signature requests the list fixture last so pytest tears the list
+(and cascades its items) down before the label, unit, and food, and cleanup
+runs even when the body fails so no `mcp-test-` data lingers.
 """
 
 from __future__ import annotations
@@ -37,6 +37,10 @@ from mealie_mcp.tools import (
     recipes_units,
 )
 from mealie_mcp.tools._common import expect_dict
+
+# Names no list and no item. Mealie validates the id as a version 4 UUID and
+# answers a 422 for any other shape, before it looks the id up.
+ABSENT_UUID = "8f14e45f-ceea-4a67-b98d-4f5e2f2a1b3c"
 
 
 @pytest.fixture
@@ -382,6 +386,260 @@ def test_update_shopping_list_item_sets_label(
     assert updated["quantity"] == 2
     assert updated["foodId"] == created_food["id"]
     assert updated["unitId"] == created_unit["id"]
+
+
+@pytest.mark.live
+def test_add_shopping_list_items_fills_two_lists_in_one_call(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """Each bulk item names its own list, and an omitted quantity still seeds 1."""
+    list_id = created_shopping_list["id"]
+    other = households_shopping_lists.create_shopping_list(
+        mealie_client, name=f"{sentinel_name}-other"
+    )
+    try:
+        result = call_tool(
+            "mealie_add_shopping_list_items",
+            {
+                "items": [
+                    {
+                        "shopping_list_id": list_id,
+                        "note": f"{sentinel_name}-here",
+                        "quantity": 4,
+                    },
+                    {"shopping_list_id": other["id"], "note": f"{sentinel_name}-there"},
+                ]
+            },
+        )
+        assert isinstance(result, dict)
+        created = {item["note"]: item for item in result["createdItems"]}
+        assert set(created) == {f"{sentinel_name}-here", f"{sentinel_name}-there"}
+        assert created[f"{sentinel_name}-here"]["quantity"] == 4
+        assert created[f"{sentinel_name}-there"]["quantity"] == 1
+
+        here = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+        there = households_shopping_lists.get_shopping_list(mealie_client, list_id=other["id"])
+        assert [i["id"] for i in here["listItems"]] == [created[f"{sentinel_name}-here"]["id"]]
+        assert [i["id"] for i in there["listItems"]] == [created[f"{sentinel_name}-there"]["id"]]
+    finally:
+        with contextlib.suppress(ToolError):
+            households_shopping_lists.delete_shopping_list(mealie_client, list_id=other["id"])
+
+
+@pytest.mark.live
+def test_add_shopping_list_items_maps_food_unit_and_label_per_entry(
+    mealie_client: AuthenticatedClient,
+    created_food: dict[str, str],
+    created_unit: dict[str, str],
+    created_label: dict[str, str],
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """Each entry's three ids reach Mealie on the field the caller named.
+
+    The bulk path reads ``food_id``, ``unit_id``, and ``label_id`` out of the
+    caller's dict and passes them positionally, so a swapped pair would land
+    without an error. The food and unit ride on two entries and the label on a
+    third, which makes a swap show up. Mealie's aggregation confirms the pair
+    landed together: the two entries sharing a food and a unit collapse into one
+    line with the summed quantity, so a batch can return fewer items than it was
+    given.
+    """
+    list_id = created_shopping_list["id"]
+    linked = {
+        "shopping_list_id": list_id,
+        "quantity": 250,
+        "food_id": created_food["id"],
+        "unit_id": created_unit["id"],
+    }
+    result = households_shopping_list_items.add_shopping_list_items(
+        mealie_client,
+        items=[
+            {**linked, "note": f"{sentinel_name}-butter"},
+            {**linked, "note": f"{sentinel_name}-more-butter"},
+            {
+                "shopping_list_id": list_id,
+                "note": f"{sentinel_name}-labelled",
+                "label_id": created_label["id"],
+            },
+        ],
+    )
+    created = result["createdItems"]
+    assert len(created) == 2, f"expected the two linked entries to merge, got {created}"
+
+    merged = next((i for i in created if i["foodId"] == created_food["id"]), None)
+    assert merged is not None, "no created item carries the food link"
+    assert merged["unitId"] == created_unit["id"]
+    assert merged["labelId"] is None
+    assert merged["quantity"] == 500
+
+    labelled = next((i for i in created if i["id"] != merged["id"]), None)
+    assert labelled is not None, "the labelled entry is missing"
+    assert labelled["labelId"] == created_label["id"]
+    assert labelled["foodId"] is None
+    assert labelled["unitId"] is None
+
+    stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+    assert {i["id"] for i in stored["listItems"]} == {i["id"] for i in created}
+
+
+@pytest.mark.live
+def test_add_shopping_list_items_keeps_the_items_written_before_a_failure(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """The bulk create is not atomic, as the tool docstring warns.
+
+    The second item names a UUID that is no shopping list, which Mealie answers
+    with a 500 after it has already written the first item.
+    """
+    list_id = created_shopping_list["id"]
+    with pytest.raises(ToolError):
+        households_shopping_list_items.add_shopping_list_items(
+            mealie_client,
+            items=[
+                {"shopping_list_id": list_id, "note": f"{sentinel_name}-written"},
+                {"shopping_list_id": ABSENT_UUID, "note": f"{sentinel_name}-rejected"},
+            ],
+        )
+
+    stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+    assert [i["note"] for i in stored["listItems"]] == [f"{sentinel_name}-written"]
+
+
+@pytest.mark.live
+def test_update_shopping_list_items_checks_off_several_and_keeps_links(
+    mealie_client: AuthenticatedClient,
+    created_food: dict[str, str],
+    created_unit: dict[str, str],
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """One bulk call checks off several items without clobbering their links.
+
+    The bulk endpoint PUT-replaces every item in the body, so the food and unit
+    links, which the tool does not expose, only survive because each item is
+    merged from its current state first.
+    """
+    list_id = created_shopping_list["id"]
+    linked = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-linked",
+        quantity=250,
+        food_id=created_food["id"],
+        unit_id=created_unit["id"],
+    )
+    plain = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=list_id, note=f"{sentinel_name}-plain", quantity=2
+    )
+
+    result = call_tool(
+        "mealie_update_shopping_list_items",
+        {
+            "items": [
+                {"id": linked["id"], "checked": True},
+                {"id": plain["id"], "checked": True, "note": f"{sentinel_name}-renamed"},
+            ]
+        },
+    )
+    assert isinstance(result, dict)
+    updated = {item["id"]: item for item in result["updatedItems"]}
+    assert set(updated) == {linked["id"], plain["id"]}
+    assert updated[linked["id"]]["note"] == f"{sentinel_name}-linked"
+    assert updated[linked["id"]]["quantity"] == 250
+    assert updated[linked["id"]]["foodId"] == created_food["id"]
+    assert updated[linked["id"]]["unitId"] == created_unit["id"]
+    assert updated[plain["id"]]["note"] == f"{sentinel_name}-renamed"
+
+    stored = {
+        item["id"]: item
+        for item in households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)[
+            "listItems"
+        ]
+    }
+    assert stored[linked["id"]]["checked"] is True
+    assert stored[linked["id"]]["foodId"] == created_food["id"]
+    assert stored[linked["id"]]["unitId"] == created_unit["id"]
+    assert stored[plain["id"]]["checked"] is True
+
+
+@pytest.mark.live
+def test_update_shopping_list_items_merges_an_unchecked_item_into_its_twin(
+    mealie_client: AuthenticatedClient,
+    created_food: dict[str, str],
+    created_unit: dict[str, str],
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """A checked item stands apart until it is unchecked, then Mealie merges it.
+
+    This is why the bulk response reports deleted items: an update that changes
+    nothing but a checked flag can still remove a line from the list.
+    """
+    list_id = created_shopping_list["id"]
+    first = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-first",
+        quantity=250,
+        food_id=created_food["id"],
+        unit_id=created_unit["id"],
+    )
+    households_shopping_list_items.update_shopping_list_item(
+        mealie_client, item_id=first["id"], checked=True
+    )
+
+    second = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-second",
+        quantity=250,
+        food_id=created_food["id"],
+        unit_id=created_unit["id"],
+    )
+    assert second["id"] != first["id"], "a checked item must not absorb a new one"
+
+    result = households_shopping_list_items.update_shopping_list_items(
+        mealie_client, items=[{"id": first["id"], "checked": False}]
+    )
+    assert [item["id"] for item in result["deletedItems"]] == [first["id"]]
+    assert [item["id"] for item in result["updatedItems"]] == [second["id"]]
+    assert result["updatedItems"][0]["quantity"] == 500
+
+    stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+    assert [i["id"] for i in stored["listItems"]] == [second["id"]]
+
+
+@pytest.mark.live
+def test_update_shopping_list_items_writes_nothing_when_an_id_is_unknown(
+    mealie_client: AuthenticatedClient,
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """Reading every item before the write is what keeps a bad batch off the list."""
+    note = f"{sentinel_name}-item"
+    added = households_shopping_list_items.add_shopping_list_item(
+        mealie_client, shopping_list_id=created_shopping_list["id"], note=note
+    )
+    with pytest.raises(ToolError):
+        households_shopping_list_items.update_shopping_list_items(
+            mealie_client,
+            items=[
+                {"id": added["id"], "note": f"{sentinel_name}-renamed"},
+                {"id": ABSENT_UUID, "checked": True},
+            ],
+        )
+
+    stored = households_shopping_lists.get_shopping_list(
+        mealie_client, list_id=created_shopping_list["id"]
+    )
+    assert [i["note"] for i in stored["listItems"]] == [note]
 
 
 @pytest.mark.live
