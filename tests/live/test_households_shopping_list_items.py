@@ -1,13 +1,13 @@
-"""Live test for the household shopping list item lifecycle.
+"""Live tests for the household shopping list item tools.
 
-Stages a sentinel shopping list, adds a sentinel item, seeds ``food_id`` and
-``label_id`` (both unexposed by the update tool), then exercises the update and
-delete tools. The partial updates change one field at a time and assert that
-the unsupplied fields and the seeded food/label links survive the PUT-replace,
-so a regression in fetch-then-merge fails the test. The test signature requests
-the list fixture last so pytest tears the list (and cascades its items) down
-before the label and food, and cleanup runs even when the body fails so no
-`mcp-test-` data lingers.
+Stages a sentinel shopping list, adds sentinel items, and exercises the item
+tools against it. The partial updates change one field at a time and assert
+that the unsupplied fields and the item's food and unit links survive the
+PUT-replace, so a regression in fetch-then-merge fails the test. Food, unit,
+and label sentinels back the aggregation and labelling assertions. Every test
+signature requests the list fixture last so pytest tears the list (and cascades
+its items) down before the label, unit, and food, and cleanup runs even when
+the body fails so no `mcp-test-` data lingers.
 """
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from mealie_mcp.tools import (
     households_shopping_lists,
     recipe_crud,
     recipes_foods,
+    recipes_units,
 )
 from mealie_mcp.tools._common import expect_dict
 
@@ -63,6 +64,19 @@ def created_food(
     finally:
         with contextlib.suppress(ToolError):
             recipes_foods.delete_food(mealie_client, item_id=food["id"])
+
+
+@pytest.fixture
+def created_unit(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> Iterator[dict[str, str]]:
+    """Create a sentinel unit to bind onto the item and tear it down."""
+    unit = recipes_units.create_unit(mealie_client, name=f"{sentinel_name}-unit")
+    try:
+        yield {"id": unit["id"]}
+    finally:
+        with contextlib.suppress(ToolError):
+            recipes_units.delete_unit(mealie_client, item_id=unit["id"])
 
 
 @pytest.fixture
@@ -280,6 +294,94 @@ def test_add_shopping_list_item_defaults_quantity_to_one(
     finally:
         with contextlib.suppress(ToolError):
             households_shopping_list_items.delete_shopping_list_item(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_add_shopping_list_item_aggregates_items_sharing_food_and_unit(
+    mealie_client: AuthenticatedClient,
+    created_food: dict[str, str],
+    created_unit: dict[str, str],
+    created_label: dict[str, str],
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """A food and unit link is what makes Mealie merge a hand-added item.
+
+    Two items carrying the same food and unit collapse into one line whose
+    quantity is the sum; a free-text item with the same note does not. This is
+    the behavioural difference the ids buy, so it also pins the ids as ids: a
+    food or unit name in their place would not resolve.
+    """
+    list_id = created_shopping_list["id"]
+    food_id = created_food["id"]
+    unit_id = created_unit["id"]
+
+    first = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-butter",
+        quantity=250,
+        food_id=food_id,
+        unit_id=unit_id,
+        label_id=created_label["id"],
+    )
+    assert first["foodId"] == food_id
+    assert first["unitId"] == unit_id
+    assert first["labelId"] == created_label["id"]
+    assert first["quantity"] == 250
+
+    merged = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-more-butter",
+        quantity=250,
+        food_id=food_id,
+        unit_id=unit_id,
+    )
+    assert merged["id"] == first["id"]
+    assert merged["quantity"] == 500
+
+    free_text = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=list_id,
+        note=f"{sentinel_name}-butter",
+        quantity=250,
+    )
+    assert free_text["id"] != first["id"]
+
+    stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
+    assert {i["id"] for i in stored["listItems"]} == {first["id"], free_text["id"]}
+
+
+@pytest.mark.live
+def test_update_shopping_list_item_sets_label(
+    mealie_client: AuthenticatedClient,
+    created_food: dict[str, str],
+    created_unit: dict[str, str],
+    created_label: dict[str, str],
+    created_shopping_list: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    """Labelling an item leaves its other fields, including food and unit, alone."""
+    note = f"{sentinel_name}-item"
+    added = households_shopping_list_items.add_shopping_list_item(
+        mealie_client,
+        shopping_list_id=created_shopping_list["id"],
+        note=note,
+        quantity=2,
+        food_id=created_food["id"],
+        unit_id=created_unit["id"],
+    )
+    assert added["labelId"] is None
+
+    updated = households_shopping_list_items.update_shopping_list_item(
+        mealie_client, item_id=added["id"], label_id=created_label["id"]
+    )
+    assert updated["labelId"] == created_label["id"]
+    assert updated["note"] == note
+    assert updated["quantity"] == 2
+    assert updated["foodId"] == created_food["id"]
+    assert updated["unitId"] == created_unit["id"]
 
 
 @pytest.mark.live

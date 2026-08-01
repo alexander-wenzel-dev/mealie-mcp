@@ -2,8 +2,8 @@
 
 Mirrors `mealie_mcp.client.api.households_shopping_list_items`. Exposes the
 per-item lifecycle on a shopping list: list items across the household's
-lists, add a free-text item, update an item (toggle checked, edit quantity or
-note), remove an item, and delete several items in one call. Bulk create and
+lists, add an item, update an item (toggle checked, edit quantity, note, or
+label), remove an item, and delete several items in one call. Bulk create and
 bulk update, and recipe-derived items, are out of scope. The lists themselves
 live in `households_shopping_lists`.
 """
@@ -42,24 +42,65 @@ from mealie_mcp.tools._common import (
 )
 
 
-def _single_item(action: str, response: Response[Any], key: str) -> dict[str, Any]:
+def _single_item(action: str, response: Response[Any], keys: tuple[str, ...]) -> dict[str, Any]:
     """Pull the one changed item out of a bulk-collection response.
 
     The create and update endpoints return a `ShoppingListItemsCollectionOut`
     envelope with ``createdItems``/``updatedItems``/``deletedItems`` arrays even
-    for a single change. The tools operate on one item, so the matching array's
-    sole entry is unwrapped for a stable single-item contract.
+    for a single change. The tools operate on one item, so the first non-empty
+    array in ``keys`` yields the entry that is unwrapped for a stable
+    single-item contract. An add that Mealie aggregates into a matching item
+    reports the merged item under ``updatedItems`` and creates nothing, so the
+    add path reads both keys.
     """
     payload = decode(response.content)
     if not isinstance(payload, dict):
         raise ToolError(f"Unexpected {action} response: {payload!r}")
-    items = payload.get(key)
-    if not isinstance(items, list) or not items:
-        raise ToolError(f"Mealie {action} returned no {key}")
-    item = items[0]
-    if not isinstance(item, dict):
-        raise ToolError(f"Unexpected {action} item shape: {item!r}")
-    return item
+    for key in keys:
+        items = payload.get(key)
+        if isinstance(items, list) and items:
+            item = items[0]
+            if not isinstance(item, dict):
+                raise ToolError(f"Unexpected {action} item shape: {item!r}")
+            return item
+    raise ToolError(f"Mealie {action} returned no {' or '.join(keys)}")
+
+
+def _create_body(
+    shopping_list_id: str,
+    note: str,
+    quantity: float | None,
+    food_id: str | None,
+    unit_id: str | None,
+    label_id: str | None,
+) -> ShoppingListItemCreate:
+    """Build the create body shared by the single-item and bulk add paths."""
+    return ShoppingListItemCreate(
+        shopping_list_id=shopping_list_id,
+        note=note,
+        quantity=to_unset(quantity),
+        food_id=to_unset(food_id),
+        unit_id=to_unset(unit_id),
+        label_id=to_unset(label_id),
+    )
+
+
+def _apply_item_edits(
+    body: ShoppingListItemUpdate,
+    note: str | None = None,
+    quantity: float | None = None,
+    checked: bool | None = None,
+    label_id: str | None = None,
+) -> None:
+    """Apply the supplied edits onto a body merged from the item's current state."""
+    if note is not None:
+        body.note = note
+    if quantity is not None:
+        body.quantity = quantity
+    if checked is not None:
+        body.checked = checked
+    if label_id is not None:
+        body.label_id = label_id
 
 
 def list_shopping_list_items(
@@ -86,19 +127,18 @@ def add_shopping_list_item(
     shopping_list_id: str,
     note: str,
     quantity: float | None = None,
+    food_id: str | None = None,
+    unit_id: str | None = None,
+    label_id: str | None = None,
 ) -> dict[str, Any]:
-    """Add a free-text item to a shopping list. Returns the new item payload."""
+    """Add an item to a shopping list. Returns the new or merged item payload."""
     require_non_empty("shopping_list_id", shopping_list_id)
     require_non_empty("note", note)
-    body = ShoppingListItemCreate(
-        shopping_list_id=shopping_list_id,
-        note=note,
-        quantity=to_unset(quantity),
-    )
+    body = _create_body(shopping_list_id, note, quantity, food_id, unit_id, label_id)
     response = create_one_api_households_shopping_items_post.sync_detailed(client=client, body=body)
     if response.status_code != HTTPStatus.CREATED:
         raise_api_error("add_shopping_list_item", int(response.status_code), response.content)
-    return _single_item("add_shopping_list_item", response, "createdItems")
+    return _single_item("add_shopping_list_item", response, ("createdItems", "updatedItems"))
 
 
 def update_shopping_list_item(
@@ -108,19 +148,20 @@ def update_shopping_list_item(
     note: str | None = None,
     quantity: float | None = None,
     checked: bool | None = None,
+    label_id: str | None = None,
 ) -> dict[str, Any]:
     """Update a shopping list item. Returns the updated item payload.
 
     The endpoint PUT-replaces the item, and the body model defaults most fields
     to concrete values rather than leaving them unset. The current item is
     therefore fetched and the body rebuilt from it, so unsupplied fields and the
-    item's food, unit, and label links keep their current values; only the
-    caller's edits are applied on top. Recipe links are the exception: Mealie
-    drops an item's recipe references server-side when the update checks it off,
+    item's food and unit links keep their current values; only the caller's
+    edits are applied on top. Recipe links are the exception: Mealie drops an
+    item's recipe references server-side when the update checks it off,
     regardless of the merged body.
     """
     require_non_empty("item_id", item_id)
-    if note is None and quantity is None and checked is None:
+    if note is None and quantity is None and checked is None and label_id is None:
         raise ToolError("update_shopping_list_item requires at least one field to update")
 
     fetched = get_one_api_households_shopping_items_item_id_get.sync_detailed(
@@ -129,18 +170,13 @@ def update_shopping_list_item(
     current = expect_dict("update_shopping_list_item", fetched)
     body = ShoppingListItemUpdate.from_dict(current)
     body.additional_properties = {}
-    if note is not None:
-        body.note = note
-    if quantity is not None:
-        body.quantity = quantity
-    if checked is not None:
-        body.checked = checked
+    _apply_item_edits(body, note=note, quantity=quantity, checked=checked, label_id=label_id)
     response = update_one_api_households_shopping_items_item_id_put.sync_detailed(
         item_id, client=client, body=body
     )
     if response.status_code != HTTPStatus.OK:
         raise_api_error("update_shopping_list_item", int(response.status_code), response.content)
-    return _single_item("update_shopping_list_item", response, "updatedItems")
+    return _single_item("update_shopping_list_item", response, ("updatedItems",))
 
 
 def delete_shopping_list_item(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
@@ -208,26 +244,45 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         shopping_list_id: str,
         note: str,
         quantity: float | None = None,
+        food_id: str | None = None,
+        unit_id: str | None = None,
+        label_id: str | None = None,
     ) -> dict[str, Any]:
-        """Add a free-text item to a shopping list.
+        """Add an item to a shopping list.
 
         The item is described by ``note`` (the text shown on the list), with an
-        optional ``quantity``. Food, unit, and recipe associations are not set
+        optional ``quantity``. Giving ``food_id`` and ``unit_id`` makes Mealie
+        aggregate: an item whose food and unit match an unchecked item already
+        on the list is merged into it and their quantities are summed, so the
+        returned item is the merged one and no new line appears. A checked item
+        does not absorb the new one. Without a food and a unit the item is free
+        text and always adds a line of its own. Recipe associations are not set
         through this tool.
 
         Args:
             shopping_list_id: UUID of the shopping list to add to.
             note: Free-text description of the item. Required.
             quantity: Optional amount. Defaults to 1 in Mealie when omitted.
+            food_id: UUID of the food to link, from ``mealie_list_foods``. A
+                food name is not accepted.
+            unit_id: UUID of the unit to link, from ``mealie_list_units``. A
+                unit name is not accepted.
+            label_id: UUID of the multi-purpose label that sorts the item into
+                an aisle, from ``mealie_list_labels``. Labels the item itself,
+                independent of the label its food carries.
 
         Returns:
-            The newly created shopping list item as a JSON-compatible dict.
+            The created shopping list item as a JSON-compatible dict, or the
+            item it was merged into.
         """
         return add_shopping_list_item(
             get_client(),
             shopping_list_id=shopping_list_id,
             note=note,
             quantity=quantity,
+            food_id=food_id,
+            unit_id=unit_id,
+            label_id=label_id,
         )
 
     @mcp.tool(name="mealie_update_shopping_list_item")
@@ -236,20 +291,24 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         note: str | None = None,
         quantity: float | None = None,
         checked: bool | None = None,
+        label_id: str | None = None,
     ) -> dict[str, Any]:
         """Edit a shopping list item, or check it off.
 
         Only the fields supplied change; omitted fields keep their current value
-        and the item's food, unit, and label links are preserved. Checking an
-        item off additionally drops its recipe links, which Mealie clears
-        server-side. At least one of ``note``, ``quantity``, or ``checked`` must
-        be provided.
+        and the item's food and unit links are preserved. Checking an item off
+        additionally drops its recipe links, which Mealie clears server-side. At
+        least one of ``note``, ``quantity``, ``checked``, or ``label_id`` must be
+        provided. An existing label cannot be cleared through this tool.
 
         Args:
             item_id: UUID of the shopping list item.
             note: New free-text description.
             quantity: New amount.
             checked: ``True`` to mark the item bought, ``False`` to uncheck it.
+            label_id: UUID of the multi-purpose label that sorts the item into
+                an aisle, from ``mealie_list_labels``. A label name is not
+                accepted.
 
         Returns:
             The updated shopping list item as a JSON-compatible dict.
@@ -260,6 +319,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             note=note,
             quantity=quantity,
             checked=checked,
+            label_id=label_id,
         )
 
     @mcp.tool(name="mealie_delete_shopping_list_item")
