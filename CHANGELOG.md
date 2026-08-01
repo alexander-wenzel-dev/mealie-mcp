@@ -8,6 +8,17 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `mealie_add_shopping_list_item` now takes `food_id`, `unit_id`, and
+  `label_id`. An item that carries a food and a unit is merged into an unchecked
+  item on the list with the same pair, and their quantities are summed, which a
+  free-text item never is.
+- `mealie_update_shopping_list_item` now takes `label_id`, the multi-purpose
+  label that sorts an item into an aisle.
+- `mealie_add_shopping_list_items` creates several shopping list items in one
+  call. Each item names its own list. The write is not atomic.
+- `mealie_update_shopping_list_items` edits or checks off several shopping list
+  items in one call. Each item is read before anything is written, so an unknown
+  id fails the call and leaves the rest untouched.
 - `mealie_update_recipe` now takes `cook_time`. Mealie never fills this field
   itself; its importer maps a source recipe's cook time onto `perform_time`.
 - `mealie_update_recipe` now takes `org_url`, the source URL of a recipe.
