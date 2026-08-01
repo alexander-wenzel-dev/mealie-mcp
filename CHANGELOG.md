@@ -6,6 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `mealie_update_recipe` now takes `cook_time`. Mealie never fills this field
+  itself; its importer maps a source recipe's cook time onto `perform_time`.
+- `mealie_update_recipe` now takes `org_url`, the source URL of a recipe.
+- `mealie_update_recipe` now takes `tools`, which links a recipe to the equipment
+  catalogue `mealie_list_recipes` already filters on. The name and slug sent with
+  a tool overwrite that tool's catalogue entry for every recipe using it, and an
+  unknown `id` creates a new entry.
+
 ## [0.2.0] - 2026-07-26
 
 ### Added
