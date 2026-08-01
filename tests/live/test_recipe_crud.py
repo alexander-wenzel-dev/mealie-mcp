@@ -387,6 +387,52 @@ def test_update_recipe_ingredient_food_and_unit_need_id_and_name(
 
 
 @pytest.mark.live
+def test_update_recipe_ingredient_reference_ids_survive_a_rewrite(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """Rewriting the ingredient list keeps the referenceIds only when they are sent back.
+
+    An omitted referenceId is not a no-op: Mealie mints a new one, and the step
+    links still hold the old value, so they point at nothing.
+    """
+    slug = created_recipe["slug"]
+    step_text = f"{sentinel_name}-step"
+    ingredients = [{"note": f"{sentinel_name}-one"}, {"note": f"{sentinel_name}-two"}]
+    recipe_crud.update_recipe(
+        mealie_client,
+        slug_or_id=slug,
+        recipe_ingredient=ingredients,
+        recipe_instructions=[{"text": step_text}],
+    )
+    seeded = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    ref_one, ref_two = (ing["referenceId"] for ing in seeded["recipeIngredient"])
+
+    recipe_crud.update_recipe(
+        mealie_client,
+        slug_or_id=slug,
+        recipe_ingredient=[
+            {**ingredients[0], "referenceId": ref_one},
+            {**ingredients[1], "referenceId": ref_two},
+        ],
+        recipe_instructions=[
+            {"text": step_text, "ingredientReferences": [{"referenceId": ref_one}]}
+        ],
+    )
+    preserved = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert [ing["referenceId"] for ing in preserved["recipeIngredient"]] == [ref_one, ref_two]
+    step = preserved["recipeInstructions"][0]
+    assert [link["referenceId"] for link in step["ingredientReferences"]] == [ref_one]
+
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, recipe_ingredient=ingredients)
+    renumbered = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert {ing["referenceId"] for ing in renumbered["recipeIngredient"]}.isdisjoint(
+        {ref_one, ref_two}
+    )
+    orphaned = renumbered["recipeInstructions"][0]
+    assert [link["referenceId"] for link in orphaned["ingredientReferences"]] == [ref_one]
+
+
+@pytest.mark.live
 def test_update_recipe_patch_preserves_scalars_and_replaces_lists(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
 ) -> None:
