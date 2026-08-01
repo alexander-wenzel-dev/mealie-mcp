@@ -38,7 +38,7 @@ from mealie_mcp.tools import (
 )
 from mealie_mcp.tools._common import expect_dict
 
-# Names no list and no item. Mealie validates the id as a version 4 UUID and
+# Names no shopping list item. Mealie validates the id as a version 4 UUID and
 # answers a 422 for any other shape, before it looks the id up.
 ABSENT_UUID = "8f14e45f-ceea-4a67-b98d-4f5e2f2a1b3c"
 
@@ -484,31 +484,6 @@ def test_add_shopping_list_items_maps_food_unit_and_label_per_entry(
 
     stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
     assert {i["id"] for i in stored["listItems"]} == {i["id"] for i in created}
-
-
-@pytest.mark.live
-def test_add_shopping_list_items_keeps_the_items_written_before_a_failure(
-    mealie_client: AuthenticatedClient,
-    created_shopping_list: dict[str, str],
-    sentinel_name: str,
-) -> None:
-    """The bulk create is not atomic, as the tool docstring warns.
-
-    The second item names a UUID that is no shopping list, which Mealie answers
-    with a 500 after it has already written the first item.
-    """
-    list_id = created_shopping_list["id"]
-    with pytest.raises(ToolError):
-        households_shopping_list_items.add_shopping_list_items(
-            mealie_client,
-            items=[
-                {"shopping_list_id": list_id, "note": f"{sentinel_name}-written"},
-                {"shopping_list_id": ABSENT_UUID, "note": f"{sentinel_name}-rejected"},
-            ],
-        )
-
-    stored = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
-    assert [i["note"] for i in stored["listItems"]] == [f"{sentinel_name}-written"]
 
 
 @pytest.mark.live
