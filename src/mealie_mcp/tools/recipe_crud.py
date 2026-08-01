@@ -530,6 +530,11 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         ``id`` matching no tool creates a new entry. Rename a tool through
         ``mealie_update_tool``.
 
+        ``recipe_ingredient`` items and ``recipe_instructions`` steps are linked
+        by ``referenceId``. Read the current ids from ``mealie_get_recipe`` and
+        send each ingredient's back. An ingredient sent without one gets a new
+        id, the steps keep the old one, and the links break with no error.
+
         Args:
             slug_or_id: Recipe slug or UUID.
             name: New human-readable recipe name. Changing the name causes
@@ -550,13 +555,15 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 Mealie never fills this field itself; its importers put a source
                 recipe's cook time in ``perform_time``.
             recipe_ingredient: Full ingredient list as Mealie ingredient dicts.
-                Each item accepts keys like ``note``, ``quantity``, ``unit``,
-                ``food``, ``title``, ``display``, ``originalText``. ``food`` and
-                ``unit`` each need both the ``id`` and the ``name`` of an
-                existing record; either alone is rejected. Fetch them via
+                Each item accepts ``note``, ``quantity``, ``unit``, ``food``,
+                ``title``, ``display``, ``originalText`` and ``referenceId``.
+                ``food`` and ``unit`` each need both the ``id`` and the ``name``
+                of an existing record; either alone is rejected. Fetch them via
                 ``mealie_list_foods`` and ``mealie_list_units``.
             recipe_instructions: Full step list. Each item must have ``text``
-                and may include ``title`` and ``summary``.
+                and may include ``title``, ``summary`` and
+                ``ingredientReferences``, a list of ``{"referenceId": ...}``
+                drawn from ``recipe_ingredient``.
             notes: Full notes list. Each item must have ``title`` and ``text``.
             tags: Full tag list. Each item must include the ``id`` of an
                 existing tag; ``name`` and ``slug`` alone are rejected by
