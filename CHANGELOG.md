@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-02
+
+### Changed
+
+- The pinned Mealie OpenAPI spec moved from v3.21.0 to v3.22.0.
+
 ## [0.3.0] - 2026-08-02
 
 ### Added
@@ -94,7 +100,8 @@ First public release.
 - The HTTP transport refuses to start without a bearer token, and helpers redact
   the `Authorization` header so tokens never reach logs.
 
-[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/releases/tag/v0.1.0
