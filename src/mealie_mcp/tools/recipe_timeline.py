@@ -33,7 +33,7 @@ from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     parse_order_direction,
-    parse_recipe_uuid,
+    parse_uuid,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -74,7 +74,7 @@ def list_recipe_timeline_events(
     require_non_empty("recipe_id", recipe_id)
     # UUID-parse before interpolating so a caller value carrying a quote or a
     # DSL operator cannot alter the parsed queryFilter expression.
-    recipe_uuid = parse_recipe_uuid(recipe_id)
+    recipe_uuid = parse_uuid("recipe_id", recipe_id)
     require_pagination(page, per_page)
 
     response = get_all_api_recipes_timeline_events_get.sync_detailed(

@@ -39,7 +39,7 @@ class TestCreateMealplan:
             households_mealplans.create_mealplan(client, date="15/06/2026")
 
     def test_rejects_non_uuid_recipe_id(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match="recipe_id must be a recipe UUID"):
+        with pytest.raises(ToolError, match="recipe_id must be a UUID"):
             households_mealplans.create_mealplan(client, date="2026-06-15", recipe_id="my-slug")
 
     def test_rejects_unknown_entry_type(self, client: AuthenticatedClient) -> None:

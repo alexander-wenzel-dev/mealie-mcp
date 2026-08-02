@@ -27,7 +27,7 @@ class TestListRecipeTimelineEvents:
             recipe_timeline.list_recipe_timeline_events(client, recipe_id="")
 
     def test_rejects_non_uuid_recipe_id(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match="recipe_id must be a recipe UUID"):
+        with pytest.raises(ToolError, match="recipe_id must be a UUID"):
             recipe_timeline.list_recipe_timeline_events(client, recipe_id='x" or true')
 
     def test_rejects_per_page_above_max(self, client: AuthenticatedClient) -> None:
