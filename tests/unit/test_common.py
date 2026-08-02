@@ -19,7 +19,6 @@ from mealie_mcp.tools._common import (
     expect_list,
     expect_str,
     parse_order_direction,
-    parse_recipe_uuid,
     parse_uuid,
     raise_api_error,
     require_non_empty,
@@ -137,21 +136,10 @@ class TestParseUuid:
     def test_canonicalises_every_spelling_mealie_accepts(self, value: str) -> None:
         assert str(parse_uuid("item_id", value)) == "11111111-1111-1111-1111-111111111111"
 
-    def test_rejects_non_uuid(self) -> None:
+    @pytest.mark.parametrize("value", ["butter", 'x" or true'])
+    def test_rejects_non_uuid(self, value: str) -> None:
         with pytest.raises(ToolError, match="item_id must be a UUID"):
-            parse_uuid("item_id", "butter")
-
-
-class TestParseRecipeUuid:
-    def test_parses_valid_uuid(self) -> None:
-        assert (
-            str(parse_recipe_uuid("11111111-1111-1111-1111-111111111111"))
-            == "11111111-1111-1111-1111-111111111111"
-        )
-
-    def test_rejects_non_uuid(self) -> None:
-        with pytest.raises(ToolError, match="recipe_id must be a recipe UUID"):
-            parse_recipe_uuid('x" or true')
+            parse_uuid("item_id", value)
 
 
 class TestExpectDict:

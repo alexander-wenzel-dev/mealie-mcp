@@ -37,7 +37,7 @@ from mealie_mcp.tools._common import (
     expect_dict,
     expect_list,
     parse_order_direction,
-    parse_recipe_uuid,
+    parse_uuid,
     require_pagination,
     to_unset,
 )
@@ -73,7 +73,7 @@ def _parse_recipe_id(value: str | None) -> UUID | Unset:
     """Parse an optional recipe UUID string into a UUID or UNSET."""
     if value is None:
         return UNSET
-    return parse_recipe_uuid(value)
+    return parse_uuid("recipe_id", value)
 
 
 def list_mealplans(

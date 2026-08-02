@@ -108,14 +108,6 @@ def parse_uuid(name: str, value: str) -> UUID:
         raise ToolError(f"{name} must be a UUID: {exc}") from exc
 
 
-def parse_recipe_uuid(value: str) -> UUID:
-    """Parse a recipe id into a UUID or raise `ToolError`."""
-    try:
-        return UUID(value)
-    except ValueError as exc:
-        raise ToolError(f"recipe_id must be a recipe UUID: {exc}") from exc
-
-
 def parse_order_direction(value: str | None) -> OrderDirection | Unset:
     """Coerce a caller-supplied 'asc'/'desc' into the typed enum."""
     if value is None:
