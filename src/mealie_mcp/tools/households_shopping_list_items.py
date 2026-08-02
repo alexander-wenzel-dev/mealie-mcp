@@ -127,7 +127,9 @@ def _apply_item_edits(
     if checked is not None:
         body.checked = checked
     if label_id is not None:
-        body.label_id = label_id
+        # Mealie parses labelId as a UUID and rejects "", so the clear travels
+        # as JSON null.
+        body.label_id = label_id or None
 
 
 def list_shopping_list_items(
@@ -361,8 +363,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             unit_id: UUID of the unit to link, from ``mealie_list_units``. A
                 unit name is not accepted.
             label_id: UUID of the multi-purpose label that sorts the item into
-                an aisle, from ``mealie_list_labels``. Labels the item itself,
-                independent of the label its food carries.
+                an aisle, from ``mealie_list_labels``. A label name is not
+                accepted. Labels the item itself, independent of the label its
+                food carries.
 
         Returns:
             The created shopping list item as a JSON-compatible dict, or the
@@ -417,7 +420,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         and the item's food and unit links are preserved. Checking an item off
         additionally drops its recipe links, which Mealie clears server-side. At
         least one of ``note``, ``quantity``, ``checked``, or ``label_id`` must be
-        provided. An existing label cannot be cleared through this tool.
+        provided.
 
         Args:
             item_id: UUID of the shopping list item.
@@ -426,7 +429,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             checked: ``True`` to mark the item bought, ``False`` to uncheck it.
             label_id: UUID of the multi-purpose label that sorts the item into
                 an aisle, from ``mealie_list_labels``. A label name is not
-                accepted.
+                accepted. Pass an empty string to detach the current label.
 
         Returns:
             The updated shopping list item as a JSON-compatible dict.
