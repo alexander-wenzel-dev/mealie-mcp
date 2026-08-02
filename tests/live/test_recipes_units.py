@@ -30,13 +30,13 @@ def created_unit(
 
     Staging through the tool gives `create_unit` live coverage for the
     descriptive fields, with both booleans set to their non-default values.
-    `description`, `standard_quantity`, and `standard_unit` are body-model
-    fields the unit tools do not expose, so they are the ones a naive PUT
-    would silently clobber. They are seeded with a direct PUT built from the
-    created payload, so an update that touches only exposed fields must leave
-    them intact. `extras` is not used as a seed because Mealie accepts it on
-    the unit PUT but does not persist it, and `standard_quantity` only
-    persists when the same body carries a non-null `standard_unit`.
+    `standard_quantity` and `standard_unit` are body-model fields the unit
+    tools do not expose, so they are the ones a naive PUT would silently
+    clobber. They are seeded with a direct PUT built from the created payload,
+    so an update that touches only exposed fields must leave them intact.
+    `extras` is not used as a seed because Mealie accepts it on the unit PUT
+    but does not persist it, and `standard_quantity` only persists when the
+    same body carries a non-null `standard_unit`.
     """
     created = recipes_units.create_unit(
         mealie_client,
@@ -44,6 +44,7 @@ def created_unit(
         abbreviation=f"{sentinel_name}-abbr",
         plural_name=f"{sentinel_name}-plural",
         plural_abbreviation=f"{sentinel_name}-plural-abbr",
+        description=f"{sentinel_name}-description",
         use_abbreviation=True,
         fraction=False,
         aliases=[f"{sentinel_name}-alias-1", f"{sentinel_name}-alias-2"],
@@ -54,6 +55,7 @@ def created_unit(
         assert created["abbreviation"] == f"{sentinel_name}-abbr"
         assert created["pluralName"] == f"{sentinel_name}-plural"
         assert created["pluralAbbreviation"] == f"{sentinel_name}-plural-abbr"
+        assert created["description"] == f"{sentinel_name}-description"
         assert created["useAbbreviation"] is True
         assert created["fraction"] is False
         assert {alias["name"] for alias in created["aliases"]} == {
@@ -63,7 +65,6 @@ def created_unit(
 
         seed = CreateIngredientUnit.from_dict(created)
         seed.additional_properties = {}
-        seed.description = f"{sentinel_name}-description"
         seed.standard_quantity = SEED_STANDARD_QUANTITY
         seed.standard_unit = f"{sentinel_name}-std-unit"
         expect_dict(
@@ -120,22 +121,24 @@ def test_unit_lifecycle(mealie_client: AuthenticatedClient, created_unit: dict[s
         mealie_client,
         item_id=item_id,
         abbreviation=f"{name}-abbr-2",
+        description=f"{name}-description-2",
         use_abbreviation=False,
         aliases=[f"{name}-alias-3"],
     )
     assert updated["name"] == renamed
     assert updated["abbreviation"] == f"{name}-abbr-2"
+    assert updated["description"] == f"{name}-description-2"
     assert updated["useAbbreviation"] is False
     assert {alias["name"] for alias in updated["aliases"]} == {f"{name}-alias-3"}
     assert updated["pluralName"] == f"{name}-plural"
     assert updated["pluralAbbreviation"] == f"{name}-plural-abbr"
     assert updated["fraction"] is False
-    assert updated["description"] == f"{name}-description"
     assert updated["standardQuantity"] == SEED_STANDARD_QUANTITY
     assert updated["standardUnit"] == f"{name}-std-unit"
 
     refetched = recipes_units.get_unit(mealie_client, item_id=item_id)
     assert refetched["abbreviation"] == f"{name}-abbr-2"
+    assert refetched["description"] == f"{name}-description-2"
     assert refetched["useAbbreviation"] is False
     assert {alias["name"] for alias in refetched["aliases"]} == {f"{name}-alias-3"}
 
@@ -151,25 +154,28 @@ def test_update_unit_empty_values_clear_text_and_aliases(
     mealie_client: AuthenticatedClient, created_unit: dict[str, str]
 ) -> None:
     item_id = created_unit["id"]
-    # An empty string clears the abbreviation, plural name, and plural
-    # abbreviation, and an empty list clears the aliases, rather than being
-    # skipped the way an omitted (None) field is.
+    # An empty string clears the abbreviation, plural name, plural
+    # abbreviation, and description, and an empty list clears the aliases,
+    # rather than being skipped the way an omitted (None) field is.
     updated = recipes_units.update_unit(
         mealie_client,
         item_id=item_id,
         abbreviation="",
         plural_name="",
         plural_abbreviation="",
+        description="",
         aliases=[],
     )
     assert updated["abbreviation"] == ""
     assert updated["pluralName"] == ""
     assert updated["pluralAbbreviation"] == ""
+    assert updated["description"] == ""
     assert updated["aliases"] == []
     refetched = recipes_units.get_unit(mealie_client, item_id=item_id)
     assert refetched["abbreviation"] == ""
     assert refetched["pluralName"] == ""
     assert refetched["pluralAbbreviation"] == ""
+    assert refetched["description"] == ""
     assert refetched["aliases"] == []
 
 
@@ -187,6 +193,7 @@ def test_create_unit_round_trips_fields_through_wrapper(
             "abbreviation": f"{sentinel_name}-abbr",
             "plural_name": f"{sentinel_name}-plural",
             "plural_abbreviation": f"{sentinel_name}-plural-abbr",
+            "description": f"{sentinel_name}-description",
             "use_abbreviation": True,
             "fraction": False,
             "aliases": [f"{sentinel_name}-alias"],
@@ -199,6 +206,7 @@ def test_create_unit_round_trips_fields_through_wrapper(
         assert created["abbreviation"] == f"{sentinel_name}-abbr"
         assert created["pluralName"] == f"{sentinel_name}-plural"
         assert created["pluralAbbreviation"] == f"{sentinel_name}-plural-abbr"
+        assert created["description"] == f"{sentinel_name}-description"
         assert created["useAbbreviation"] is True
         assert created["fraction"] is False
         assert [alias["name"] for alias in created["aliases"]] == [f"{sentinel_name}-alias"]
@@ -217,6 +225,7 @@ def test_create_unit_name_only_leaves_defaults(
     try:
         fetched = recipes_units.get_unit(mealie_client, item_id=item_id)
         assert fetched["abbreviation"] == ""
+        assert fetched["description"] == ""
         assert fetched["useAbbreviation"] is False
         assert fetched["fraction"] is True
         assert fetched["aliases"] == []
