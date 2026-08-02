@@ -34,6 +34,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `mealie_update_shopping_list_item` and `mealie_update_shopping_list_items`
+  detach an item's label when `label_id` is an empty string.
 - `mealie_update_recipe` documents `referenceId` on an ingredient and
   `ingredientReferences` on a step. Rewriting the ingredient list without
   sending each item's `referenceId` back makes Mealie mint new ids and leaves
