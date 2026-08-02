@@ -1,7 +1,7 @@
 """Recipe food tools.
 
 Mirrors `mealie_mcp.client.api.recipes_foods`. Exposes list, read, create,
-update, and delete for ingredient foods.
+update, delete, and merge for ingredient foods.
 """
 
 from __future__ import annotations
@@ -17,16 +17,20 @@ from mealie_mcp.client.api.recipes_foods import (
     delete_one_api_foods_item_id_delete,
     get_all_api_foods_get,
     get_one_api_foods_item_id_get,
+    merge_one_api_foods_merge_put,
     update_one_api_foods_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_ingredient_food import CreateIngredientFood
 from mealie_mcp.client.models.create_ingredient_food_alias import CreateIngredientFoodAlias
+from mealie_mcp.client.models.merge_food import MergeFood
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     parse_order_direction,
+    parse_uuid,
+    raise_api_error,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -145,6 +149,24 @@ def delete_food(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
 
     response = delete_one_api_foods_item_id_delete.sync_detailed(item_id, client=client)
     return ack_delete("delete_food", response, item_id)
+
+
+def merge_food(client: AuthenticatedClient, from_food_id: str, to_food_id: str) -> dict[str, Any]:
+    """Merge one food into another. Returns a confirmation."""
+    require_non_empty("from_food_id", from_food_id)
+    require_non_empty("to_food_id", to_food_id)
+    source = parse_uuid("from_food_id", from_food_id)
+    target = parse_uuid("to_food_id", to_food_id)
+    # Mealie answers a self merge with a success, deletes the food, and strips
+    # it from the ingredients that used it.
+    if source == target:
+        raise ToolError("merge_food requires two different foods")
+
+    body = MergeFood(from_food=str(source), to_food=str(target))
+    response = merge_one_api_foods_merge_put.sync_detailed(client=client, body=body)
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error("merge_food", int(response.status_code), response.content)
+    return {"from_food_id": str(source), "to_food_id": str(target), "merged": True}
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -274,3 +296,23 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_food(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_food")
+    def _merge_food(from_food_id: str, to_food_id: str) -> dict[str, Any]:
+        """Merge one Mealie food into another, resolving a duplicate.
+
+        Recipe ingredients that use the source food move to the target. A
+        shopping list item that references the source food keeps the deleted
+        id and resolves to no food.
+
+        Args:
+            from_food_id: UUID of the food to merge away, from
+                ``mealie_list_foods``; a food name is rejected. This food and
+                its aliases are deleted.
+            to_food_id: UUID of the food that survives. Must differ from
+                ``from_food_id``.
+
+        Returns:
+            ``{"from_food_id": ..., "to_food_id": ..., "merged": True}``.
+        """
+        return merge_food(get_client(), from_food_id=from_food_id, to_food_id=to_food_id)
