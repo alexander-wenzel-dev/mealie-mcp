@@ -75,6 +75,7 @@ def create_unit(
     abbreviation: str | None = None,
     plural_name: str | None = None,
     plural_abbreviation: str | None = None,
+    description: str | None = None,
     use_abbreviation: bool | None = None,
     fraction: bool | None = None,
     aliases: list[str] | None = None,
@@ -87,6 +88,7 @@ def create_unit(
         abbreviation=to_unset(abbreviation),
         plural_name=to_unset(plural_name),
         plural_abbreviation=to_unset(plural_abbreviation),
+        description=to_unset(description),
         use_abbreviation=to_unset(use_abbreviation),
         fraction=to_unset(fraction),
     )
@@ -104,6 +106,7 @@ def update_unit(
     abbreviation: str | None = None,
     plural_name: str | None = None,
     plural_abbreviation: str | None = None,
+    description: str | None = None,
     use_abbreviation: bool | None = None,
     fraction: bool | None = None,
     aliases: list[str] | None = None,
@@ -120,6 +123,7 @@ def update_unit(
         abbreviation,
         plural_name,
         plural_abbreviation,
+        description,
         use_abbreviation,
         fraction,
         aliases,
@@ -142,6 +146,8 @@ def update_unit(
         body.plural_name = plural_name
     if plural_abbreviation is not None:
         body.plural_abbreviation = plural_abbreviation
+    if description is not None:
+        body.description = description
     if use_abbreviation is not None:
         body.use_abbreviation = use_abbreviation
     if fraction is not None:
@@ -211,6 +217,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         abbreviation: str | None = None,
         plural_name: str | None = None,
         plural_abbreviation: str | None = None,
+        description: str | None = None,
         use_abbreviation: bool | None = None,
         fraction: bool | None = None,
         aliases: list[str] | None = None,
@@ -222,6 +229,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             abbreviation: Short form, for example ``tbsp``. Omit to leave unset.
             plural_name: Plural form of the name. Omit to leave unset.
             plural_abbreviation: Plural short form. Omit to leave unset.
+            description: Free-text description. Omit to leave unset.
             use_abbreviation: Display the abbreviation instead of the name.
             fraction: Display quantities of this unit as fractions.
             aliases: Alternative names the ingredient parser also matches.
@@ -235,6 +243,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             abbreviation=abbreviation,
             plural_name=plural_name,
             plural_abbreviation=plural_abbreviation,
+            description=description,
             use_abbreviation=use_abbreviation,
             fraction=fraction,
             aliases=aliases,
@@ -247,6 +256,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         abbreviation: str | None = None,
         plural_name: str | None = None,
         plural_abbreviation: str | None = None,
+        description: str | None = None,
         use_abbreviation: bool | None = None,
         fraction: bool | None = None,
         aliases: list[str] | None = None,
@@ -264,6 +274,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 clear it.
             plural_abbreviation: New plural short form. Pass an empty string to
                 clear it.
+            description: New free-text description. Pass an empty string to
+                clear it.
             use_abbreviation: Display the abbreviation instead of the name.
             fraction: Display quantities of this unit as fractions.
             aliases: Replacement list of alternative names. Replaces the
@@ -279,6 +291,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             abbreviation=abbreviation,
             plural_name=plural_name,
             plural_abbreviation=plural_abbreviation,
+            description=description,
             use_abbreviation=use_abbreviation,
             fraction=fraction,
             aliases=aliases,
