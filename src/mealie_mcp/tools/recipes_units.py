@@ -1,7 +1,7 @@
 """Recipe unit tools.
 
 Mirrors `mealie_mcp.client.api.recipes_units`. Exposes list, read, create,
-update, and delete for ingredient units.
+update, delete, and merge for ingredient units.
 """
 
 from __future__ import annotations
@@ -17,16 +17,20 @@ from mealie_mcp.client.api.recipes_units import (
     delete_one_api_units_item_id_delete,
     get_all_api_units_get,
     get_one_api_units_item_id_get,
+    merge_one_api_units_merge_put,
     update_one_api_units_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_ingredient_unit import CreateIngredientUnit
 from mealie_mcp.client.models.create_ingredient_unit_alias import CreateIngredientUnitAlias
+from mealie_mcp.client.models.merge_unit import MergeUnit
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     parse_order_direction,
+    parse_uuid,
+    raise_api_error,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -165,6 +169,24 @@ def delete_unit(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
 
     response = delete_one_api_units_item_id_delete.sync_detailed(item_id, client=client)
     return ack_delete("delete_unit", response, item_id)
+
+
+def merge_unit(client: AuthenticatedClient, from_unit_id: str, to_unit_id: str) -> dict[str, Any]:
+    """Merge one unit into another. Returns a confirmation."""
+    require_non_empty("from_unit_id", from_unit_id)
+    require_non_empty("to_unit_id", to_unit_id)
+    source = parse_uuid("from_unit_id", from_unit_id)
+    target = parse_uuid("to_unit_id", to_unit_id)
+    # Mealie answers a self merge with a success, deletes the unit, and strips
+    # it from the ingredients that used it.
+    if source == target:
+        raise ToolError("merge_unit requires two different units")
+
+    body = MergeUnit(from_unit=str(source), to_unit=str(target))
+    response = merge_one_api_units_merge_put.sync_detailed(client=client, body=body)
+    if response.status_code != HTTPStatus.OK:
+        raise_api_error("merge_unit", int(response.status_code), response.content)
+    return {"from_unit_id": str(source), "to_unit_id": str(target), "merged": True}
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -308,3 +330,23 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_unit(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_unit")
+    def _merge_unit(from_unit_id: str, to_unit_id: str) -> dict[str, Any]:
+        """Merge one Mealie unit into another, resolving a duplicate.
+
+        Recipe ingredients that use the source unit move to the target. A
+        shopping list item that references the source unit keeps the deleted
+        id and resolves to no unit.
+
+        Args:
+            from_unit_id: UUID of the unit to merge away, from
+                ``mealie_list_units``; a unit name is rejected. This unit and
+                its aliases are deleted.
+            to_unit_id: UUID of the unit that survives. Must differ from
+                ``from_unit_id``.
+
+        Returns:
+            ``{"from_unit_id": ..., "to_unit_id": ..., "merged": True}``.
+        """
+        return merge_unit(get_client(), from_unit_id=from_unit_id, to_unit_id=to_unit_id)
