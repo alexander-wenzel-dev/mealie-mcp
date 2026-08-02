@@ -230,7 +230,7 @@ The server exposes 99 tools across 16 groups, one per Mealie OpenAPI tag. New gr
 | `organizer_tags`              | Create, read by id or slug, list (including empty ones), update, and delete recipe tags.        |
 | `organizer_tools`             | Create, read by id or slug, list, update, and delete recipe tools.                  |
 | `groups_multi_purpose_labels` | Create, read, list, update, and delete multi-purpose labels.                        |
-| `recipes_foods`               | Create, read, list, update, and delete ingredient foods.                            |
+| `recipes_foods`               | Create, read, list, update, and delete ingredient foods, with the label link that sorts them into aisles on a shopping list. |
 | `recipes_units`               | Create, read, list, update, and delete ingredient units.                            |
 
 ### Households

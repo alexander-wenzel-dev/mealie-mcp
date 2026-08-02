@@ -44,6 +44,12 @@ class TestCreateFood:
         with pytest.raises(ToolError, match="aliases entry must be a non-empty string"):
             recipes_foods.create_food(client, name="butter", aliases=["ok", "   "])
 
+    def test_rejects_empty_label_id(self, client: AuthenticatedClient) -> None:
+        # An empty label_id means "detach" on update, but there is nothing to
+        # detach on create, and Mealie answers the empty labelId with a 422.
+        with pytest.raises(ToolError, match="label_id must be a non-empty string"):
+            recipes_foods.create_food(client, name="butter", label_id="")
+
 
 class TestUpdateFood:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
