@@ -1,4 +1,4 @@
-"""Live test for the food lifecycle.
+"""Live tests for the food lifecycle and the food merge.
 
 Stages a sentinel food, exercises the read, list, update, and delete tools,
 and tears the sentinel down even when the body fails so no `mcp-test-`
@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable, Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -22,10 +23,24 @@ from mealie_mcp.client.models.create_ingredient_food import CreateIngredientFood
 from mealie_mcp.client.models.create_ingredient_food_extras_type_0 import (
     CreateIngredientFoodExtrasType0,
 )
-from mealie_mcp.tools import groups_multi_purpose_labels, recipes_foods
+from mealie_mcp.tools import (
+    groups_multi_purpose_labels,
+    households_shopping_list_items,
+    households_shopping_lists,
+    recipe_crud,
+    recipes_foods,
+)
 from mealie_mcp.tools._common import expect_dict
 
 SEED_EXTRAS_KEY = "mcp_test_extras_key"
+
+
+def _list_item(client: AuthenticatedClient, list_id: str, item_id: str) -> dict[str, Any]:
+    """Read one item back off its shopping list."""
+    items = households_shopping_lists.get_shopping_list(client, list_id=list_id)["listItems"]
+    found = next((entry for entry in items if entry["id"] == item_id), None)
+    assert found is not None, f"shopping list item {item_id} is not on list {list_id}"
+    return dict(found)
 
 
 @pytest.fixture
@@ -281,3 +296,88 @@ def test_create_food_name_only_leaves_defaults(
     finally:
         with contextlib.suppress(ToolError):
             recipes_foods.delete_food(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_merge_food_moves_ingredients_and_deletes_the_source(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """The merge repoints recipe ingredients and drops the source and its aliases.
+
+    The shopping list item is read before and after, so the claim that it keeps
+    the deleted id and resolves to no food is observed as a change rather than
+    an absence. The merge runs through the wrapper because both arguments are
+    ids of the same type, where a swapped forward would delete the surviving
+    food.
+    """
+    source = recipes_foods.create_food(
+        mealie_client, name=f"{sentinel_name}-source", aliases=[f"{sentinel_name}-source-alias"]
+    )
+    target = recipes_foods.create_food(
+        mealie_client, name=f"{sentinel_name}-target", aliases=[f"{sentinel_name}-target-alias"]
+    )
+    source_id, target_id = str(source["id"]), str(target["id"])
+    slug: str | None = None
+    list_id: str | None = None
+    item_id: str | None = None
+    try:
+        recipe = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")
+        slug = recipe["slug"]
+        shopping_list = households_shopping_lists.create_shopping_list(
+            mealie_client, name=f"{sentinel_name}-list"
+        )
+        list_id = str(shopping_list["id"])
+        item = households_shopping_list_items.add_shopping_list_item(
+            mealie_client,
+            shopping_list_id=list_id,
+            note=f"{sentinel_name}-item",
+            food_id=source_id,
+        )
+        item_id = str(item["id"])
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=slug,
+            recipe_ingredient=[
+                {
+                    "note": f"{sentinel_name}-ingredient",
+                    "food": {"id": source_id, "name": source["name"]},
+                }
+            ],
+        )
+        staged = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        assert staged["recipeIngredient"][0]["food"]["id"] == source_id
+        linked = _list_item(mealie_client, list_id, item_id)
+        assert linked["foodId"] == source_id
+        assert linked["food"]["id"] == source_id
+
+        ack = call_tool("mealie_merge_food", {"from_food_id": source_id, "to_food_id": target_id})
+        assert ack == {"from_food_id": source_id, "to_food_id": target_id, "merged": True}
+
+        merged = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        assert merged["recipeIngredient"][0]["food"]["id"] == target_id
+        with pytest.raises(ToolError, match=r"Mealie get_food failed \(404"):
+            recipes_foods.get_food(mealie_client, item_id=source_id)
+
+        survivor = recipes_foods.get_food(mealie_client, item_id=target_id)
+        assert [alias["name"] for alias in survivor["aliases"]] == [f"{sentinel_name}-target-alias"]
+
+        stranded = _list_item(mealie_client, list_id, item_id)
+        assert stranded["foodId"] == source_id
+        assert stranded["food"] is None
+    finally:
+        if item_id is not None:
+            with contextlib.suppress(ToolError):
+                households_shopping_list_items.delete_shopping_list_item(
+                    mealie_client, item_id=item_id
+                )
+        if list_id is not None:
+            with contextlib.suppress(ToolError):
+                households_shopping_lists.delete_shopping_list(mealie_client, list_id=list_id)
+        if slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+        for food_id in (source_id, target_id):
+            with contextlib.suppress(ToolError):
+                recipes_foods.delete_food(mealie_client, item_id=food_id)

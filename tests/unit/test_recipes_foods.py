@@ -73,3 +73,30 @@ class TestDeleteFood:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
             recipes_foods.delete_food(client, item_id="")
+
+
+FOOD_ID = "8b6a6a1e-0d4e-4a2b-9a1f-2c3d4e5f6a7b"
+
+
+class TestMergeFood:
+    def test_rejects_empty_source_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="from_food_id must be a non-empty string"):
+            recipes_foods.merge_food(client, from_food_id="", to_food_id=FOOD_ID)
+
+    def test_rejects_empty_target_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="to_food_id must be a non-empty string"):
+            recipes_foods.merge_food(client, from_food_id=FOOD_ID, to_food_id="")
+
+    def test_rejects_a_malformed_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="from_food_id must be a UUID"):
+            recipes_foods.merge_food(client, from_food_id="butter", to_food_id=FOOD_ID)
+
+    @pytest.mark.parametrize(
+        "to_food_id",
+        [FOOD_ID, FOOD_ID.upper(), FOOD_ID.replace("-", ""), f"urn:uuid:{FOOD_ID}"],
+    )
+    def test_rejects_a_self_merge(self, client: AuthenticatedClient, to_food_id: str) -> None:
+        # Mealie resolves each of these spellings to the same food, so a raw
+        # string comparison would let the merge through and delete it.
+        with pytest.raises(ToolError, match="merge_food requires two different foods"):
+            recipes_foods.merge_food(client, from_food_id=FOOD_ID, to_food_id=to_food_id)

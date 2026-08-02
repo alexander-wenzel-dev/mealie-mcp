@@ -20,6 +20,7 @@ from mealie_mcp.tools._common import (
     expect_str,
     parse_order_direction,
     parse_recipe_uuid,
+    parse_uuid,
     raise_api_error,
     require_non_empty,
     require_pagination,
@@ -120,6 +121,25 @@ class TestRequirePagination:
     def test_rejects_page_below_one(self, page: int) -> None:
         with pytest.raises(ToolError, match=rf"page must be >= 1 \(got {page}\)"):
             require_pagination(page, 50)
+
+
+class TestParseUuid:
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "11111111-1111-1111-1111-111111111111",
+            "11111111-1111-1111-1111-111111111111".upper(),
+            "11111111111111111111111111111111",
+            "{11111111-1111-1111-1111-111111111111}",
+            "urn:uuid:11111111-1111-1111-1111-111111111111",
+        ],
+    )
+    def test_canonicalises_every_spelling_mealie_accepts(self, value: str) -> None:
+        assert str(parse_uuid("item_id", value)) == "11111111-1111-1111-1111-111111111111"
+
+    def test_rejects_non_uuid(self) -> None:
+        with pytest.raises(ToolError, match="item_id must be a UUID"):
+            parse_uuid("item_id", "butter")
 
 
 class TestParseRecipeUuid:

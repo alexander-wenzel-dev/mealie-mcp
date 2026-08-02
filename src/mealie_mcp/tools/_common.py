@@ -96,6 +96,18 @@ def ack_delete_bulk(action: str, response: Response[Any], ack_ids: list[str]) ->
     return {"ids": ack_ids, "deleted": True}
 
 
+def parse_uuid(name: str, value: str) -> UUID:
+    """Parse an id into a UUID or raise `ToolError`.
+
+    Mealie also accepts a UUID unhyphenated, braced, or urn-prefixed, so two
+    ids naming the same record are only comparable once parsed.
+    """
+    try:
+        return UUID(value)
+    except ValueError as exc:
+        raise ToolError(f"{name} must be a UUID: {exc}") from exc
+
+
 def parse_recipe_uuid(value: str) -> UUID:
     """Parse a recipe id into a UUID or raise `ToolError`."""
     try:
