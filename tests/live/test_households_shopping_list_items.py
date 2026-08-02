@@ -111,10 +111,9 @@ def _seed_food_and_label(
 ) -> None:
     """Bind ``food_id`` and ``label_id`` to an item via a direct PUT.
 
-    Neither field is exposed by ``add_shopping_list_item`` or
-    ``update_shopping_list_item``, so a naive PUT during a partial update would
-    overwrite them. The seed lets the lifecycle test assert they survive the
-    update.
+    The lifecycle test adds its item without either field, so the seed puts
+    them in place out of band. A partial update through the tool then has to
+    carry them through its fetch-then-merge rather than reset them.
     """
     fetched = get_one_api_households_shopping_items_item_id_get.sync_detailed(
         item_id, client=client
@@ -153,8 +152,8 @@ def test_shopping_list_item_lifecycle(
     assert added["quantity"] == 3
     assert added["checked"] is False
 
-    # Bind food_id and label_id directly. Neither is exposed by the tools, so a
-    # partial update via the tool must preserve them through fetch-then-merge.
+    # Bind food_id and label_id out of band, so the partial update below has to
+    # preserve two values its own call never sent.
     _seed_food_and_label(mealie_client, item_id, food_id=food_id, label_id=label_id)
 
     # Check the item off. note, quantity, food, and label must all survive the
@@ -358,7 +357,7 @@ def test_add_shopping_list_item_aggregates_items_sharing_food_and_unit(
 
 
 @pytest.mark.live
-def test_update_shopping_list_item_sets_label(
+def test_update_shopping_list_item_sets_and_detaches_the_label(
     mealie_client: AuthenticatedClient,
     created_food: dict[str, str],
     created_unit: dict[str, str],
@@ -366,7 +365,10 @@ def test_update_shopping_list_item_sets_label(
     created_shopping_list: dict[str, str],
     sentinel_name: str,
 ) -> None:
-    """Labelling an item leaves its other fields, including food and unit, alone."""
+    """Setting a label leaves the item's other fields, food, and unit alone.
+
+    An empty ``label_id`` detaches it.
+    """
     note = f"{sentinel_name}-item"
     added = households_shopping_list_items.add_shopping_list_item(
         mealie_client,
@@ -386,6 +388,11 @@ def test_update_shopping_list_item_sets_label(
     assert updated["quantity"] == 2
     assert updated["foodId"] == created_food["id"]
     assert updated["unitId"] == created_unit["id"]
+
+    detached = households_shopping_list_items.update_shopping_list_item(
+        mealie_client, item_id=added["id"], label_id=""
+    )
+    assert detached["labelId"] is None
 
 
 @pytest.mark.live
@@ -491,6 +498,7 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
     mealie_client: AuthenticatedClient,
     created_food: dict[str, str],
     created_unit: dict[str, str],
+    created_label: dict[str, str],
     created_shopping_list: dict[str, str],
     sentinel_name: str,
     call_tool: Callable[[str, dict[str, object]], object],
@@ -499,7 +507,9 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
 
     The bulk endpoint PUT-replaces every item in the body, so the food and unit
     links, which the tool does not expose, only survive because each item is
-    merged from its current state first.
+    merged from its current state first. It is a different endpoint from the
+    single-item PUT, so the empty ``label_id`` that detaches a label is
+    asserted here too.
     """
     list_id = created_shopping_list["id"]
     linked = households_shopping_list_items.add_shopping_list_item(
@@ -509,7 +519,9 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
         quantity=250,
         food_id=created_food["id"],
         unit_id=created_unit["id"],
+        label_id=created_label["id"],
     )
+    assert linked["labelId"] == created_label["id"]
     plain = households_shopping_list_items.add_shopping_list_item(
         mealie_client, shopping_list_id=list_id, note=f"{sentinel_name}-plain", quantity=2
     )
@@ -518,7 +530,7 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
         "mealie_update_shopping_list_items",
         {
             "items": [
-                {"id": linked["id"], "checked": True},
+                {"id": linked["id"], "checked": True, "label_id": ""},
                 {"id": plain["id"], "checked": True, "note": f"{sentinel_name}-renamed"},
             ]
         },
@@ -530,6 +542,7 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
     assert updated[linked["id"]]["quantity"] == 250
     assert updated[linked["id"]]["foodId"] == created_food["id"]
     assert updated[linked["id"]]["unitId"] == created_unit["id"]
+    assert updated[linked["id"]]["labelId"] is None
     assert updated[plain["id"]]["note"] == f"{sentinel_name}-renamed"
 
     stored = {
@@ -539,6 +552,7 @@ def test_update_shopping_list_items_checks_off_several_and_keeps_links(
         ]
     }
     assert stored[linked["id"]]["checked"] is True
+    assert stored[linked["id"]]["labelId"] is None
     assert stored[linked["id"]]["foodId"] == created_food["id"]
     assert stored[linked["id"]]["unitId"] == created_unit["id"]
     assert stored[plain["id"]]["checked"] is True
