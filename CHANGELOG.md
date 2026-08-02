@@ -8,6 +8,11 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `mealie_merge_food` and `mealie_merge_unit` resolve a duplicate by merging one
+  record into another. Recipe ingredients move to the target and the source is
+  deleted with its aliases. A shopping list item that references the source
+  keeps the deleted id and resolves to no food or unit. A merge into itself is
+  rejected. Mealie answers a self merge with a success and deletes the record.
 - `mealie_create_food` and `mealie_update_food` now take `label_id`, the
   multi-purpose label that sorts a food into an aisle on a shopping list. On an
   update an empty string detaches the current label.
