@@ -8,6 +8,11 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `mealie_create_food` and `mealie_update_food` now take `label_id`, the
+  multi-purpose label that sorts a food into an aisle on a shopping list. On an
+  update an empty string detaches the current label.
+- `mealie_create_unit` and `mealie_update_unit` now take `description`. An empty
+  string clears it on an update.
 - `mealie_add_shopping_list_item` now takes `food_id`, `unit_id`, and
   `label_id`. An item that carries a food and a unit is merged into an unchecked
   item on the list with the same pair, and their quantities are summed, which a
