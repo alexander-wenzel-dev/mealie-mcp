@@ -75,14 +75,18 @@ def create_food(
     plural_name: str | None = None,
     description: str | None = None,
     aliases: list[str] | None = None,
+    label_id: str | None = None,
 ) -> dict[str, Any]:
     """Create a food. Returns the new food payload."""
     require_non_empty("name", name)
+    if label_id is not None:
+        require_non_empty("label_id", label_id)
 
     body = CreateIngredientFood(
         name=name,
         plural_name=to_unset(plural_name),
         description=to_unset(description),
+        label_id=to_unset(label_id),
     )
     if aliases is not None:
         body.aliases = _alias_bodies(aliases)
@@ -98,6 +102,7 @@ def update_food(
     plural_name: str | None = None,
     description: str | None = None,
     aliases: list[str] | None = None,
+    label_id: str | None = None,
 ) -> dict[str, Any]:
     """Update fields of an existing food. Returns the updated food payload.
 
@@ -106,7 +111,7 @@ def update_food(
     not set survive instead of resetting to their schema defaults.
     """
     require_non_empty("item_id", item_id)
-    edits = (name, plural_name, description, aliases)
+    edits = (name, plural_name, description, aliases, label_id)
     if all(edit is None for edit in edits):
         raise ToolError("update_food requires at least one field to update")
     if name is not None:
@@ -125,6 +130,10 @@ def update_food(
         body.description = description
     if alias_bodies is not None:
         body.aliases = alias_bodies
+    if label_id is not None:
+        # Mealie parses labelId as a UUID and rejects "", so the clear travels
+        # as JSON null.
+        body.label_id = label_id or None
 
     response = update_one_api_foods_item_id_put.sync_detailed(item_id, client=client, body=body)
     return expect_dict("update_food", response)
@@ -188,6 +197,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         plural_name: str | None = None,
         description: str | None = None,
         aliases: list[str] | None = None,
+        label_id: str | None = None,
     ) -> dict[str, Any]:
         """Create an ingredient food in Mealie.
 
@@ -196,6 +206,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             plural_name: Plural form of the name. Omit to leave unset.
             description: Free-text description. Omit to leave unset.
             aliases: Alternative names the ingredient parser also matches.
+            label_id: UUID of the multi-purpose label that sorts the food into
+                an aisle on a shopping list. Take it from
+                ``mealie_list_labels``; a label name is rejected. Omit to
+                leave the food unlabelled.
 
         Returns:
             The newly created food payload as a JSON-compatible dict.
@@ -206,6 +220,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             plural_name=plural_name,
             description=description,
             aliases=aliases,
+            label_id=label_id,
         )
 
     @mcp.tool(name="mealie_update_food")
@@ -215,6 +230,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         plural_name: str | None = None,
         description: str | None = None,
         aliases: list[str] | None = None,
+        label_id: str | None = None,
     ) -> dict[str, Any]:
         """Update an existing food in Mealie. Pass at least one field.
 
@@ -229,6 +245,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 clear it.
             aliases: Replacement list of alternative names. Replaces the
                 whole list; pass an empty list to clear all aliases.
+            label_id: UUID of the multi-purpose label that sorts the food into
+                an aisle on a shopping list. Take it from
+                ``mealie_list_labels``; a label name is rejected. Pass an empty
+                string to detach the current label.
 
         Returns:
             The updated food payload as a JSON-compatible dict.
@@ -240,6 +260,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             plural_name=plural_name,
             description=description,
             aliases=aliases,
+            label_id=label_id,
         )
 
     @mcp.tool(name="mealie_delete_food")

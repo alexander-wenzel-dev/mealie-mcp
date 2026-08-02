@@ -153,8 +153,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _create_label(name: str, color: str | None = None) -> dict[str, Any]:
         """Create a multi purpose label.
 
-        Labels categorize shopping list items and foods. Assigning a label to
-        one of those is done through their own tools, not here.
+        Labels categorize shopping list items and foods. Attach one through the
+        ``label_id`` argument of the food and shopping list item tools.
 
         Args:
             name: Display name for the label. Required, must be non-empty.
