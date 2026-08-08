@@ -32,8 +32,12 @@ from mealie_mcp.client.api.recipe_crud import (
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.create_recipe import CreateRecipe
 from mealie_mcp.client.models.recipe import Recipe
+from mealie_mcp.client.models.recipe_category import RecipeCategory
 from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
+from mealie_mcp.client.models.recipe_note import RecipeNote
+from mealie_mcp.client.models.recipe_step import RecipeStep
+from mealie_mcp.client.models.recipe_tag import RecipeTag
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
 from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
 from mealie_mcp.client_factory import ClientProvider
@@ -195,6 +199,17 @@ _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "org_url": "orgURL",
 }
 
+# Recipe.from_dict keeps the whole list of any of these four fields as raw dicts
+# when one item is unparsable, which raises AttributeError inside Recipe.to_dict.
+_UPDATE_RECIPE_ITEM_MODELS: dict[
+    str, type[RecipeCategory | RecipeNote | RecipeStep | RecipeTag]
+] = {
+    "recipe_instructions": RecipeStep,
+    "notes": RecipeNote,
+    "tags": RecipeTag,
+    "recipe_category": RecipeCategory,
+}
+
 
 def update_recipe(
     client: AuthenticatedClient,
@@ -243,6 +258,13 @@ def update_recipe(
     }
     if not patch:
         raise ToolError("update_recipe requires at least one field to update")
+
+    for field, model in _UPDATE_RECIPE_ITEM_MODELS.items():
+        for index, item in enumerate(supplied[field] or []):
+            try:
+                model.from_dict(item)
+            except (AttributeError, KeyError, TypeError, ValueError) as exc:
+                raise ToolError(f"update_recipe {field}[{index}] invalid: {exc}") from exc
 
     try:
         body = Recipe.from_dict(patch)
@@ -565,13 +587,14 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 ``ingredientReferences``, a list of ``{"referenceId": ...}``
                 drawn from ``recipe_ingredient``.
             notes: Full notes list. Each item must have ``title`` and ``text``.
-            tags: Full tag list. Each item must include the ``id`` of an
-                existing tag; ``name`` and ``slug`` alone are rejected by
-                Mealie with a misleading "Recipe already exists" error. Fetch
-                the id via ``mealie_list_tags``.
-            recipe_category: Full category list. Each item must include the
-                ``id`` of an existing category; ``name`` and ``slug`` alone are
-                rejected the same way. Fetch the id via
+            tags: Full tag list. Each item needs the ``id``, ``name`` and
+                ``slug`` of an existing tag. Without ``id`` Mealie rejects the
+                call with a misleading "Recipe already exists" error, and
+                without ``name`` or ``slug`` the tool rejects it. Fetch all
+                three via ``mealie_list_tags``.
+            recipe_category: Full category list. Each item needs the ``id``,
+                ``name`` and ``slug`` of an existing category, and is rejected
+                the same way when one is missing. Fetch all three via
                 ``mealie_list_categories``.
             tools: Full equipment list. Each item needs ``id``, ``name`` and
                 ``slug``; fetch them via ``mealie_list_tools``.

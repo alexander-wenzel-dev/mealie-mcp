@@ -90,6 +90,40 @@ class TestUpdateRecipe:
                 tools=[{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d", "name": "Wok"}],
             )
 
+    @pytest.mark.parametrize(
+        ("field", "items", "missing"),
+        [
+            ("tags", [{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"}], "name"),
+            ("recipe_category", [{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"}], "name"),
+            ("notes", [{"title": "Tip"}], "text"),
+            ("recipe_instructions", [{"title": "Step"}], "text"),
+        ],
+    )
+    def test_rejects_list_item_missing_a_required_key(
+        self,
+        client: AuthenticatedClient,
+        field: str,
+        items: list[dict[str, str]],
+        missing: str,
+    ) -> None:
+        with pytest.raises(ToolError, match=rf"update_recipe {field}\[0\] invalid: '{missing}'"):
+            recipe_crud.update_recipe(client, slug_or_id="abc", **{field: items})
+
+    def test_names_the_offending_index_in_a_list(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match=r"update_recipe tags\[1\] invalid: 'name'"):
+            recipe_crud.update_recipe(
+                client,
+                slug_or_id="abc",
+                tags=[
+                    {
+                        "id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d",
+                        "name": "Quick",
+                        "slug": "quick",
+                    },
+                    {"id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"},
+                ],
+            )
+
 
 class TestCreateRecipeFromUrl:
     def test_rejects_empty_url(self, client: AuthenticatedClient) -> None:
