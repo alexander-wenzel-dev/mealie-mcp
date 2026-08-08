@@ -6,6 +6,14 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `mealie_update_recipe` rejects an unusable item in `recipe_instructions`,
+  `notes`, `tags` or `recipe_category` with an error naming the field and the
+  index.
+- `mealie_update_recipe` now states that a `tags` or `recipe_category` item
+  needs the `id`, `name` and `slug` of an existing record together.
+
 ## [0.3.1] - 2026-08-02
 
 ### Changed
