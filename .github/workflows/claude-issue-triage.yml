@@ -32,7 +32,7 @@ jobs:
           # Triage runs in agent mode and posts its classification with
           # gh issue comment/edit; GH_TOKEN authorises those calls.
           GH_TOKEN: ${{ github.token }}
-        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
+        uses: anthropics/claude-code-action@c038e4dcdedfbbca18dfb17df35a17e40ded4ddc # v1.0.186
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: "/triage-issue REPO: ${{ github.repository }} ISSUE_NUMBER: ${{ github.event.issue.number }} TITLE: ${{ github.event.issue.title }} AUTHOR: ${{ github.event.issue.user.login }}"
