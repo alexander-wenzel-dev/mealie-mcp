@@ -14,10 +14,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "fastmcp>=3.4.6",
+    "fastmcp>=3.4.7",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.2",
-    "starlette>=1.4.1",
+    "starlette>=1.6.0",
 ]
 
 [project.urls]
@@ -43,10 +43,10 @@ packages = ["src/mealie_mcp"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.16.1",
+    "ruff>=0.16.2",
     "mypy>=2.3.0",
     "pytest>=9.1.1",
-    "pre-commit>=4.6.1",
+    "pre-commit>=4.6.2",
     "bandit>=1.9.4",
     "pip-audit>=2.10.1",
     "openapi-python-client>=0.29.0",
