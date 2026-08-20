@@ -46,7 +46,6 @@ from mealie_mcp.tools._common import (
     expect_dict,
     expect_str,
     parse_order_direction,
-    raise_api_error,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -320,20 +319,14 @@ def create_recipe_from_html_or_json(
 def set_recipe_image_from_url(
     client: AuthenticatedClient, slug_or_id: str, url: str
 ) -> dict[str, Any]:
-    """Set a recipe's title image from an image URL. Returns a confirmation.
-
-    Mealie fetches the image server-side and returns an empty body, so the
-    result echoes the inputs that identify the effect rather than a payload.
-    """
+    """Set a recipe's title image from an image URL. Returns ``{"image": <key>}``."""
     require_non_empty("slug_or_id", slug_or_id)
     require_non_empty("url", url)
 
     response = scrape_image_url_api_recipes_slug_image_post.sync_detailed(
         slug_or_id, client=client, body=ScrapeRecipe(url=url)
     )
-    if response.status_code != HTTPStatus.OK:
-        raise_api_error("set_recipe_image_from_url", int(response.status_code), response.content)
-    return {"slug_or_id": slug_or_id, "image_set": True}
+    return expect_dict("set_recipe_image_from_url", response)
 
 
 def delete_recipe_image(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
@@ -701,7 +694,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             url: URL of an image Mealie can fetch.
 
         Returns:
-            A confirmation ``{"slug_or_id": <slug_or_id>, "image_set": True}``.
+            ``{"image": <key>}``, the recipe's new image key. Each call yields a
+            new key, which is what makes cached copies of the old image stale.
         """
         return set_recipe_image_from_url(get_client(), slug_or_id=slug_or_id, url=url)
 

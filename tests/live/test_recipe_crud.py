@@ -521,13 +521,19 @@ def test_set_recipe_image_from_url_changes_image(
     before = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
     assert before["image"] is None
 
-    ack = recipe_crud.set_recipe_image_from_url(
+    result = recipe_crud.set_recipe_image_from_url(
         mealie_client, slug_or_id=slug, url=served_image_url
     )
-    assert ack == {"slug_or_id": slug, "image_set": True}
-
     after = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert result["image"] == after["image"]
     assert after["image"] is not None
+
+    # Each call mints a fresh key, which is what invalidates cached copies.
+    again = recipe_crud.set_recipe_image_from_url(
+        mealie_client, slug_or_id=slug, url=served_image_url
+    )
+    assert again["image"] != result["image"]
+    assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["image"] == again["image"]
 
 
 @pytest.mark.live
