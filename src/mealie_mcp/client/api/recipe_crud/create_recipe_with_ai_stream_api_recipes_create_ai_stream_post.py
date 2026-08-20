@@ -1,21 +1,20 @@
 from http import HTTPStatus
-from typing import Any
-from urllib.parse import quote
+from typing import Any, cast
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.body_create_recipe_with_ai_stream_api_recipes_create_ai_stream_post import (
+    BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost,
+)
 from ...models.http_validation_error import HTTPValidationError
-from ...models.scrape_recipe import ScrapeRecipe
-from ...models.update_image_response import UpdateImageResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    slug: str,
     *,
-    body: ScrapeRecipe,
+    body: BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -24,14 +23,13 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/api/recipes/{slug}/image".format(
-            slug=quote(str(slug), safe=""),
-        ),
+        "url": "/api/recipes/create/ai/stream",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["files"] = body.to_multipart()
 
-    headers["Content-Type"] = "application/json"
+    headers["Content-Type"] = "multipart/form-data; boundary=+++"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -39,10 +37,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UpdateImageResponse | None:
+) -> Any | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = UpdateImageResponse.from_dict(response.json())
-
+        response_200 = cast(Any, None)
         return response_200
 
     if response.status_code == 422:
@@ -57,7 +54,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UpdateImageResponse]:
+) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,30 +64,29 @@ def _build_response(
 
 
 def sync_detailed(
-    slug: str,
     *,
     client: AuthenticatedClient,
-    body: ScrapeRecipe,
+    body: BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UpdateImageResponse]:
-    """Scrape Image Url
+) -> Response[Any | HTTPValidationError]:
+    """Create Recipe With Ai Stream
+
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI, streaming progress via SSE
 
     Args:
-        slug (str):
         accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UpdateImageResponse]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        slug=slug,
         body=body,
         accept_language=accept_language,
     )
@@ -103,30 +99,29 @@ def sync_detailed(
 
 
 def sync(
-    slug: str,
     *,
     client: AuthenticatedClient,
-    body: ScrapeRecipe,
+    body: BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UpdateImageResponse | None:
-    """Scrape Image Url
+) -> Any | HTTPValidationError | None:
+    """Create Recipe With Ai Stream
+
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI, streaming progress via SSE
 
     Args:
-        slug (str):
         accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UpdateImageResponse
+        Any | HTTPValidationError
     """
 
     return sync_detailed(
-        slug=slug,
         client=client,
         body=body,
         accept_language=accept_language,
@@ -134,30 +129,29 @@ def sync(
 
 
 async def asyncio_detailed(
-    slug: str,
     *,
     client: AuthenticatedClient,
-    body: ScrapeRecipe,
+    body: BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UpdateImageResponse]:
-    """Scrape Image Url
+) -> Response[Any | HTTPValidationError]:
+    """Create Recipe With Ai Stream
+
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI, streaming progress via SSE
 
     Args:
-        slug (str):
         accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UpdateImageResponse]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        slug=slug,
         body=body,
         accept_language=accept_language,
     )
@@ -168,31 +162,30 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    slug: str,
     *,
     client: AuthenticatedClient,
-    body: ScrapeRecipe,
+    body: BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UpdateImageResponse | None:
-    """Scrape Image Url
+) -> Any | HTTPValidationError | None:
+    """Create Recipe With Ai Stream
+
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI, streaming progress via SSE
 
     Args:
-        slug (str):
         accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UpdateImageResponse
+        Any | HTTPValidationError
     """
 
     return (
         await asyncio_detailed(
-            slug=slug,
             client=client,
             body=body,
             accept_language=accept_language,

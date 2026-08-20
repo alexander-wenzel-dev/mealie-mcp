@@ -23,11 +23,14 @@ from .assign_settings import AssignSettings
 from .assign_tags import AssignTags
 from .auth_method import AuthMethod
 from .backup_file import BackupFile
-from .body_create_recipe_from_image_api_recipes_create_image_post import (
-    BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-)
 from .body_create_recipe_from_zip_api_recipes_create_zip_post import (
     BodyCreateRecipeFromZipApiRecipesCreateZipPost,
+)
+from .body_create_recipe_with_ai_api_recipes_create_ai_post import (
+    BodyCreateRecipeWithAiApiRecipesCreateAiPost,
+)
+from .body_create_recipe_with_ai_stream_api_recipes_create_ai_stream_post import (
+    BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost,
 )
 from .body_debug_openai_api_admin_debug_openai_provider_id_post import (
     BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost,
@@ -144,7 +147,9 @@ from .multi_purpose_label_out import MultiPurposeLabelOut
 from .multi_purpose_label_pagination import MultiPurposeLabelPagination
 from .multi_purpose_label_summary import MultiPurposeLabelSummary
 from .multi_purpose_label_update import MultiPurposeLabelUpdate
+from .native_oidc_token_request import NativeOIDCTokenRequest
 from .nutrition import Nutrition
+from .oidc_native_config import OIDCNativeConfig
 from .order_by_null_position import OrderByNullPosition
 from .order_direction import OrderDirection
 from .pagination_base_household_summary import PaginationBaseHouseholdSummary
@@ -308,8 +313,9 @@ __all__ = (
     "AssignTags",
     "AuthMethod",
     "BackupFile",
-    "BodyCreateRecipeFromImageApiRecipesCreateImagePost",
     "BodyCreateRecipeFromZipApiRecipesCreateZipPost",
+    "BodyCreateRecipeWithAiApiRecipesCreateAiPost",
+    "BodyCreateRecipeWithAiStreamApiRecipesCreateAiStreamPost",
     "BodyDebugOpenaiApiAdminDebugOpenaiProviderIdPost",
     "BodyGetTokenApiAuthTokenPost",
     "BodyStartDataMigrationApiGroupsMigrationsPost",
@@ -413,7 +419,9 @@ __all__ = (
     "MultiPurposeLabelPagination",
     "MultiPurposeLabelSummary",
     "MultiPurposeLabelUpdate",
+    "NativeOIDCTokenRequest",
     "Nutrition",
+    "OIDCNativeConfig",
     "OrderByNullPosition",
     "OrderDirection",
     "PaginationBaseHouseholdSummary",
