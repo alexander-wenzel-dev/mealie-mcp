@@ -1,32 +1,24 @@
 from http import HTTPStatus
 from typing import Any
-from urllib.parse import quote
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.scrape_recipe import ScrapeRecipe
-from ...models.update_image_response import UpdateImageResponse
-from ...types import UNSET, Response, Unset
+from ...models.native_oidc_token_request import NativeOIDCTokenRequest
+from ...types import Response
 
 
 def _get_kwargs(
-    slug: str,
     *,
-    body: ScrapeRecipe,
-    accept_language: str | Unset | None = UNSET,
+    body: NativeOIDCTokenRequest,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    if not isinstance(accept_language, Unset):
-        headers["accept-language"] = accept_language
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/api/recipes/{slug}/image".format(
-            slug=quote(str(slug), safe=""),
-        ),
+        "url": "/api/auth/oauth/native/token",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -39,10 +31,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UpdateImageResponse | None:
+) -> Any | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = UpdateImageResponse.from_dict(response.json())
-
+        response_200 = response.json()
         return response_200
 
     if response.status_code == 422:
@@ -57,7 +48,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UpdateImageResponse]:
+) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,32 +58,32 @@ def _build_response(
 
 
 def sync_detailed(
-    slug: str,
     *,
-    client: AuthenticatedClient,
-    body: ScrapeRecipe,
-    accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UpdateImageResponse]:
-    """Scrape Image Url
+    client: AuthenticatedClient | Client,
+    body: NativeOIDCTokenRequest,
+) -> Response[Any | HTTPValidationError]:
+    """Oauth Native Token
+
+     Exchange a native client's authorization code for a Mealie token.
+
+    The native client owns PKCE and state, so the exchange happens server-side without a browser
+    session cookie. This lets passkey-capable system-browser logins (e.g. Pocket ID) work, which
+    the cookie-coupled web callback cannot support.
 
     Args:
-        slug (str):
-        accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (NativeOIDCTokenRequest): An authorization code captured by a native client, for
+            server-side exchange.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UpdateImageResponse]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        slug=slug,
         body=body,
-        accept_language=accept_language,
     )
 
     response = client.get_httpx_client().request(
@@ -103,63 +94,63 @@ def sync_detailed(
 
 
 def sync(
-    slug: str,
     *,
-    client: AuthenticatedClient,
-    body: ScrapeRecipe,
-    accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UpdateImageResponse | None:
-    """Scrape Image Url
+    client: AuthenticatedClient | Client,
+    body: NativeOIDCTokenRequest,
+) -> Any | HTTPValidationError | None:
+    """Oauth Native Token
+
+     Exchange a native client's authorization code for a Mealie token.
+
+    The native client owns PKCE and state, so the exchange happens server-side without a browser
+    session cookie. This lets passkey-capable system-browser logins (e.g. Pocket ID) work, which
+    the cookie-coupled web callback cannot support.
 
     Args:
-        slug (str):
-        accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (NativeOIDCTokenRequest): An authorization code captured by a native client, for
+            server-side exchange.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UpdateImageResponse
+        Any | HTTPValidationError
     """
 
     return sync_detailed(
-        slug=slug,
         client=client,
         body=body,
-        accept_language=accept_language,
     ).parsed
 
 
 async def asyncio_detailed(
-    slug: str,
     *,
-    client: AuthenticatedClient,
-    body: ScrapeRecipe,
-    accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UpdateImageResponse]:
-    """Scrape Image Url
+    client: AuthenticatedClient | Client,
+    body: NativeOIDCTokenRequest,
+) -> Response[Any | HTTPValidationError]:
+    """Oauth Native Token
+
+     Exchange a native client's authorization code for a Mealie token.
+
+    The native client owns PKCE and state, so the exchange happens server-side without a browser
+    session cookie. This lets passkey-capable system-browser logins (e.g. Pocket ID) work, which
+    the cookie-coupled web callback cannot support.
 
     Args:
-        slug (str):
-        accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (NativeOIDCTokenRequest): An authorization code captured by a native client, for
+            server-side exchange.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UpdateImageResponse]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        slug=slug,
         body=body,
-        accept_language=accept_language,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -168,33 +159,33 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    slug: str,
     *,
-    client: AuthenticatedClient,
-    body: ScrapeRecipe,
-    accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UpdateImageResponse | None:
-    """Scrape Image Url
+    client: AuthenticatedClient | Client,
+    body: NativeOIDCTokenRequest,
+) -> Any | HTTPValidationError | None:
+    """Oauth Native Token
+
+     Exchange a native client's authorization code for a Mealie token.
+
+    The native client owns PKCE and state, so the exchange happens server-side without a browser
+    session cookie. This lets passkey-capable system-browser logins (e.g. Pocket ID) work, which
+    the cookie-coupled web callback cannot support.
 
     Args:
-        slug (str):
-        accept_language (None | str | Unset):
-        body (ScrapeRecipe):  Example: {'includeCategories': True, 'includeTags': True, 'url':
-            'https://myfavoriterecipes.com/recipes'}.
+        body (NativeOIDCTokenRequest): An authorization code captured by a native client, for
+            server-side exchange.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UpdateImageResponse
+        Any | HTTPValidationError
     """
 
     return (
         await asyncio_detailed(
-            slug=slug,
             client=client,
             body=body,
-            accept_language=accept_language,
         )
     ).parsed

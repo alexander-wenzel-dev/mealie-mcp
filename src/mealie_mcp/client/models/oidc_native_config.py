@@ -1,61 +1,65 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from .. import types
-
-T = TypeVar("T", bound="BodyCreateRecipeFromImageApiRecipesCreateImagePost")
+T = TypeVar("T", bound="OIDCNativeConfig")
 
 
 @_attrs_define
-class BodyCreateRecipeFromImageApiRecipesCreateImagePost:
-    """
+class OIDCNativeConfig:
+    """Parameters a native client needs to start an OIDC authorization request itself.
+
     Attributes:
-        images (list[str]):
+        authorization_endpoint (str):
+        client_id (str):
+        scope (str):
     """
 
-    images: list[str]
+    authorization_endpoint: str
+    client_id: str
+    scope: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        images = self.images
+        authorization_endpoint = self.authorization_endpoint
+
+        client_id = self.client_id
+
+        scope = self.scope
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "images": images,
+                "authorization_endpoint": authorization_endpoint,
+                "client_id": client_id,
+                "scope": scope,
             }
         )
 
         return field_dict
 
-    def to_multipart(self) -> types.RequestFiles:
-        files: types.RequestFiles = []
-
-        for images_item_element in self.images:
-            files.append(("images", (None, str(images_item_element).encode(), "text/plain")))
-
-        for prop_name, prop in self.additional_properties.items():
-            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
-
-        return files
-
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        images = cast(list[str], d.pop("images"))
+        authorization_endpoint = d.pop("authorization_endpoint")
 
-        body_create_recipe_from_image_api_recipes_create_image_post = cls(
-            images=images,
+        client_id = d.pop("client_id")
+
+        scope = d.pop("scope")
+
+        oidc_native_config = cls(
+            authorization_endpoint=authorization_endpoint,
+            client_id=client_id,
+            scope=scope,
         )
 
-        body_create_recipe_from_image_api_recipes_create_image_post.additional_properties = d
-        return body_create_recipe_from_image_api_recipes_create_image_post
+        oidc_native_config.additional_properties = d
+        return oidc_native_config
 
     @property
     def additional_keys(self) -> list[str]:

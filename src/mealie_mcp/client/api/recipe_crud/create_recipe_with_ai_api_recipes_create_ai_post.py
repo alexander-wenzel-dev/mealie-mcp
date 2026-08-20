@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.body_create_recipe_from_image_api_recipes_create_image_post import (
-    BodyCreateRecipeFromImageApiRecipesCreateImagePost,
+from ...models.body_create_recipe_with_ai_api_recipes_create_ai_post import (
+    BodyCreateRecipeWithAiApiRecipesCreateAiPost,
 )
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
@@ -14,32 +14,20 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: str | Unset | None = UNSET,
+    body: BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(accept_language, Unset):
         headers["accept-language"] = accept_language
 
-    params: dict[str, Any] = {}
-
-    json_translate_language: str | Unset | None
-    if isinstance(translate_language, Unset):
-        json_translate_language = UNSET
-    else:
-        json_translate_language = translate_language
-    params["translateLanguage"] = json_translate_language
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
-
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/api/recipes/create/image",
-        "params": params,
+        "url": "/api/recipes/create/ai",
     }
 
-    _kwargs["files"] = body.to_multipart()
+    if not isinstance(body, Unset):
+        _kwargs["files"] = body.to_multipart()
 
     headers["Content-Type"] = "multipart/form-data; boundary=+++"
 
@@ -49,9 +37,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | str | None:
     if response.status_code == 201:
-        response_201 = response.json()
+        response_201 = cast(str, response.json())
         return response_201
 
     if response.status_code == 422:
@@ -66,7 +54,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | str]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,31 +66,28 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: str | Unset | None = UNSET,
+    body: BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Response[Any | HTTPValidationError]:
-    """Create Recipe From Image
+) -> Response[HTTPValidationError | str]:
+    """Create Recipe With Ai
 
-     Create a recipe from an image using OpenAI.
-    Optionally specify a language for it to translate the recipe to.
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI. Optionally specify a language for it to translate the recipe to.
 
     Args:
-        translate_language (None | str | Unset):
         accept_language (None | str | Unset):
-        body (BodyCreateRecipeFromImageApiRecipesCreateImagePost):
+        body (BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | str]
     """
 
     kwargs = _get_kwargs(
         body=body,
-        translate_language=translate_language,
         accept_language=accept_language,
     )
 
@@ -116,32 +101,29 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: str | Unset | None = UNSET,
+    body: BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Any | HTTPValidationError | None:
-    """Create Recipe From Image
+) -> HTTPValidationError | str | None:
+    """Create Recipe With Ai
 
-     Create a recipe from an image using OpenAI.
-    Optionally specify a language for it to translate the recipe to.
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI. Optionally specify a language for it to translate the recipe to.
 
     Args:
-        translate_language (None | str | Unset):
         accept_language (None | str | Unset):
-        body (BodyCreateRecipeFromImageApiRecipesCreateImagePost):
+        body (BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | str
     """
 
     return sync_detailed(
         client=client,
         body=body,
-        translate_language=translate_language,
         accept_language=accept_language,
     ).parsed
 
@@ -149,31 +131,28 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: str | Unset | None = UNSET,
+    body: BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Response[Any | HTTPValidationError]:
-    """Create Recipe From Image
+) -> Response[HTTPValidationError | str]:
+    """Create Recipe With Ai
 
-     Create a recipe from an image using OpenAI.
-    Optionally specify a language for it to translate the recipe to.
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI. Optionally specify a language for it to translate the recipe to.
 
     Args:
-        translate_language (None | str | Unset):
         accept_language (None | str | Unset):
-        body (BodyCreateRecipeFromImageApiRecipesCreateImagePost):
+        body (BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | str]
     """
 
     kwargs = _get_kwargs(
         body=body,
-        translate_language=translate_language,
         accept_language=accept_language,
     )
 
@@ -185,33 +164,30 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: BodyCreateRecipeFromImageApiRecipesCreateImagePost,
-    translate_language: str | Unset | None = UNSET,
+    body: BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset = UNSET,
     accept_language: str | Unset | None = UNSET,
-) -> Any | HTTPValidationError | None:
-    """Create Recipe From Image
+) -> HTTPValidationError | str | None:
+    """Create Recipe With Ai
 
-     Create a recipe from an image using OpenAI.
-    Optionally specify a language for it to translate the recipe to.
+     Create a recipe from any combination of content (HTML, JSON, or text), images, and a URL,
+    using AI. Optionally specify a language for it to translate the recipe to.
 
     Args:
-        translate_language (None | str | Unset):
         accept_language (None | str | Unset):
-        body (BodyCreateRecipeFromImageApiRecipesCreateImagePost):
+        body (BodyCreateRecipeWithAiApiRecipesCreateAiPost | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | str
     """
 
     return (
         await asyncio_detailed(
             client=client,
             body=body,
-            translate_language=translate_language,
             accept_language=accept_language,
         )
     ).parsed
