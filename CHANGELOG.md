@@ -6,6 +6,13 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The pinned Mealie OpenAPI spec moved from v3.22.0 to v3.23.1.
+- `mealie_set_recipe_image_from_url` returns the recipe's new image key as
+  `{"image": <key>}`. Mealie v3.23.0 gave the endpoint a response body, which
+  replaces the confirmation the tool used to synthesise.
+
 ### Fixed
 
 - `mealie_update_recipe` rejects an unusable item in `recipe_instructions`,
