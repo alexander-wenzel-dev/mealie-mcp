@@ -548,7 +548,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         ``recipe_ingredient`` items and ``recipe_instructions`` steps are linked
         by ``referenceId``. Read the current ids from ``mealie_get_recipe`` and
         send each ingredient's back. An ingredient sent without one gets a new
-        id, the steps keep the old one, and the links break with no error.
+        id, the steps keep the old one, and the links break with no error. A
+        generated id is not stored either: the next response carries a different
+        one, so it cannot link a step. Give new ingredients a ``referenceId`` of
+        your own, in the same call as the steps that reference them.
 
         Args:
             slug_or_id: Recipe slug or UUID.
