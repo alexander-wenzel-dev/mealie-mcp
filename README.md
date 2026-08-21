@@ -36,6 +36,9 @@ Once registered, you ask in plain language and the assistant picks the matching 
 - Python 3.14
 - [uv](https://docs.astral.sh/uv/)
 - A reachable Mealie instance and a Mealie API token
+- Mealie v3.23.0 or newer. The client is generated from the v3.23.1 OpenAPI
+  spec, and `mealie_set_recipe_image_from_url` reads a response body that
+  older Mealie versions do not send.
 
 ## Install
 
