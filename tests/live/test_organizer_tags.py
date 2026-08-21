@@ -57,6 +57,24 @@ def test_tag_lifecycle(mealie_client: AuthenticatedClient, created_tag: dict[str
 
 
 @pytest.mark.live
+def test_create_tag_rejects_a_duplicate_name(
+    mealie_client: AuthenticatedClient, created_tag: dict[str, str]
+) -> None:
+    with pytest.raises(ToolError) as excinfo:
+        organizer_tags.create_tag(mealie_client, name=created_tag["name"])
+
+    message = str(excinfo.value)
+    assert message.startswith("Mealie create_tag failed (409): ")
+
+    # Mealie attaches its raw database error to a conflict, so this is also the
+    # call where that text would reach a tool caller.
+    reported = message.split("): ", 1)[1]
+    assert reported
+    for fragment in ("[SQL:", "[parameters:", "IntegrityError", '"exception"'):
+        assert fragment not in reported, f"{fragment} reached the caller: {reported}"
+
+
+@pytest.mark.live
 def test_empty_tags_drops_a_tag_once_a_recipe_uses_it(
     mealie_client: AuthenticatedClient, sentinel_name: str
 ) -> None:

@@ -24,11 +24,25 @@ def decode(content: bytes) -> Any:
 
 
 def raise_api_error(action: str, status: int, content: bytes) -> Never:
-    """Raise a `ToolError` that preserves the Mealie error message."""
+    """Raise a `ToolError` that preserves the Mealie error message.
+
+    Mealie wraps most business errors in an envelope, `{"detail": {"message":
+    ..., "error": ..., "exception": ...}}`. The `exception` field carries the
+    raw driver text, including SQL and the parameters bound to it, and is
+    dropped before anything is reported. The message is reported alone when the
+    envelope carries one.
+    """
     body = decode(content)
     if isinstance(body, dict):
         detail = body.get("detail") or body.get("message") or body
-        message = detail if isinstance(detail, str) else json.dumps(detail)
+        if isinstance(detail, dict):
+            detail = {key: value for key, value in detail.items() if key != "exception"}
+            nested = detail.get("message")
+            message = nested if isinstance(nested, str) and nested else json.dumps(detail)
+        elif isinstance(detail, str):
+            message = detail
+        else:
+            message = json.dumps(detail)
     elif isinstance(body, str):
         message = body
     else:

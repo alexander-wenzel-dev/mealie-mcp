@@ -58,13 +58,68 @@ class TestRaiseApiError:
         with pytest.raises(ToolError, match=r"^Mealie action failed \(500\): boom$"):
             raise_api_error("action", 500, body)
 
-    def test_dict_with_nested_detail(self) -> None:
-        body = json.dumps({"detail": {"code": "x", "message": "y"}}).encode()
+    def test_error_envelope_yields_the_message_alone(self) -> None:
+        # Mealie answers a unique-constraint violation with the raw driver text
+        # in `exception`, which carries the SQL and its bound parameters.
+        body = json.dumps(
+            {
+                "detail": {
+                    "message": "This item already exists.",
+                    "error": True,
+                    "exception": (
+                        "(sqlite3.IntegrityError) UNIQUE constraint failed: "
+                        "tags.slug, tags.group_id\n[SQL: INSERT INTO tags "
+                        "(id, group_id, name, slug) VALUES (?, ?, ?, ?)]\n"
+                        "[parameters: ('9a71', '0cc7', 'Cake', 'cake')]"
+                    ),
+                }
+            }
+        ).encode()
+        with pytest.raises(
+            ToolError, match=r"^Mealie action failed \(409\): This item already exists\.$"
+        ):
+            raise_api_error("action", 409, body)
+
+    @pytest.mark.parametrize(
+        "detail",
+        [
+            {"message": "", "error": True},
+            {"code": "x", "hint": "y"},
+        ],
+    )
+    def test_envelope_without_a_message_drops_the_exception(
+        self, detail: dict[str, object]
+    ) -> None:
+        # No message to report leaves the rest of the envelope, which must still
+        # not carry the driver text.
+        raw = "(sqlite3.IntegrityError) UNIQUE constraint failed\n[SQL: INSERT INTO tags]"
+        body = json.dumps({"detail": {**detail, "exception": raw}}).encode()
         with pytest.raises(ToolError) as excinfo:
             raise_api_error("action", 409, body)
         message = str(excinfo.value)
         assert message.startswith("Mealie action failed (409): ")
-        assert json.loads(message.split("): ", 1)[1]) == {"code": "x", "message": "y"}
+        assert json.loads(message.split("): ", 1)[1]) == detail
+
+    def test_validation_error_list_is_serialised_whole(self) -> None:
+        # A 422 carries a list of field errors, not the envelope, and each entry
+        # names the field that failed.
+        body = json.dumps(
+            {
+                "detail": [
+                    {
+                        "type": "string_type",
+                        "loc": ["body", "name"],
+                        "msg": "Input should be a valid string",
+                        "input": 12345,
+                    }
+                ]
+            }
+        ).encode()
+        with pytest.raises(ToolError) as excinfo:
+            raise_api_error("action", 422, body)
+        detail = json.loads(str(excinfo.value).split("): ", 1)[1])
+        assert detail[0]["loc"] == ["body", "name"]
+        assert detail[0]["msg"] == "Input should be a valid string"
 
     def test_string_body(self) -> None:
         with pytest.raises(ToolError, match=r"^Mealie action failed \(500\): upstream boom$"):
