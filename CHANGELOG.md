@@ -15,6 +15,9 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A tool reports Mealie's own message when a call fails, without the raw
+  database error Mealie sends alongside it. That text carries the SQL statement
+  and the values bound to it.
 - `mealie_update_recipe` rejects an unusable item in `recipe_instructions`,
   `notes`, `tags` or `recipe_category` with an error naming the field and the
   index.
