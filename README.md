@@ -71,7 +71,7 @@ Clone-free with `uvx`:
   "mcpServers": {
     "mealie": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.3.1", "mealie-mcp"],
+      "args": ["--from", "git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.4.0", "mealie-mcp"],
       "env": {
         "MEALIE_BASE_URL": "https://mealie.example.com",
         "MEALIE_API_TOKEN": "replace-me"
@@ -104,7 +104,7 @@ checkout:
 Clone-free with `uvx`:
 
 ```sh
-claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uvx --from git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.3.1 mealie-mcp
+claude mcp add mealie --env MEALIE_BASE_URL=https://mealie.example.com --env MEALIE_API_TOKEN=replace-me -- uvx --from git+https://github.com/alexander-wenzel-dev/mealie-mcp.git@v0.4.0 mealie-mcp
 ```
 
 From a local clone:
