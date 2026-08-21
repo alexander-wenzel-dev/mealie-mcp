@@ -26,6 +26,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_update_recipe` now states that a `referenceId` Mealie generates is not
   stored. The next response carries a different one, so the id a new ingredient
   comes back with cannot link a step to it.
+- `mealie_update_recipe` now states where Mealie renders a step's `title` and
+  `summary`, so the two are no longer named as interchangeable.
 
 ## [0.3.1] - 2026-08-02
 
