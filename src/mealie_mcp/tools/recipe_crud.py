@@ -581,7 +581,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             recipe_instructions: Full step list. Each item must have ``text``
                 and may include ``title``, ``summary`` and
                 ``ingredientReferences``, a list of ``{"referenceId": ...}``
-                drawn from ``recipe_ingredient``.
+                drawn from ``recipe_ingredient``. ``title`` renders as a section
+                heading above the step, ``summary`` as the step's own heading in
+                place of its ``Step: N`` label.
             notes: Full notes list. Each item must have ``title`` and ``text``.
             tags: Full tag list. Each item needs the ``id``, ``name`` and
                 ``slug`` of an existing tag. Without ``id`` Mealie rejects the
