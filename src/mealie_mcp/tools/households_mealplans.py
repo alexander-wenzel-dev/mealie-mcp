@@ -99,7 +99,7 @@ def list_mealplans(
     return expect_dict("list_mealplans", response)
 
 
-def todays_mealplan(client: AuthenticatedClient) -> list[Any]:
+def todays_mealplan(client: AuthenticatedClient) -> list[dict[str, Any]]:
     """Return today's meal plan entries. Mealie decides "today" server-side."""
     response = get_todays_meals_api_households_mealplans_today_get.sync_detailed(client=client)
     return expect_list("todays_mealplan", response)
@@ -238,7 +238,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         )
 
     @mcp.tool(name="mealie_get_todays_mealplan")
-    def _get_todays_mealplan() -> list[Any]:
+    def _get_todays_mealplan() -> list[dict[str, Any]]:
         """List the meal plan entries scheduled for today.
 
         Mealie determines "today" server-side, so the caller supplies no date

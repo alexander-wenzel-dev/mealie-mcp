@@ -21,6 +21,7 @@ from mealie_mcp.tools._common import (
     parse_order_direction,
     parse_uuid,
     raise_api_error,
+    require_dict_items,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -214,12 +215,28 @@ class TestExpectDict:
 
 
 class TestExpectList:
-    def test_returns_list_on_ok(self) -> None:
-        assert expect_list("act", _response(HTTPStatus.OK, b"[1, 2]")) == [1, 2]
+    def test_returns_list_of_dicts_on_ok(self) -> None:
+        assert expect_list("act", _response(HTTPStatus.OK, b'[{"k": 1}, {"k": 2}]')) == [
+            {"k": 1},
+            {"k": 2},
+        ]
 
     def test_raises_on_non_list_body(self) -> None:
         with pytest.raises(ToolError, match="Unexpected act response"):
             expect_list("act", _response(HTTPStatus.OK, b'{"k": 1}'))
+
+    def test_raises_on_non_dict_item(self) -> None:
+        with pytest.raises(ToolError, match="Unexpected act response item"):
+            expect_list("act", _response(HTTPStatus.OK, b"[1, 2]"))
+
+
+class TestRequireDictItems:
+    def test_returns_the_dict_items(self) -> None:
+        assert require_dict_items("act", [{"k": 1}]) == [{"k": 1}]
+
+    def test_raises_on_non_dict_item(self) -> None:
+        with pytest.raises(ToolError, match="Unexpected act response item: 'x'"):
+            require_dict_items("act", [{"k": 1}, "x"])
 
 
 class TestExpectStr:

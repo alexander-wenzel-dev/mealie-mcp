@@ -55,7 +55,7 @@ def list_tags(
     return expect_dict("list_tags", response)
 
 
-def list_empty_tags(client: AuthenticatedClient) -> list[Any]:
+def list_empty_tags(client: AuthenticatedClient) -> list[dict[str, Any]]:
     """List tags with no recipes assigned. Returns a bare list."""
     response = get_empty_tags_api_organizers_tags_empty_get.sync_detailed(client=client)
     return expect_list("list_empty_tags", response)
@@ -147,7 +147,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         )
 
     @mcp.tool(name="mealie_list_empty_tags")
-    def _list_empty_tags() -> list[Any]:
+    def _list_empty_tags() -> list[dict[str, Any]]:
         """List recipe tags that have no recipes assigned.
 
         Use this to find unused tags worth cleaning up. Delete one with

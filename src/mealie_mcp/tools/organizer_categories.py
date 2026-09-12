@@ -55,7 +55,7 @@ def list_categories(
     return expect_dict("list_categories", response)
 
 
-def list_empty_categories(client: AuthenticatedClient) -> list[Any]:
+def list_empty_categories(client: AuthenticatedClient) -> list[dict[str, Any]]:
     """List categories with no recipes assigned. Returns a bare list."""
     response = get_all_empty_api_organizers_categories_empty_get.sync_detailed(client=client)
     return expect_list("list_empty_categories", response)
@@ -147,7 +147,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         )
 
     @mcp.tool(name="mealie_list_empty_categories")
-    def _list_empty_categories() -> list[Any]:
+    def _list_empty_categories() -> list[dict[str, Any]]:
         """List recipe categories that have no recipes assigned.
 
         Use this to find unused categories worth cleaning up. Delete one with
