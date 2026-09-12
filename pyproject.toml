@@ -14,7 +14,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "fastmcp>=3.4.7",
+    "fastmcp>=4.0.2",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.3",
     "starlette>=1.6.0",
@@ -43,7 +43,7 @@ packages = ["src/mealie_mcp"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.16.4",
+    "ruff>=0.16.5",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pre-commit>=4.6.2",
@@ -57,7 +57,8 @@ dev = [
 # Temporary pin to a fork carrying two unmerged generator fixes
 # (openapi-generators/openapi-python-client#1448 and #1449). Drop this
 # block and bump the floor in [dependency-groups].dev once a release
-# containing both lands on PyPI.
+# containing both lands on PyPI. While this block stands, uv resolves the
+# branch and ignores that floor, so raising it pulls in nothing.
 openapi-python-client = { git = "https://github.com/alexander-wenzel-dev/openapi-python-client", branch = "pin/mealie-mcp-combined" }
 
 [tool.ruff]
