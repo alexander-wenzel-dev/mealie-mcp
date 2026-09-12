@@ -72,7 +72,7 @@ def list_comments(
     return expect_dict("list_comments", response)
 
 
-def list_recipe_comments(client: AuthenticatedClient, slug: str) -> list[Any]:
+def list_recipe_comments(client: AuthenticatedClient, slug: str) -> list[dict[str, Any]]:
     """List the comments attached to a recipe. Returns a list of comment payloads."""
     require_non_empty("slug", slug)
 
@@ -156,7 +156,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         )
 
     @mcp.tool(name="mealie_list_recipe_comments")
-    def _list_recipe_comments(slug: str) -> list[Any]:
+    def _list_recipe_comments(slug: str) -> list[dict[str, Any]]:
         """List the comments attached to a single recipe.
 
         Args:

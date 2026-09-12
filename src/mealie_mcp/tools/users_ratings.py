@@ -30,6 +30,7 @@ from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     raise_api_error,
+    require_dict_items,
     require_non_empty,
 )
 
@@ -67,13 +68,13 @@ def _require_rating_in_range(rating: float) -> None:
         raise ToolError(f"rating must be between {RATING_MIN:g} and {RATING_MAX:g} (got {rating})")
 
 
-def _ratings_list(action: str, response: Response[Any]) -> list[Any]:
+def _ratings_list(action: str, response: Response[Any]) -> list[dict[str, Any]]:
     """Pull the ``ratings`` array out of a user-rating collection envelope."""
     payload = expect_dict(action, response)
     ratings = payload.get("ratings")
     if not isinstance(ratings, list):
         raise ToolError(f"Unexpected {action} response: {payload!r}")
-    return ratings
+    return require_dict_items(action, ratings)
 
 
 def set_recipe_rating(client: AuthenticatedClient, slug: str, rating: float) -> dict[str, Any]:
@@ -90,14 +91,14 @@ def set_recipe_rating(client: AuthenticatedClient, slug: str, rating: float) -> 
     return {"slug": slug, "rating": rating}
 
 
-def list_ratings(client: AuthenticatedClient) -> list[Any]:
+def list_ratings(client: AuthenticatedClient) -> list[dict[str, Any]]:
     """List the acting user's recipe ratings. Returns a list of rating records."""
     user_id = _current_user_id(client)
     response = get_ratings_api_users_id_ratings_get.sync_detailed(user_id, client=client)
     return _ratings_list("list_ratings", response)
 
 
-def list_favorites(client: AuthenticatedClient) -> list[Any]:
+def list_favorites(client: AuthenticatedClient) -> list[dict[str, Any]]:
     """List the acting user's favorited recipes. Returns a list of favorited recipe records."""
     user_id = _current_user_id(client)
     response = get_favorites_api_users_id_favorites_get.sync_detailed(user_id, client=client)
@@ -145,7 +146,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         return set_recipe_rating(get_client(), slug=slug, rating=rating)
 
     @mcp.tool(name="mealie_list_ratings")
-    def _list_ratings() -> list[Any]:
+    def _list_ratings() -> list[dict[str, Any]]:
         """List the current user's recipe ratings.
 
         Returns:
@@ -156,7 +157,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         return list_ratings(get_client())
 
     @mcp.tool(name="mealie_list_favorites")
-    def _list_favorites() -> list[Any]:
+    def _list_favorites() -> list[dict[str, Any]]:
         """List the current user's favorited recipes.
 
         Returns:

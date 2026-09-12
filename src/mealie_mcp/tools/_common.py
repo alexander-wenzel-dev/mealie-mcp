@@ -148,14 +148,29 @@ def expect_dict(
     return payload
 
 
+def require_dict_items(action: str, payload: list[Any]) -> list[dict[str, Any]]:
+    """Narrow a decoded list to dicts or raise `ToolError`.
+
+    A list tool declares `list[dict[str, Any]]` so FastMCP infers an output
+    schema and emits structured content; a non-dict item would fail that schema
+    inside the wrapper with an opaque `RuntimeError`.
+    """
+    items: list[dict[str, Any]] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            raise ToolError(f"Unexpected {action} response item: {item!r}")
+        items.append(item)
+    return items
+
+
 def expect_list(
     action: str, response: Response[Any], status: HTTPStatus = HTTPStatus.OK
-) -> list[Any]:
-    """Return the response body as a list or raise `ToolError`."""
+) -> list[dict[str, Any]]:
+    """Return the response body as a list of dicts or raise `ToolError`."""
     payload = _expect(action, response, status)
     if not isinstance(payload, list):
         raise ToolError(f"Unexpected {action} response: {payload!r}")
-    return payload
+    return require_dict_items(action, payload)
 
 
 def expect_str(action: str, response: Response[Any], status: HTTPStatus = HTTPStatus.OK) -> str:
