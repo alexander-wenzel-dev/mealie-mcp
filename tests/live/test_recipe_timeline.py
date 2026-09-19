@@ -256,10 +256,10 @@ def test_create_timeline_event_omitted_timestamp_stamps_current_time(
 ) -> None:
     """An omitted timestamp is stamped near now, not with the server boot time.
 
-    Mealie's schema default for the timestamp is evaluated once at server
-    import, so an UNSET timestamp lands at the server boot time, which can be
-    days old. The tool sends the current time explicitly to avoid that, so the
-    returned timestamp must sit within a small window of now.
+    Older Mealie versions evaluate their schema default for the timestamp once
+    at server import, so an UNSET timestamp lands at the server boot time, which
+    can be days old. The tool sends the current time explicitly, so the returned
+    timestamp sits within a small window of now on every supported version.
     """
     before = dt.datetime.now(dt.UTC)
     created = recipe_timeline.create_timeline_event(
