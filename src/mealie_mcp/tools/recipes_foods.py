@@ -301,9 +301,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _merge_food(from_food_id: str, to_food_id: str) -> dict[str, Any]:
         """Merge one Mealie food into another, resolving a duplicate.
 
-        Recipe ingredients that use the source food move to the target. A
-        shopping list item that references the source food keeps the deleted
-        id and resolves to no food.
+        Recipe ingredients and shopping list items that use the source food
+        move to the target.
 
         Args:
             from_food_id: UUID of the food to merge away, from

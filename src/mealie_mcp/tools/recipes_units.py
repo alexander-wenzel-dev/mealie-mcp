@@ -335,9 +335,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _merge_unit(from_unit_id: str, to_unit_id: str) -> dict[str, Any]:
         """Merge one Mealie unit into another, resolving a duplicate.
 
-        Recipe ingredients that use the source unit move to the target. A
-        shopping list item that references the source unit keeps the deleted
-        id and resolves to no unit.
+        Recipe ingredients and shopping list items that use the source unit
+        move to the target.
 
         Args:
             from_unit_id: UUID of the unit to merge away, from
