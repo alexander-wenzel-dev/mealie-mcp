@@ -690,9 +690,11 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     def _set_recipe_image_from_url(slug_or_id: str, url: str) -> dict[str, Any]:
         """Set a recipe's title image from an image URL.
 
-        Mealie fetches the image from ``url`` server-side, so the URL must point
-        at an image Mealie's instance can reach. This sets the recipe's own
-        title image; it does not scrape a recipe page.
+        Mealie fetches the image from ``url`` server-side, so the URL must
+        point at an image Mealie's instance can reach. Mealie refuses a URL
+        that resolves to a private or internal address unless its
+        ``HTTP_ALLOW_LIST`` names the host. This sets the recipe's own title
+        image; it does not scrape a recipe page.
 
         Args:
             slug_or_id: Recipe slug or UUID.
