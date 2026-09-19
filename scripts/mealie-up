@@ -24,6 +24,10 @@ from pathlib import Path
 
 IMAGE = "ghcr.io/mealie-recipes/mealie"
 
+# Mealie's own API_PORT, which upstream documents as not to be changed
+# under Docker. The --port option maps a host port onto this one.
+CONTAINER_PORT = 9000
+
 # Mealie seeds the first admin from `_DEFAULT_EMAIL` and `_DEFAULT_PASSWORD`
 # in `mealie/core/settings/settings.py`. Both are private Pydantic settings
 # (single-underscore prefix) and are not overridable via container env vars.
@@ -106,7 +110,7 @@ def start_container(name: str, port: int, tag: str) -> None:
         "--name",
         name,
         "-p",
-        f"{port}:9000",
+        f"{port}:{CONTAINER_PORT}",
         # The image tests hand Mealie its own base URL, which it otherwise
         # refuses as an internal address.
         "-e",
@@ -212,6 +216,17 @@ def main(argv: list[str] | None = None) -> int:
         die(
             f"container '{args.name}' already exists; "
             f"remove it with: docker rm -f {args.name}"
+        )
+
+    if args.port != CONTAINER_PORT:
+        # The recipe image tests ask Mealie to fetch a URL built from
+        # MEALIE_BASE_URL, which it resolves inside the container, where
+        # only CONTAINER_PORT answers.
+        log(
+            f"warning: Mealie listens on {CONTAINER_PORT} inside the "
+            f"container and cannot reach http://localhost:{args.port} "
+            "itself, so the recipe image live tests will fail with "
+            '"Image could not be downloaded"'
         )
 
     start_container(args.name, args.port, tag)
