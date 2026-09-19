@@ -11,7 +11,7 @@ from ...types import Response
 def _get_kwargs() -> dict[str, Any]:
 
     _kwargs: dict[str, Any] = {
-        "method": "get",
+        "method": "post",
         "url": "/api/auth/refresh",
     }
 
@@ -46,7 +46,10 @@ def sync_detailed(
 ) -> Response[Any]:
     """Refresh Token
 
-     Use a valid token to get another token
+     Exchange a valid session token for a fresh one.
+
+    The new token carries over the remember-me choice recorded on the old one, so refreshing doesn't
+    downgrade a remembered session to one that dies with the browser.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -71,7 +74,10 @@ async def asyncio_detailed(
 ) -> Response[Any]:
     """Refresh Token
 
-     Use a valid token to get another token
+     Exchange a valid session token for a fresh one.
+
+    The new token carries over the remember-me choice recorded on the old one, so refreshing doesn't
+    downgrade a remembered session to one that dies with the browser.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

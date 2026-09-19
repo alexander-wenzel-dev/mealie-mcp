@@ -19,6 +19,7 @@ class RecipeTool:
         name (str):
         slug (str):
         group_id (None | str | Unset):
+        recipe_count (int | Unset):  Default: 0.
         households_with_tool (list[str] | Unset):
     """
 
@@ -26,6 +27,7 @@ class RecipeTool:
     name: str
     slug: str
     group_id: str | Unset | None = UNSET
+    recipe_count: int | Unset = 0
     households_with_tool: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -42,6 +44,8 @@ class RecipeTool:
         else:
             group_id = self.group_id
 
+        recipe_count = self.recipe_count
+
         households_with_tool: list[str] | Unset = UNSET
         if not isinstance(self.households_with_tool, Unset):
             households_with_tool = self.households_with_tool
@@ -57,6 +61,8 @@ class RecipeTool:
         )
         if group_id is not UNSET:
             field_dict["groupId"] = group_id
+        if recipe_count is not UNSET:
+            field_dict["recipeCount"] = recipe_count
         if households_with_tool is not UNSET:
             field_dict["householdsWithTool"] = households_with_tool
 
@@ -80,6 +86,8 @@ class RecipeTool:
 
         group_id = _parse_group_id(d.pop("groupId", UNSET))
 
+        recipe_count = d.pop("recipeCount", UNSET)
+
         households_with_tool = cast(list[str], d.pop("householdsWithTool", UNSET))
 
         recipe_tool = cls(
@@ -87,6 +95,7 @@ class RecipeTool:
             name=name,
             slug=slug,
             group_id=group_id,
+            recipe_count=recipe_count,
             households_with_tool=households_with_tool,
         )
 

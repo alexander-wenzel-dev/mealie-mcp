@@ -19,12 +19,14 @@ class RecipeCategory:
         slug (str):
         id (None | str | Unset):
         group_id (None | str | Unset):
+        recipe_count (int | Unset):  Default: 0.
     """
 
     name: str
     slug: str
     id: str | Unset | None = UNSET
     group_id: str | Unset | None = UNSET
+    recipe_count: int | Unset = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,6 +46,8 @@ class RecipeCategory:
         else:
             group_id = self.group_id
 
+        recipe_count = self.recipe_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -56,6 +60,8 @@ class RecipeCategory:
             field_dict["id"] = id
         if group_id is not UNSET:
             field_dict["groupId"] = group_id
+        if recipe_count is not UNSET:
+            field_dict["recipeCount"] = recipe_count
 
         return field_dict
 
@@ -84,11 +90,14 @@ class RecipeCategory:
 
         group_id = _parse_group_id(d.pop("groupId", UNSET))
 
+        recipe_count = d.pop("recipeCount", UNSET)
+
         recipe_category = cls(
             name=name,
             slug=slug,
             id=id,
             group_id=group_id,
+            recipe_count=recipe_count,
         )
 
         recipe_category.additional_properties = d

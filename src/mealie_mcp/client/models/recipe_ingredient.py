@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.ingredient_food import IngredientFood
     from ..models.ingredient_unit import IngredientUnit
     from ..models.recipe import Recipe
+    from ..models.recipe_ingredient_substitution import RecipeIngredientSubstitution
 
 
 T = TypeVar("T", bound="RecipeIngredient")
@@ -32,6 +33,7 @@ class RecipeIngredient:
         display (str | Unset):  Default: ''.
         title (None | str | Unset):
         original_text (None | str | Unset):
+        substitutions (list[RecipeIngredientSubstitution] | Unset):
         reference_id (UUID | Unset):
     """
 
@@ -43,6 +45,7 @@ class RecipeIngredient:
     display: str | Unset = ""
     title: str | Unset | None = UNSET
     original_text: str | Unset | None = UNSET
+    substitutions: list[RecipeIngredientSubstitution] | Unset = UNSET
     reference_id: UUID | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -103,6 +106,13 @@ class RecipeIngredient:
         else:
             original_text = self.original_text
 
+        substitutions: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.substitutions, Unset):
+            substitutions = []
+            for substitutions_item_data in self.substitutions:
+                substitutions_item = substitutions_item_data.to_dict()
+                substitutions.append(substitutions_item)
+
         reference_id: str | Unset = UNSET
         if not isinstance(self.reference_id, Unset):
             reference_id = str(self.reference_id)
@@ -126,6 +136,8 @@ class RecipeIngredient:
             field_dict["title"] = title
         if original_text is not UNSET:
             field_dict["originalText"] = original_text
+        if substitutions is not UNSET:
+            field_dict["substitutions"] = substitutions
         if reference_id is not UNSET:
             field_dict["referenceId"] = reference_id
 
@@ -138,6 +150,9 @@ class RecipeIngredient:
         from ..models.ingredient_food import IngredientFood  # noqa: PLC0415
         from ..models.ingredient_unit import IngredientUnit  # noqa: PLC0415
         from ..models.recipe import Recipe  # noqa: PLC0415
+        from ..models.recipe_ingredient_substitution import (
+            RecipeIngredientSubstitution,
+        )
 
         d = dict(src_dict)
 
@@ -246,6 +261,15 @@ class RecipeIngredient:
 
         original_text = _parse_original_text(d.pop("originalText", UNSET))
 
+        _substitutions = d.pop("substitutions", UNSET)
+        substitutions: list[RecipeIngredientSubstitution] | Unset = UNSET
+        if _substitutions is not UNSET:
+            substitutions = []
+            for substitutions_item_data in _substitutions:
+                substitutions_item = RecipeIngredientSubstitution.from_dict(substitutions_item_data)
+
+                substitutions.append(substitutions_item)
+
         _reference_id = d.pop("referenceId", UNSET)
         reference_id: UUID | Unset
         if isinstance(_reference_id, Unset):
@@ -262,6 +286,7 @@ class RecipeIngredient:
             display=display,
             title=title,
             original_text=original_text,
+            substitutions=substitutions,
             reference_id=reference_id,
         )
 

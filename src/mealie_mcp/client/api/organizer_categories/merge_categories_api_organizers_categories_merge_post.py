@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_random_entry import CreateRandomEntry
+from ...models.category_merge import CategoryMerge
+from ...models.category_out import CategoryOut
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_plan_entry import ReadPlanEntry
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: CreateRandomEntry,
+    body: CategoryMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -22,7 +22,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/api/households/mealplans/random",
+        "url": "/api/organizers/categories/merge",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> CategoryOut | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = ReadPlanEntry.from_dict(response.json())
+        response_200 = CategoryOut.from_dict(response.json())
 
         return response_200
 
@@ -53,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[CategoryOut | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,28 +65,23 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateRandomEntry,
+    body: CategoryMerge,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
-    """Create Random Meal
+) -> Response[CategoryOut | HTTPValidationError]:
+    """Merge Categories
 
-     `create_random_meal` is a route that provides the randomized functionality for mealplaners.
-    It operates by following the rules set out in the household's mealplan settings. If no settings
-    are set, it will return any random meal.
-
-    Refer to the mealplan settings routes for more information on how rules can be applied
-    to the random meal selector.
+     Merges the from_id category into the to_id category, then deletes from_id.
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRandomEntry):
+        body (CategoryMerge):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[CategoryOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -104,28 +99,23 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: CreateRandomEntry,
+    body: CategoryMerge,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
-    """Create Random Meal
+) -> CategoryOut | HTTPValidationError | None:
+    """Merge Categories
 
-     `create_random_meal` is a route that provides the randomized functionality for mealplaners.
-    It operates by following the rules set out in the household's mealplan settings. If no settings
-    are set, it will return any random meal.
-
-    Refer to the mealplan settings routes for more information on how rules can be applied
-    to the random meal selector.
+     Merges the from_id category into the to_id category, then deletes from_id.
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRandomEntry):
+        body (CategoryMerge):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        CategoryOut | HTTPValidationError
     """
 
     return sync_detailed(
@@ -138,28 +128,23 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateRandomEntry,
+    body: CategoryMerge,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
-    """Create Random Meal
+) -> Response[CategoryOut | HTTPValidationError]:
+    """Merge Categories
 
-     `create_random_meal` is a route that provides the randomized functionality for mealplaners.
-    It operates by following the rules set out in the household's mealplan settings. If no settings
-    are set, it will return any random meal.
-
-    Refer to the mealplan settings routes for more information on how rules can be applied
-    to the random meal selector.
+     Merges the from_id category into the to_id category, then deletes from_id.
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRandomEntry):
+        body (CategoryMerge):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[CategoryOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -175,28 +160,23 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: CreateRandomEntry,
+    body: CategoryMerge,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
-    """Create Random Meal
+) -> CategoryOut | HTTPValidationError | None:
+    """Merge Categories
 
-     `create_random_meal` is a route that provides the randomized functionality for mealplaners.
-    It operates by following the rules set out in the household's mealplan settings. If no settings
-    are set, it will return any random meal.
-
-    Refer to the mealplan settings routes for more information on how rules can be applied
-    to the random meal selector.
+     Merges the from_id category into the to_id category, then deletes from_id.
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRandomEntry):
+        body (CategoryMerge):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        CategoryOut | HTTPValidationError
     """
 
     return (
