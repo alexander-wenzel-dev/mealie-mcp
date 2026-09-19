@@ -254,13 +254,12 @@ def test_merge_unit_moves_ingredients_and_deletes_the_source(
     sentinel_name: str,
     call_tool: Callable[[str, dict[str, object]], object],
 ) -> None:
-    """The merge repoints recipe ingredients and drops the source and its aliases.
+    """The merge repoints what used the source and drops it with its aliases.
 
-    The shopping list item is read before and after, so the claim that it keeps
-    the deleted id and resolves to no unit is observed as a change rather than
-    an absence. The merge runs through the wrapper because both arguments are
-    ids of the same type, where a swapped forward would delete the surviving
-    unit.
+    The shopping list item is read before and after, so the claim that it moves
+    to the target is observed as a change rather than an absence. The merge runs
+    through the wrapper because both arguments are ids of the same type, where a
+    swapped forward would delete the surviving unit.
     """
     source = recipes_units.create_unit(
         mealie_client, name=f"{sentinel_name}-source", aliases=[f"{sentinel_name}-source-alias"]
@@ -313,9 +312,9 @@ def test_merge_unit_moves_ingredients_and_deletes_the_source(
         survivor = recipes_units.get_unit(mealie_client, item_id=target_id)
         assert [alias["name"] for alias in survivor["aliases"]] == [f"{sentinel_name}-target-alias"]
 
-        stranded = _list_item(mealie_client, list_id, item_id)
-        assert stranded["unitId"] == source_id
-        assert stranded["unit"] is None
+        repointed = _list_item(mealie_client, list_id, item_id)
+        assert repointed["unitId"] == target_id
+        assert repointed["unit"]["id"] == target_id
     finally:
         if item_id is not None:
             with contextlib.suppress(ToolError):
