@@ -12,6 +12,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.ingredient_food_alias import IngredientFoodAlias
     from ..models.ingredient_food_output_extras_type_0 import IngredientFoodOutputExtrasType0
+    from ..models.ingredient_food_substitution import IngredientFoodSubstitution
     from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
 
 
@@ -29,6 +30,7 @@ class IngredientFoodOutput:
         extras (IngredientFoodOutputExtrasType0 | None | Unset):
         label_id (None | str | Unset):
         aliases (list[IngredientFoodAlias] | Unset):
+        substitutions (list[IngredientFoodSubstitution] | Unset):
         households_with_ingredient_food (list[str] | Unset):
         label (MultiPurposeLabelSummary | None | Unset):
         created_at (datetime.datetime | None | Unset):
@@ -42,6 +44,7 @@ class IngredientFoodOutput:
     extras: IngredientFoodOutputExtrasType0 | Unset | None = UNSET
     label_id: str | Unset | None = UNSET
     aliases: list[IngredientFoodAlias] | Unset = UNSET
+    substitutions: list[IngredientFoodSubstitution] | Unset = UNSET
     households_with_ingredient_food: list[str] | Unset = UNSET
     label: MultiPurposeLabelSummary | Unset | None = UNSET
     created_at: datetime.datetime | Unset | None = UNSET
@@ -86,6 +89,13 @@ class IngredientFoodOutput:
             for aliases_item_data in self.aliases:
                 aliases_item = aliases_item_data.to_dict()
                 aliases.append(aliases_item)
+
+        substitutions: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.substitutions, Unset):
+            substitutions = []
+            for substitutions_item_data in self.substitutions:
+                substitutions_item = substitutions_item_data.to_dict()
+                substitutions.append(substitutions_item)
 
         households_with_ingredient_food: list[str] | Unset = UNSET
         if not isinstance(self.households_with_ingredient_food, Unset):
@@ -133,6 +143,8 @@ class IngredientFoodOutput:
             field_dict["labelId"] = label_id
         if aliases is not UNSET:
             field_dict["aliases"] = aliases
+        if substitutions is not UNSET:
+            field_dict["substitutions"] = substitutions
         if households_with_ingredient_food is not UNSET:
             field_dict["householdsWithIngredientFood"] = households_with_ingredient_food
         if label is not UNSET:
@@ -149,6 +161,9 @@ class IngredientFoodOutput:
         from ..models.ingredient_food_alias import IngredientFoodAlias  # noqa: PLC0415
         from ..models.ingredient_food_output_extras_type_0 import (
             IngredientFoodOutputExtrasType0,
+        )
+        from ..models.ingredient_food_substitution import (
+            IngredientFoodSubstitution,
         )
         from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
 
@@ -202,6 +217,15 @@ class IngredientFoodOutput:
                 aliases_item = IngredientFoodAlias.from_dict(aliases_item_data)
 
                 aliases.append(aliases_item)
+
+        _substitutions = d.pop("substitutions", UNSET)
+        substitutions: list[IngredientFoodSubstitution] | Unset = UNSET
+        if _substitutions is not UNSET:
+            substitutions = []
+            for substitutions_item_data in _substitutions:
+                substitutions_item = IngredientFoodSubstitution.from_dict(substitutions_item_data)
+
+                substitutions.append(substitutions_item)
 
         households_with_ingredient_food = cast(
             list[str], d.pop("householdsWithIngredientFood", UNSET)
@@ -266,6 +290,7 @@ class IngredientFoodOutput:
             extras=extras,
             label_id=label_id,
             aliases=aliases,
+            substitutions=substitutions,
             households_with_ingredient_food=households_with_ingredient_food,
             label=label,
             created_at=created_at,

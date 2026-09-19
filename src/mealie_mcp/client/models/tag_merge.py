@@ -6,78 +6,51 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-T = TypeVar("T", bound="TagOut")
+T = TypeVar("T", bound="TagMerge")
 
 
 @_attrs_define
-class TagOut:
+class TagMerge:
     """
     Attributes:
-        name (str):
-        group_id (str):
-        id (str):
-        slug (str):
-        recipe_count (int | Unset):  Default: 0.
+        from_id (str):
+        to_id (str):
     """
 
-    name: str
-    group_id: str
-    id: str
-    slug: str
-    recipe_count: int | Unset = 0
+    from_id: str
+    to_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name = self.name
+        from_id = self.from_id
 
-        group_id = self.group_id
-
-        id = self.id
-
-        slug = self.slug
-
-        recipe_count = self.recipe_count
+        to_id = self.to_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "name": name,
-                "groupId": group_id,
-                "id": id,
-                "slug": slug,
+                "fromId": from_id,
+                "toId": to_id,
             }
         )
-        if recipe_count is not UNSET:
-            field_dict["recipeCount"] = recipe_count
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        name = d.pop("name")
+        from_id = d.pop("fromId")
 
-        group_id = d.pop("groupId")
+        to_id = d.pop("toId")
 
-        id = d.pop("id")
-
-        slug = d.pop("slug")
-
-        recipe_count = d.pop("recipeCount", UNSET)
-
-        tag_out = cls(
-            name=name,
-            group_id=group_id,
-            id=id,
-            slug=slug,
-            recipe_count=recipe_count,
+        tag_merge = cls(
+            from_id=from_id,
+            to_id=to_id,
         )
 
-        tag_out.additional_properties = d
-        return tag_out
+        tag_merge.additional_properties = d
+        return tag_merge
 
     @property
     def additional_keys(self) -> list[str]:

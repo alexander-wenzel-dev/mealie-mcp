@@ -1,48 +1,36 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
-from uuid import UUID
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="RecipeNote")
+T = TypeVar("T", bound="NoteReference")
 
 
 @_attrs_define
-class RecipeNote:
+class NoteReference:
     """
     Attributes:
-        title (str):
-        text (str):
-        reference_id (UUID | Unset):
+        reference_id (None | str | Unset):
     """
 
-    title: str
-    text: str
-    reference_id: UUID | Unset = UNSET
+    reference_id: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        title = self.title
-
-        text = self.text
-
-        reference_id: str | Unset = UNSET
-        if not isinstance(self.reference_id, Unset):
-            reference_id = str(self.reference_id)
+        reference_id: str | Unset | None
+        if isinstance(self.reference_id, Unset):
+            reference_id = UNSET
+        else:
+            reference_id = self.reference_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "title": title,
-                "text": text,
-            }
-        )
+        field_dict.update({})
         if reference_id is not UNSET:
             field_dict["referenceId"] = reference_id
 
@@ -51,25 +39,22 @@ class RecipeNote:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        title = d.pop("title")
 
-        text = d.pop("text")
+        def _parse_reference_id(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
 
-        _reference_id = d.pop("referenceId", UNSET)
-        reference_id: UUID | Unset
-        if isinstance(_reference_id, Unset):
-            reference_id = UNSET
-        else:
-            reference_id = UUID(_reference_id)
+        reference_id = _parse_reference_id(d.pop("referenceId", UNSET))
 
-        recipe_note = cls(
-            title=title,
-            text=text,
+        note_reference = cls(
             reference_id=reference_id,
         )
 
-        recipe_note.additional_properties = d
-        return recipe_note
+        note_reference.additional_properties = d
+        return note_reference
 
     @property
     def additional_keys(self) -> list[str]:

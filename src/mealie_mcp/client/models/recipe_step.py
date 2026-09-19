@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.ingredient_references import IngredientReferences
+    from ..models.note_reference import NoteReference
 
 
 T = TypeVar("T", bound="RecipeStep")
@@ -25,6 +26,7 @@ class RecipeStep:
         title (None | str | Unset):  Default: ''.
         summary (None | str | Unset):  Default: ''.
         ingredient_references (list[IngredientReferences] | Unset):
+        note_references (list[NoteReference] | Unset):
     """
 
     text: str
@@ -32,6 +34,7 @@ class RecipeStep:
     title: str | Unset | None = ""
     summary: str | Unset | None = ""
     ingredient_references: list[IngredientReferences] | Unset = UNSET
+    note_references: list[NoteReference] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,6 +67,13 @@ class RecipeStep:
                 ingredient_references_item = ingredient_references_item_data.to_dict()
                 ingredient_references.append(ingredient_references_item)
 
+        note_references: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.note_references, Unset):
+            note_references = []
+            for note_references_item_data in self.note_references:
+                note_references_item = note_references_item_data.to_dict()
+                note_references.append(note_references_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -79,12 +89,15 @@ class RecipeStep:
             field_dict["summary"] = summary
         if ingredient_references is not UNSET:
             field_dict["ingredientReferences"] = ingredient_references
+        if note_references is not UNSET:
+            field_dict["noteReferences"] = note_references
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ingredient_references import IngredientReferences  # noqa: PLC0415
+        from ..models.note_reference import NoteReference  # noqa: PLC0415
 
         d = dict(src_dict)
         text = d.pop("text")
@@ -135,12 +148,22 @@ class RecipeStep:
 
                 ingredient_references.append(ingredient_references_item)
 
+        _note_references = d.pop("noteReferences", UNSET)
+        note_references: list[NoteReference] | Unset = UNSET
+        if _note_references is not UNSET:
+            note_references = []
+            for note_references_item_data in _note_references:
+                note_references_item = NoteReference.from_dict(note_references_item_data)
+
+                note_references.append(note_references_item)
+
         recipe_step = cls(
             text=text,
             id=id,
             title=title,
             summary=summary,
             ingredient_references=ingredient_references,
+            note_references=note_references,
         )
 
         recipe_step.additional_properties = d

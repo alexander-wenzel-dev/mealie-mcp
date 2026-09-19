@@ -15,14 +15,18 @@ class CheckAppConfig:
     Attributes:
         email_ready (bool):
         ldap_ready (bool):
+        ldap_disabled (bool):
         oidc_ready (bool):
+        oidc_disabled (bool):
         base_url_set (bool):
         is_up_to_date (bool):
     """
 
     email_ready: bool
     ldap_ready: bool
+    ldap_disabled: bool
     oidc_ready: bool
+    oidc_disabled: bool
     base_url_set: bool
     is_up_to_date: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -32,7 +36,11 @@ class CheckAppConfig:
 
         ldap_ready = self.ldap_ready
 
+        ldap_disabled = self.ldap_disabled
+
         oidc_ready = self.oidc_ready
+
+        oidc_disabled = self.oidc_disabled
 
         base_url_set = self.base_url_set
 
@@ -44,7 +52,9 @@ class CheckAppConfig:
             {
                 "emailReady": email_ready,
                 "ldapReady": ldap_ready,
+                "ldapDisabled": ldap_disabled,
                 "oidcReady": oidc_ready,
+                "oidcDisabled": oidc_disabled,
                 "baseUrlSet": base_url_set,
                 "isUpToDate": is_up_to_date,
             }
@@ -59,7 +69,11 @@ class CheckAppConfig:
 
         ldap_ready = d.pop("ldapReady")
 
+        ldap_disabled = d.pop("ldapDisabled")
+
         oidc_ready = d.pop("oidcReady")
+
+        oidc_disabled = d.pop("oidcDisabled")
 
         base_url_set = d.pop("baseUrlSet")
 
@@ -68,7 +82,9 @@ class CheckAppConfig:
         check_app_config = cls(
             email_ready=email_ready,
             ldap_ready=ldap_ready,
+            ldap_disabled=ldap_disabled,
             oidc_ready=oidc_ready,
+            oidc_disabled=oidc_disabled,
             base_url_set=base_url_set,
             is_up_to_date=is_up_to_date,
         )

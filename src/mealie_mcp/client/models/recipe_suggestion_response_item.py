@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.ingredient_food_output import IngredientFoodOutput
+    from ..models.recipe_suggestion_substituted_food import RecipeSuggestionSubstitutedFood
     from ..models.recipe_summary import RecipeSummary
     from ..models.recipe_tool import RecipeTool
 
@@ -21,11 +22,13 @@ class RecipeSuggestionResponseItem:
     Attributes:
         recipe (RecipeSummary):
         missing_foods (list[IngredientFoodOutput]):
+        substituted_foods (list[RecipeSuggestionSubstitutedFood]):
         missing_tools (list[RecipeTool]):
     """
 
     recipe: RecipeSummary
     missing_foods: list[IngredientFoodOutput]
+    substituted_foods: list[RecipeSuggestionSubstitutedFood]
     missing_tools: list[RecipeTool]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -36,6 +39,11 @@ class RecipeSuggestionResponseItem:
         for missing_foods_item_data in self.missing_foods:
             missing_foods_item = missing_foods_item_data.to_dict()
             missing_foods.append(missing_foods_item)
+
+        substituted_foods = []
+        for substituted_foods_item_data in self.substituted_foods:
+            substituted_foods_item = substituted_foods_item_data.to_dict()
+            substituted_foods.append(substituted_foods_item)
 
         missing_tools = []
         for missing_tools_item_data in self.missing_tools:
@@ -48,6 +56,7 @@ class RecipeSuggestionResponseItem:
             {
                 "recipe": recipe,
                 "missingFoods": missing_foods,
+                "substitutedFoods": substituted_foods,
                 "missingTools": missing_tools,
             }
         )
@@ -57,6 +66,9 @@ class RecipeSuggestionResponseItem:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
+        from ..models.recipe_suggestion_substituted_food import (
+            RecipeSuggestionSubstitutedFood,
+        )
         from ..models.recipe_summary import RecipeSummary  # noqa: PLC0415
         from ..models.recipe_tool import RecipeTool  # noqa: PLC0415
 
@@ -70,6 +82,15 @@ class RecipeSuggestionResponseItem:
 
             missing_foods.append(missing_foods_item)
 
+        substituted_foods = []
+        _substituted_foods = d.pop("substitutedFoods")
+        for substituted_foods_item_data in _substituted_foods:
+            substituted_foods_item = RecipeSuggestionSubstitutedFood.from_dict(
+                substituted_foods_item_data
+            )
+
+            substituted_foods.append(substituted_foods_item)
+
         missing_tools = []
         _missing_tools = d.pop("missingTools")
         for missing_tools_item_data in _missing_tools:
@@ -80,6 +101,7 @@ class RecipeSuggestionResponseItem:
         recipe_suggestion_response_item = cls(
             recipe=recipe,
             missing_foods=missing_foods,
+            substituted_foods=substituted_foods,
             missing_tools=missing_tools,
         )
 

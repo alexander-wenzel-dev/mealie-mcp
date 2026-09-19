@@ -29,7 +29,7 @@ class RecipeTimelineEventOut:
         updated_at (datetime.datetime):
         event_message (None | str | Unset):
         image (None | TimelineEventImage | Unset):  Default: TimelineEventImage.DOES_NOT_HAVE_IMAGE.
-        timestamp (datetime.datetime | Unset):  Default: datetime.datetime.fromisoformat('2026-08-19T08:28:16.010343Z').
+        timestamp (datetime.datetime | Unset):
     """
 
     recipe_id: str
@@ -43,9 +43,7 @@ class RecipeTimelineEventOut:
     updated_at: datetime.datetime
     event_message: str | Unset | None = UNSET
     image: TimelineEventImage | Unset | None = TimelineEventImage.DOES_NOT_HAVE_IMAGE
-    timestamp: datetime.datetime | Unset = datetime.datetime.fromisoformat(
-        "2026-08-19T08:28:16.010343Z"
-    )
+    timestamp: datetime.datetime | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

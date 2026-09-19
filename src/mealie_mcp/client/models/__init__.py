@@ -10,6 +10,7 @@ from .ai_provider_out_requestparams import AIProviderOutRequestparams
 from .ai_provider_settings_out import AIProviderSettingsOut
 from .ai_provider_settings_update import AIProviderSettingsUpdate
 from .ai_provider_summary import AIProviderSummary
+from .ai_provider_test_result import AIProviderTestResult
 from .ai_provider_update import AIProviderUpdate
 from .ai_provider_update_requestheaders import AIProviderUpdateRequestheaders
 from .ai_provider_update_requestparams import AIProviderUpdateRequestparams
@@ -55,6 +56,7 @@ from .body_upload_recipe_asset_api_recipes_slug_assets_post import (
 )
 from .category_base import CategoryBase
 from .category_in import CategoryIn
+from .category_merge import CategoryMerge
 from .category_out import CategoryOut
 from .category_summary import CategorySummary
 from .change_password import ChangePassword
@@ -66,6 +68,7 @@ from .create_group_recipe_action import CreateGroupRecipeAction
 from .create_ingredient_food import CreateIngredientFood
 from .create_ingredient_food_alias import CreateIngredientFoodAlias
 from .create_ingredient_food_extras_type_0 import CreateIngredientFoodExtrasType0
+from .create_ingredient_food_substitution import CreateIngredientFoodSubstitution
 from .create_ingredient_unit import CreateIngredientUnit
 from .create_ingredient_unit_alias import CreateIngredientUnitAlias
 from .create_ingredient_unit_extras_type_0 import CreateIngredientUnitExtrasType0
@@ -123,6 +126,8 @@ from .ingredient_food_extras_type_0 import IngredientFoodExtrasType0
 from .ingredient_food_output import IngredientFoodOutput
 from .ingredient_food_output_extras_type_0 import IngredientFoodOutputExtrasType0
 from .ingredient_food_pagination import IngredientFoodPagination
+from .ingredient_food_substitution import IngredientFoodSubstitution
+from .ingredient_food_summary import IngredientFoodSummary
 from .ingredient_references import IngredientReferences
 from .ingredient_request import IngredientRequest
 from .ingredient_unit import IngredientUnit
@@ -148,6 +153,7 @@ from .multi_purpose_label_pagination import MultiPurposeLabelPagination
 from .multi_purpose_label_summary import MultiPurposeLabelSummary
 from .multi_purpose_label_update import MultiPurposeLabelUpdate
 from .native_oidc_token_request import NativeOIDCTokenRequest
+from .note_reference import NoteReference
 from .nutrition import Nutrition
 from .oidc_native_config import OIDCNativeConfig
 from .order_by_null_position import OrderByNullPosition
@@ -191,6 +197,7 @@ from .recipe_duplicate import RecipeDuplicate
 from .recipe_extras_type_0 import RecipeExtrasType0
 from .recipe_ingredient import RecipeIngredient
 from .recipe_ingredient_output import RecipeIngredientOutput
+from .recipe_ingredient_substitution import RecipeIngredientSubstitution
 from .recipe_last_made import RecipeLastMade
 from .recipe_note import RecipeNote
 from .recipe_output import RecipeOutput
@@ -202,6 +209,7 @@ from .recipe_share_token_summary import RecipeShareTokenSummary
 from .recipe_step import RecipeStep
 from .recipe_suggestion_response import RecipeSuggestionResponse
 from .recipe_suggestion_response_item import RecipeSuggestionResponseItem
+from .recipe_suggestion_substituted_food import RecipeSuggestionSubstitutedFood
 from .recipe_summary import RecipeSummary
 from .recipe_tag import RecipeTag
 from .recipe_tag_pagination import RecipeTagPagination
@@ -264,6 +272,7 @@ from .success_response import SuccessResponse
 from .supported_migrations import SupportedMigrations
 from .tag_base import TagBase
 from .tag_in import TagIn
+from .tag_merge import TagMerge
 from .tag_out import TagOut
 from .timeline_event_image import TimelineEventImage
 from .timeline_event_type import TimelineEventType
@@ -299,6 +308,7 @@ __all__ = (
     "AIProviderSettingsOut",
     "AIProviderSettingsUpdate",
     "AIProviderSummary",
+    "AIProviderTestResult",
     "AIProviderUpdate",
     "AIProviderUpdateRequestheaders",
     "AIProviderUpdateRequestparams",
@@ -327,6 +337,7 @@ __all__ = (
     "BodyUploadRecipeAssetApiRecipesSlugAssetsPost",
     "CategoryBase",
     "CategoryIn",
+    "CategoryMerge",
     "CategoryOut",
     "CategorySummary",
     "ChangePassword",
@@ -338,6 +349,7 @@ __all__ = (
     "CreateIngredientFood",
     "CreateIngredientFoodAlias",
     "CreateIngredientFoodExtrasType0",
+    "CreateIngredientFoodSubstitution",
     "CreateIngredientUnit",
     "CreateIngredientUnitAlias",
     "CreateIngredientUnitExtrasType0",
@@ -395,6 +407,8 @@ __all__ = (
     "IngredientFoodOutput",
     "IngredientFoodOutputExtrasType0",
     "IngredientFoodPagination",
+    "IngredientFoodSubstitution",
+    "IngredientFoodSummary",
     "IngredientReferences",
     "IngredientRequest",
     "IngredientUnit",
@@ -420,6 +434,7 @@ __all__ = (
     "MultiPurposeLabelSummary",
     "MultiPurposeLabelUpdate",
     "NativeOIDCTokenRequest",
+    "NoteReference",
     "Nutrition",
     "OIDCNativeConfig",
     "OrderByNullPosition",
@@ -463,6 +478,7 @@ __all__ = (
     "RecipeExtrasType0",
     "RecipeIngredient",
     "RecipeIngredientOutput",
+    "RecipeIngredientSubstitution",
     "RecipeLastMade",
     "RecipeNote",
     "RecipeOutput",
@@ -474,6 +490,7 @@ __all__ = (
     "RecipeStep",
     "RecipeSuggestionResponse",
     "RecipeSuggestionResponseItem",
+    "RecipeSuggestionSubstitutedFood",
     "RecipeSummary",
     "RecipeTag",
     "RecipeTagPagination",
@@ -536,6 +553,7 @@ __all__ = (
     "SupportedMigrations",
     "TagBase",
     "TagIn",
+    "TagMerge",
     "TagOut",
     "TimelineEventImage",
     "TimelineEventType",

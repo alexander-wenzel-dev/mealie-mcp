@@ -28,6 +28,7 @@ def _get_kwargs(
     max_missing_tools: int | Unset = 5,
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
+    include_substitutions: bool | Unset = True,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -102,6 +103,8 @@ def _get_kwargs(
 
     params["includeToolsOnHand"] = include_tools_on_hand
 
+    params["includeSubstitutions"] = include_substitutions
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
@@ -161,6 +164,7 @@ def sync_detailed(
     max_missing_tools: int | Unset = 5,
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
+    include_substitutions: bool | Unset = True,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeSuggestionResponse]:
     """Suggest Recipes
@@ -179,6 +183,7 @@ def sync_detailed(
         max_missing_tools (int | Unset):  Default: 5.
         include_foods_on_hand (bool | Unset):  Default: True.
         include_tools_on_hand (bool | Unset):  Default: True.
+        include_substitutions (bool | Unset):  Default: True.
         accept_language (None | str | Unset):
 
     Raises:
@@ -203,6 +208,7 @@ def sync_detailed(
         max_missing_tools=max_missing_tools,
         include_foods_on_hand=include_foods_on_hand,
         include_tools_on_hand=include_tools_on_hand,
+        include_substitutions=include_substitutions,
         accept_language=accept_language,
     )
 
@@ -229,6 +235,7 @@ def sync(
     max_missing_tools: int | Unset = 5,
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
+    include_substitutions: bool | Unset = True,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeSuggestionResponse | None:
     """Suggest Recipes
@@ -247,6 +254,7 @@ def sync(
         max_missing_tools (int | Unset):  Default: 5.
         include_foods_on_hand (bool | Unset):  Default: True.
         include_tools_on_hand (bool | Unset):  Default: True.
+        include_substitutions (bool | Unset):  Default: True.
         accept_language (None | str | Unset):
 
     Raises:
@@ -272,6 +280,7 @@ def sync(
         max_missing_tools=max_missing_tools,
         include_foods_on_hand=include_foods_on_hand,
         include_tools_on_hand=include_tools_on_hand,
+        include_substitutions=include_substitutions,
         accept_language=accept_language,
     ).parsed
 
@@ -292,6 +301,7 @@ async def asyncio_detailed(
     max_missing_tools: int | Unset = 5,
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
+    include_substitutions: bool | Unset = True,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | RecipeSuggestionResponse]:
     """Suggest Recipes
@@ -310,6 +320,7 @@ async def asyncio_detailed(
         max_missing_tools (int | Unset):  Default: 5.
         include_foods_on_hand (bool | Unset):  Default: True.
         include_tools_on_hand (bool | Unset):  Default: True.
+        include_substitutions (bool | Unset):  Default: True.
         accept_language (None | str | Unset):
 
     Raises:
@@ -334,6 +345,7 @@ async def asyncio_detailed(
         max_missing_tools=max_missing_tools,
         include_foods_on_hand=include_foods_on_hand,
         include_tools_on_hand=include_tools_on_hand,
+        include_substitutions=include_substitutions,
         accept_language=accept_language,
     )
 
@@ -358,6 +370,7 @@ async def asyncio(
     max_missing_tools: int | Unset = 5,
     include_foods_on_hand: bool | Unset = True,
     include_tools_on_hand: bool | Unset = True,
+    include_substitutions: bool | Unset = True,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | RecipeSuggestionResponse | None:
     """Suggest Recipes
@@ -376,6 +389,7 @@ async def asyncio(
         max_missing_tools (int | Unset):  Default: 5.
         include_foods_on_hand (bool | Unset):  Default: True.
         include_tools_on_hand (bool | Unset):  Default: True.
+        include_substitutions (bool | Unset):  Default: True.
         accept_language (None | str | Unset):
 
     Raises:
@@ -402,6 +416,7 @@ async def asyncio(
             max_missing_tools=max_missing_tools,
             include_foods_on_hand=include_foods_on_hand,
             include_tools_on_hand=include_tools_on_hand,
+            include_substitutions=include_substitutions,
             accept_language=accept_language,
         )
     ).parsed
