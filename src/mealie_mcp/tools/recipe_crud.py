@@ -485,7 +485,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Returns:
             A dict with ``items``, each carrying the matched ``recipe`` summary
-            plus its ``missingFoods`` and ``missingTools``.
+            plus its ``missingFoods``, ``missingTools`` and
+            ``substitutedFoods``. A substituted food names a food the recipe
+            calls for that is missing, and the food recorded as its stand-in.
         """
         return suggest_recipes(
             get_client(),
