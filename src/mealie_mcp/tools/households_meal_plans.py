@@ -1,6 +1,6 @@
 """Household meal plan tools.
 
-Mirrors `mealie_mcp.client.api.households_mealplans`. Exposes the per-entry
+Mirrors `mealie_mcp.client.api.households_meal_plans`. Exposes the per-entry
 lifecycle: list (paginated, date-range filtered), create, get, update, and
 delete, plus a read of today's plan and a server-picked random entry. Meal plan
 rules and the shopping helper are out of scope.
@@ -16,7 +16,7 @@ from uuid import UUID
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.api.households_mealplans import (
+from mealie_mcp.client.api.households_meal_plans import (
     create_one_api_households_mealplans_post,
     create_random_meal_api_households_mealplans_random_post,
     delete_one_api_households_mealplans_item_id_delete,
