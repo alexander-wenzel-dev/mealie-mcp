@@ -51,6 +51,21 @@ redirection is opened.
 
 The operator owns `.env`; the script never writes it directly.
 
+### Image downloads and `HTTP_ALLOW_LIST`
+
+Mealie refuses its own outgoing requests to a private or internal address
+unless `HTTP_ALLOW_LIST` names the host. The recipe image live tests ask
+Mealie to fetch an icon it serves itself, so the container this script
+boots sets `HTTP_ALLOW_LIST=localhost,127.0.0.1/32`. That covers the
+default port only: on `--port 9001` the emitted `MEALIE_BASE_URL` names a
+port nothing listens on inside the container, and those two tests fail on
+the connection instead.
+
+A Mealie you run yourself needs the same variable set to the host in your
+`MEALIE_BASE_URL`, or `test_set_recipe_image_from_url_changes_image` and
+`test_delete_recipe_image_removes_image` fail with "Image could not be
+downloaded".
+
 ### Stopping the container
 
 ```
