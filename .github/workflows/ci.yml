@@ -93,6 +93,10 @@ jobs:
     services:
       mealie:
         image: ghcr.io/mealie-recipes/mealie:${{ needs.resolve-spec.outputs.tag }}
+        env:
+          # The image tests hand Mealie its own base URL, which it otherwise
+          # refuses as an internal address.
+          HTTP_ALLOW_LIST: localhost,127.0.0.1/32
         ports:
           - 9000:9000
         options: >-
