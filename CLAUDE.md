@@ -99,6 +99,8 @@ The generator does not runtime-validate response bodies. Its `_parse_response` f
 
 The operator owns the Mealie test instance and the `.env` file. They copy `.env.example` to `.env` and fill in real values. The agent does not provision the instance, create or edit `.env`, ask for credential values, or paste them into the conversation. Unit tests run regardless of `.env` presence.
 
+Mealie refuses its own outgoing requests to a private or internal address unless `HTTP_ALLOW_LIST` names the host. The recipe image tests hand Mealie its own base URL, so they need that variable set on any instance that is not on the public internet. The CI service container sets it, and so does `scripts/mealie-up` on its default port; on a non-default port the emitted base URL names a port nothing listens on inside the container, and the image tests fail on the connection rather than the allow list. On the operator's instance the operator sets it.
+
 When live tests are part of the work, the agent picks a path by precondition, in this order:
 
 1. (autonomous) `MEALIE_BASE_URL` and `MEALIE_API_TOKEN` are already in the process environment if `GITHUB_ACTIONS=true` is set. Run `pytest -m live` directly. Mealie is provided by the surrounding context. Do not bootstrap and do not read `.env`.
