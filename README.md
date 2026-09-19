@@ -36,9 +36,10 @@ Once registered, you ask in plain language and the assistant picks the matching 
 - Python 3.14
 - [uv](https://docs.astral.sh/uv/)
 - A reachable Mealie instance and a Mealie API token
-- Mealie v3.23.0 or newer. The client is generated from the v3.23.1 OpenAPI
-  spec, and `mealie_set_recipe_image_from_url` reads a response body that
-  older Mealie versions do not send.
+- Mealie v3.26.0 or newer. The client is generated from the v3.27.0 OpenAPI
+  spec. On an older Mealie, merging a food or a unit strands the shopping list
+  items that used it, and two meal plan rules filtering one slot match no
+  recipe at all.
 
 ## Install
 
@@ -240,8 +241,8 @@ The server exposes 101 tools across 16 groups, one per Mealie OpenAPI tag. New g
 
 | Group                            | Coverage                                                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `households_mealplans`           | Create, read, list, update, and delete meal plan entries; get today's plan and add a server-picked random entry. |
-| `households_mealplan_rules`      | Create, read, list, update, and delete meal plan rules.                                                          |
+| `households_meal_plans`          | Create, read, list, update, and delete meal plan entries; get today's plan and add a server-picked random entry. |
+| `households_meal_plan_rules`     | Create, read, list, update, and delete meal plan rules.                                                          |
 | `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients, one recipe or several. |
 | `households_shopping_list_items` | List, add, update, and delete shopping list items, one at a time or several in one call, with food, unit, and label links. |
 | `households_cookbooks`           | Create, read, list, update, and delete cookbooks.                                                                |

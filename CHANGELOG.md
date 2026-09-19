@@ -6,6 +6,33 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The pinned Mealie OpenAPI spec moved from v3.23.1 to v3.27.0.
+- The supported Mealie floor is v3.26.0. Below it, merging a food or a unit
+  strands the shopping list items that used it, and two meal plan rules
+  filtering one slot match no recipe.
+- `mealie_suggest_recipes` items carry a `substitutedFoods` list naming each
+  missing food and the food that stands in for it, and the tool documents it.
+  Mealie fills the list from the substitutions recorded on a food, and sends it
+  because its `includeSubstitutions` parameter defaults to true server-side.
+
+### Fixed
+
+- The six list-returning tools declare `list[dict[str, Any]]`, so FastMCP
+  derives an output schema for them again and their results come back as
+  structured content.
+- `mealie_merge_food` and `mealie_merge_unit` now state that a shopping list
+  item on the source moves to the target. Mealie repoints it from v3.25.0
+  instead of leaving it on the deleted id.
+- `mealie_create_mealplan_rule` now states that a slot whose rules together
+  match no recipe fails with a 404. Two filters on `tags.name` matched nothing
+  at all before Mealie v3.26.0; from that version they select the recipes
+  carrying both tags.
+- `mealie_set_recipe_image_from_url` now states that Mealie refuses a URL
+  resolving to a private or internal address unless its `HTTP_ALLOW_LIST`
+  names the host. That check arrived in Mealie v3.26.0.
+
 ## [0.4.0] - 2026-08-21
 
 ### Changed
