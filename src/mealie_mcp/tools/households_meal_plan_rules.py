@@ -1,6 +1,6 @@
 """Household meal plan rule tools.
 
-Mirrors `mealie_mcp.client.api.households_mealplan_rules`. Exposes CRUD for the
+Mirrors `mealie_mcp.client.api.households_meal_plan_rules`. Exposes CRUD for the
 rules that bias Mealie's random meal selection: for a given day and entry type, a
 rule constrains the pick with an opaque filter DSL. A rule with ``day`` or
 ``entry_type`` left as ``unset`` applies to any day or any type. Every rule
@@ -20,7 +20,7 @@ from typing import Any, Literal
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
-from mealie_mcp.client.api.households_mealplan_rules import (
+from mealie_mcp.client.api.households_meal_plan_rules import (
     create_one_api_households_mealplans_rules_post,
     delete_one_api_households_mealplans_rules_item_id_delete,
     get_all_api_households_mealplans_rules_get,

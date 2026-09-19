@@ -23,8 +23,8 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.tools import (
-    households_mealplan_rules,
-    households_mealplans,
+    households_meal_plan_rules,
+    households_meal_plans,
     organizer_tags,
     recipe_bulk_actions,
     recipe_crud,
@@ -39,7 +39,7 @@ def test_mealplan_rule_lifecycle(
     query_filter_string = f'tags.name CONTAINS ALL ["{sentinel_name}"]'
     rule_id: str | None = None
     try:
-        created = households_mealplan_rules.create_mealplan_rule(
+        created = households_meal_plan_rules.create_mealplan_rule(
             mealie_client,
             day="monday",
             entry_type="dinner",
@@ -51,57 +51,57 @@ def test_mealplan_rule_lifecycle(
         assert created["entryType"] == "dinner"
         assert created["queryFilterString"] == query_filter_string
 
-        fetched = households_mealplan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
+        fetched = households_meal_plan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
         assert fetched["day"] == "monday"
         assert fetched["entryType"] == "dinner"
         assert fetched["queryFilterString"] == query_filter_string
 
-        listing = households_mealplan_rules.list_mealplan_rules(mealie_client, per_page=100)
+        listing = households_meal_plan_rules.list_mealplan_rules(mealie_client, per_page=100)
         assert any(item["id"] == rule_id for item in listing["items"])
 
         # Update only the day. The entry type and filter are not supplied, so
         # fetch-then-merge must preserve them rather than reset them to defaults.
-        updated = households_mealplan_rules.update_mealplan_rule(
+        updated = households_meal_plan_rules.update_mealplan_rule(
             mealie_client, item_id=rule_id, day="friday"
         )
         assert updated["day"] == "friday"
         assert updated["entryType"] == "dinner"
         assert updated["queryFilterString"] == query_filter_string
 
-        refetched = households_mealplan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
+        refetched = households_meal_plan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
         assert refetched["day"] == "friday"
         assert refetched["entryType"] == "dinner"
         assert refetched["queryFilterString"] == query_filter_string
 
-        ack = households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+        ack = households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
         assert ack == {"id": rule_id, "deleted": True}
         deleted_id, rule_id = rule_id, None
 
         with pytest.raises(ToolError, match=r"Mealie get_mealplan_rule failed \(404"):
-            households_mealplan_rules.get_mealplan_rule(mealie_client, item_id=deleted_id)
+            households_meal_plan_rules.get_mealplan_rule(mealie_client, item_id=deleted_id)
     finally:
         if rule_id is not None:
             with contextlib.suppress(ToolError):
-                households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+                households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
 
 
 @pytest.mark.live
 def test_create_mealplan_rule_defaults_to_any_day_and_type(
     mealie_client: AuthenticatedClient,
 ) -> None:
-    created = households_mealplan_rules.create_mealplan_rule(mealie_client)
+    created = households_meal_plan_rules.create_mealplan_rule(mealie_client)
     rule_id = created["id"]
     try:
         # Omitting day and entry_type stores Mealie's "unset" sentinel, meaning
         # the rule applies to any day and any meal type.
         assert created["day"] == "unset"
         assert created["entryType"] == "unset"
-        fetched = households_mealplan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
+        fetched = households_meal_plan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
         assert fetched["day"] == "unset"
         assert fetched["entryType"] == "unset"
     finally:
         with contextlib.suppress(ToolError):
-            households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+            households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
 
 
 @pytest.fixture
@@ -148,18 +148,18 @@ def test_rules_matching_one_slot_intersect_rather_than_override(
     rule_ids: list[str] = []
 
     def draw(date: dt.date) -> str:
-        created = households_mealplans.create_random_mealplan(
+        created = households_meal_plans.create_random_mealplan(
             mealie_client, date=date.isoformat(), entry_type="dinner"
         )
         entry_ids.append(created["id"])
         return created["recipeId"]
 
     try:
-        any_day = households_mealplan_rules.create_mealplan_rule(
+        any_day = households_meal_plan_rules.create_mealplan_rule(
             mealie_client, day="unset", entry_type="dinner", query_filter_string=filter_a
         )
         rule_ids.append(any_day["id"])
-        monday_only = households_mealplan_rules.create_mealplan_rule(
+        monday_only = households_meal_plan_rules.create_mealplan_rule(
             mealie_client,
             day="monday",
             entry_type="dinner",
@@ -182,9 +182,9 @@ def test_rules_matching_one_slot_intersect_rather_than_override(
 
         # The same requirement written as one filter is satisfiable, which is the
         # shape the tool docstring tells callers to use instead of stacking rules.
-        households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=monday_only["id"])
+        households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=monday_only["id"])
         rule_ids.remove(monday_only["id"])
-        households_mealplan_rules.update_mealplan_rule(
+        households_meal_plan_rules.update_mealplan_rule(
             mealie_client,
             item_id=any_day["id"],
             query_filter_string=f'tags.name CONTAINS ALL ["{tag_a}","{tag_b}"]',
@@ -197,10 +197,10 @@ def test_rules_matching_one_slot_intersect_rather_than_override(
     finally:
         for entry_id in entry_ids:
             with contextlib.suppress(ToolError):
-                households_mealplans.delete_mealplan(mealie_client, item_id=entry_id)
+                households_meal_plans.delete_mealplan(mealie_client, item_id=entry_id)
         for rule_id in rule_ids:
             with contextlib.suppress(ToolError):
-                households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+                households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
 
 
 @pytest.mark.live

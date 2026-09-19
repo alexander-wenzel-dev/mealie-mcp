@@ -87,7 +87,7 @@ An update tool's body shape depends on the endpoint's HTTP method and on whether
 
 3. PUT endpoint where the update model has fields the tool does not expose means fetch-then-merge. A PUT replaces the resource: any field absent from the body resets to its schema default on the server, so send the full current resource with the caller's edits applied, never a sparse body. Two constructions:
    - `from_dict` merge when the model can absorb the fetched resource, as in `update_shopping_list` (`households_shopping_lists.py`).
-   - hand-construction when the update model has required structural fields `from_dict` cannot default, as in `update_mealplan`, which builds `UpdatePlanEntry` field by field (`households_mealplans.py`).
+   - hand-construction when the update model has required structural fields `from_dict` cannot default, as in `update_mealplan`, which builds `UpdatePlanEntry` field by field (`households_meal_plans.py`).
 
 A PUT tool that builds a sparse body silently resets every unexposed field. Its live test must prove the merge holds; see the clobber rule in the live-test rubric.
 

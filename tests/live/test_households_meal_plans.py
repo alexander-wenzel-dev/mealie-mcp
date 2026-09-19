@@ -21,7 +21,7 @@ import pytest
 from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.tools import households_mealplan_rules, households_mealplans, recipe_crud
+from mealie_mcp.tools import households_meal_plan_rules, households_meal_plans, recipe_crud
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ def created_mealplan(
     """Schedule a sentinel meal plan entry referencing the recipe and tear it down."""
     plan_date = dt.date(2030, 1, 1)
     title = sentinel_name
-    created = households_mealplans.create_mealplan(
+    created = households_meal_plans.create_mealplan(
         mealie_client,
         date=plan_date.isoformat(),
         recipe_id=created_recipe["id"],
@@ -65,7 +65,7 @@ def created_mealplan(
         }
     finally:
         with contextlib.suppress(ToolError):
-            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -80,13 +80,13 @@ def test_mealplan_lifecycle(
     title = created_mealplan["title"]
     note = f"{sentinel_name}-note"
 
-    fetched = households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+    fetched = households_meal_plans.get_mealplan(mealie_client, item_id=item_id)
     assert fetched["id"] == item_id
     assert fetched["recipeId"] == recipe_id
     assert fetched["title"] == title
     assert fetched["entryType"] == "dinner"
 
-    listing = households_mealplans.list_mealplans(
+    listing = households_meal_plans.list_mealplans(
         mealie_client,
         start_date=plan_date.isoformat(),
         end_date=plan_date.isoformat(),
@@ -95,7 +95,7 @@ def test_mealplan_lifecycle(
     assert any(entry["id"] == item_id for entry in listing["items"])
 
     # An entry outside the requested range must not appear.
-    other_day = households_mealplans.list_mealplans(
+    other_day = households_meal_plans.list_mealplans(
         mealie_client,
         start_date=(plan_date + dt.timedelta(days=1)).isoformat(),
         end_date=(plan_date + dt.timedelta(days=1)).isoformat(),
@@ -105,7 +105,7 @@ def test_mealplan_lifecycle(
 
     # Update only the note. The recipe link, title, and entry_type are not
     # supplied, so they must be preserved by fetch-then-merge rather than reset.
-    updated = households_mealplans.update_mealplan(mealie_client, item_id=item_id, text=note)
+    updated = households_meal_plans.update_mealplan(mealie_client, item_id=item_id, text=note)
     assert updated["text"] == note
     assert updated["recipeId"] == recipe_id
     assert updated["title"] == title
@@ -113,7 +113,7 @@ def test_mealplan_lifecycle(
 
     # A supplied field changes; the date moves and the recipe link still holds.
     new_date = plan_date + dt.timedelta(days=2)
-    moved = households_mealplans.update_mealplan(
+    moved = households_meal_plans.update_mealplan(
         mealie_client, item_id=item_id, date=new_date.isoformat(), entry_type="lunch"
     )
     assert moved["date"] == new_date.isoformat()
@@ -121,11 +121,11 @@ def test_mealplan_lifecycle(
     assert moved["text"] == note
     assert moved["recipeId"] == recipe_id
 
-    ack = households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+    ack = households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
     assert ack == {"id": str(item_id), "deleted": True}
 
     with pytest.raises(ToolError, match=r"Mealie get_mealplan failed \(404"):
-        households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+        households_meal_plans.get_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -138,13 +138,13 @@ def test_todays_mealplan_lists_todays_entry(
     # server share a clock in CI, so a UTC date matches; a midnight boundary or
     # a server on a different time zone is a known edge.
     today = dt.datetime.now(tz=dt.UTC).date()
-    todays_entry = households_mealplans.create_mealplan(
+    todays_entry = households_meal_plans.create_mealplan(
         mealie_client,
         date=today.isoformat(),
         title=sentinel_name,
         entry_type="dinner",
     )
-    other_entry = households_mealplans.create_mealplan(
+    other_entry = households_meal_plans.create_mealplan(
         mealie_client,
         date=dt.date(2030, 1, 1).isoformat(),
         title=sentinel_name,
@@ -162,7 +162,7 @@ def test_todays_mealplan_lists_todays_entry(
     finally:
         for item_id in (todays_id, other_id):
             with contextlib.suppress(ToolError):
-                households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+                households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -201,17 +201,17 @@ def test_create_mealplan_defaults_to_breakfast(
     # its own slot. The sibling random tool seeds a different one, so pinning
     # this value catches a docstring that names the wrong default.
     plan_date = dt.date(2030, 1, 4).isoformat()
-    created = households_mealplans.create_mealplan(
+    created = households_meal_plans.create_mealplan(
         mealie_client, date=plan_date, recipe_id=created_recipe["id"]
     )
     item_id = created["id"]
     try:
         assert created["entryType"] == "breakfast"
-        fetched = households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+        fetched = households_meal_plans.get_mealplan(mealie_client, item_id=item_id)
         assert fetched["entryType"] == "breakfast"
     finally:
         with contextlib.suppress(ToolError):
-            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -220,15 +220,15 @@ def test_create_random_mealplan_defaults_to_dinner(
     mealie_client: AuthenticatedClient,
 ) -> None:
     plan_date = dt.date(2030, 1, 5).isoformat()
-    created = households_mealplans.create_random_mealplan(mealie_client, date=plan_date)
+    created = households_meal_plans.create_random_mealplan(mealie_client, date=plan_date)
     item_id = created["id"]
     try:
         assert created["entryType"] == "dinner"
-        fetched = households_mealplans.get_mealplan(mealie_client, item_id=item_id)
+        fetched = households_meal_plans.get_mealplan(mealie_client, item_id=item_id)
         assert fetched["entryType"] == "dinner"
     finally:
         with contextlib.suppress(ToolError):
-            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -242,7 +242,7 @@ def test_create_random_mealplan_fails_when_the_matching_rule_filters_everything_
     # narrows the candidate set to nothing. Mealie rejects rather than widening
     # the pick back to the full recipe list.
     plan_date = dt.date(2030, 1, 6)
-    rule = households_mealplan_rules.create_mealplan_rule(
+    rule = households_meal_plan_rules.create_mealplan_rule(
         mealie_client,
         day=plan_date.strftime("%A").lower(),
         entry_type="snack",
@@ -253,15 +253,15 @@ def test_create_random_mealplan_fails_when_the_matching_rule_filters_everything_
     created: dict[str, Any] | None = None
     try:
         with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
-            created = households_mealplans.create_random_mealplan(
+            created = households_meal_plans.create_random_mealplan(
                 mealie_client, date=plan_date.isoformat(), entry_type="snack"
             )
     finally:
         if created is not None:
             with contextlib.suppress(ToolError):
-                households_mealplans.delete_mealplan(mealie_client, item_id=created["id"])
+                households_meal_plans.delete_mealplan(mealie_client, item_id=created["id"])
         with contextlib.suppress(ToolError):
-            households_mealplan_rules.delete_mealplan_rule(mealie_client, item_id=rule["id"])
+            households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule["id"])
 
 
 @pytest.mark.live
@@ -286,4 +286,4 @@ def test_create_random_mealplan_picks_a_recipe(
         assert created["recipeId"] is not None
     finally:
         with contextlib.suppress(ToolError):
-            households_mealplans.delete_mealplan(mealie_client, item_id=item_id)
+            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
