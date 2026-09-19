@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class PlanRulesDay(str, Enum):
+class PlanRulesDay(StrEnum):
     FRIDAY = "friday"
     MONDAY = "monday"
     SATURDAY = "saturday"

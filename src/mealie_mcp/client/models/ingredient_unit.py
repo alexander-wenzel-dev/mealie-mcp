@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.ingredient_unit_extras_type_0 import IngredientUnitExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.ingredient_unit_alias import IngredientUnitAlias
+    from ..models.ingredient_unit_extras_type_0 import IngredientUnitExtrasType0
 
 
 T = TypeVar("T", bound="IngredientUnit")
@@ -25,7 +25,7 @@ class IngredientUnit:
         name (str):
         plural_name (None | str | Unset):
         description (str | Unset):  Default: ''.
-        extras (IngredientUnitExtrasType0 | None | Unset):  Default: IngredientUnitExtrasType0().
+        extras (IngredientUnitExtrasType0 | None | Unset):
         fraction (bool | Unset):  Default: True.
         abbreviation (str | Unset):  Default: ''.
         plural_abbreviation (None | str | Unset):  Default: ''.
@@ -41,7 +41,7 @@ class IngredientUnit:
     name: str
     plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: IngredientUnitExtrasType0 | Unset | None = IngredientUnitExtrasType0()
+    extras: IngredientUnitExtrasType0 | Unset | None = UNSET
     fraction: bool | Unset = True
     abbreviation: str | Unset = ""
     plural_abbreviation: str | Unset | None = ""
@@ -54,6 +54,10 @@ class IngredientUnit:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.ingredient_unit_extras_type_0 import (
+            IngredientUnitExtrasType0,
+        )
+
         id = self.id
 
         name = self.name
@@ -158,7 +162,10 @@ class IngredientUnit:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_unit_alias import IngredientUnitAlias
+        from ..models.ingredient_unit_alias import IngredientUnitAlias  # noqa: PLC0415
+        from ..models.ingredient_unit_extras_type_0 import (
+            IngredientUnitExtrasType0,
+        )
 
         d = dict(src_dict)
         id = d.pop("id")

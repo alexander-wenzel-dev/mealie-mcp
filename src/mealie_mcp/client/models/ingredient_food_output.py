@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.ingredient_food_output_extras_type_0 import IngredientFoodOutputExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.ingredient_food_alias import IngredientFoodAlias
+    from ..models.ingredient_food_output_extras_type_0 import IngredientFoodOutputExtrasType0
     from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
 
 
@@ -26,7 +26,7 @@ class IngredientFoodOutput:
         name (str):
         plural_name (None | str | Unset):
         description (str | Unset):  Default: ''.
-        extras (IngredientFoodOutputExtrasType0 | None | Unset):  Default: IngredientFoodOutputExtrasType0().
+        extras (IngredientFoodOutputExtrasType0 | None | Unset):
         label_id (None | str | Unset):
         aliases (list[IngredientFoodAlias] | Unset):
         households_with_ingredient_food (list[str] | Unset):
@@ -39,7 +39,7 @@ class IngredientFoodOutput:
     name: str
     plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: IngredientFoodOutputExtrasType0 | Unset | None = IngredientFoodOutputExtrasType0()
+    extras: IngredientFoodOutputExtrasType0 | Unset | None = UNSET
     label_id: str | Unset | None = UNSET
     aliases: list[IngredientFoodAlias] | Unset = UNSET
     households_with_ingredient_food: list[str] | Unset = UNSET
@@ -49,7 +49,10 @@ class IngredientFoodOutput:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
+        from ..models.ingredient_food_output_extras_type_0 import (
+            IngredientFoodOutputExtrasType0,
+        )
+        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
 
         id = self.id
 
@@ -143,8 +146,11 @@ class IngredientFoodOutput:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_food_alias import IngredientFoodAlias
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
+        from ..models.ingredient_food_alias import IngredientFoodAlias  # noqa: PLC0415
+        from ..models.ingredient_food_output_extras_type_0 import (
+            IngredientFoodOutputExtrasType0,
+        )
+        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         id = d.pop("id")

@@ -46,7 +46,7 @@ class AllBackups:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.backup_file import BackupFile
+        from ..models.backup_file import BackupFile  # noqa: PLC0415
 
         d = dict(src_dict)
         imports = []

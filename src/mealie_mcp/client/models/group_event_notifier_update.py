@@ -81,7 +81,7 @@ class GroupEventNotifierUpdate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.group_event_notifier_options import GroupEventNotifierOptions
+        from ..models.group_event_notifier_options import GroupEventNotifierOptions  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")

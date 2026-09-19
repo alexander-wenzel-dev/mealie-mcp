@@ -69,7 +69,7 @@ class RecipeCommentOutOutput:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.user_base import UserBase
+        from ..models.user_base import UserBase  # noqa: PLC0415
 
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")

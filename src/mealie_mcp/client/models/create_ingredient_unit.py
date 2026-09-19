@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.create_ingredient_unit_extras_type_0 import CreateIngredientUnitExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.create_ingredient_unit_alias import CreateIngredientUnitAlias
+    from ..models.create_ingredient_unit_extras_type_0 import CreateIngredientUnitExtrasType0
 
 
 T = TypeVar("T", bound="CreateIngredientUnit")
@@ -24,7 +24,7 @@ class CreateIngredientUnit:
         id (None | str | Unset):
         plural_name (None | str | Unset):
         description (str | Unset):  Default: ''.
-        extras (CreateIngredientUnitExtrasType0 | None | Unset):  Default: CreateIngredientUnitExtrasType0().
+        extras (CreateIngredientUnitExtrasType0 | None | Unset):
         fraction (bool | Unset):  Default: True.
         abbreviation (str | Unset):  Default: ''.
         plural_abbreviation (None | str | Unset):  Default: ''.
@@ -38,7 +38,7 @@ class CreateIngredientUnit:
     id: str | Unset | None = UNSET
     plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: CreateIngredientUnitExtrasType0 | Unset | None = CreateIngredientUnitExtrasType0()
+    extras: CreateIngredientUnitExtrasType0 | Unset | None = UNSET
     fraction: bool | Unset = True
     abbreviation: str | Unset = ""
     plural_abbreviation: str | Unset | None = ""
@@ -49,6 +49,10 @@ class CreateIngredientUnit:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.create_ingredient_unit_extras_type_0 import (
+            CreateIngredientUnitExtrasType0,
+        )
+
         name = self.name
 
         id: str | Unset | None
@@ -138,7 +142,10 @@ class CreateIngredientUnit:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_ingredient_unit_alias import CreateIngredientUnitAlias
+        from ..models.create_ingredient_unit_alias import CreateIngredientUnitAlias  # noqa: PLC0415
+        from ..models.create_ingredient_unit_extras_type_0 import (
+            CreateIngredientUnitExtrasType0,
+        )
 
         d = dict(src_dict)
         name = d.pop("name")

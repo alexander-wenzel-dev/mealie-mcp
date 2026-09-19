@@ -46,7 +46,7 @@ class AssignCategories:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.category_base import CategoryBase
+        from ..models.category_base import CategoryBase  # noqa: PLC0415
 
         d = dict(src_dict)
         recipes = cast(list[str], d.pop("recipes"))

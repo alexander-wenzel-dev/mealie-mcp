@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ExportTypes(str, Enum):
+class ExportTypes(StrEnum):
     JSON = "json"
 
     def __str__(self) -> str:

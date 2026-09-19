@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimelineEventImage(str, Enum):
+class TimelineEventImage(StrEnum):
     DOES_NOT_HAVE_IMAGE = "does not have image"
     HAS_IMAGE = "has image"
 

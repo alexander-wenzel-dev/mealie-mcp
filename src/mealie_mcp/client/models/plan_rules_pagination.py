@@ -87,7 +87,7 @@ class PlanRulesPagination:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.plan_rules_out import PlanRulesOut
+        from ..models.plan_rules_out import PlanRulesOut  # noqa: PLC0415
 
         d = dict(src_dict)
         items = []

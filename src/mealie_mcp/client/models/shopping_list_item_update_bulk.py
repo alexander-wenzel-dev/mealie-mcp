@@ -6,9 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.shopping_list_item_update_bulk_extras_type_0 import (
-    ShoppingListItemUpdateBulkExtrasType0,
-)
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -19,6 +16,9 @@ if TYPE_CHECKING:
     from ..models.recipe import Recipe
     from ..models.shopping_list_item_recipe_ref_create import ShoppingListItemRecipeRefCreate
     from ..models.shopping_list_item_recipe_ref_update import ShoppingListItemRecipeRefUpdate
+    from ..models.shopping_list_item_update_bulk_extras_type_0 import (
+        ShoppingListItemUpdateBulkExtrasType0,
+    )
 
 
 T = TypeVar("T", bound="ShoppingListItemUpdateBulk")
@@ -42,8 +42,7 @@ class ShoppingListItemUpdateBulk:
         food_id (None | str | Unset):
         label_id (None | str | Unset):
         unit_id (None | str | Unset):
-        extras (None | ShoppingListItemUpdateBulkExtrasType0 | Unset):  Default:
-            ShoppingListItemUpdateBulkExtrasType0().
+        extras (None | ShoppingListItemUpdateBulkExtrasType0 | Unset):
         recipe_references (list[ShoppingListItemRecipeRefCreate | ShoppingListItemRecipeRefUpdate] | Unset):
     """
 
@@ -60,21 +59,24 @@ class ShoppingListItemUpdateBulk:
     food_id: str | Unset | None = UNSET
     label_id: str | Unset | None = UNSET
     unit_id: str | Unset | None = UNSET
-    extras: ShoppingListItemUpdateBulkExtrasType0 | Unset | None = (
-        ShoppingListItemUpdateBulkExtrasType0()
-    )
+    extras: ShoppingListItemUpdateBulkExtrasType0 | Unset | None = UNSET
     recipe_references: (
         list[ShoppingListItemRecipeRefCreate | ShoppingListItemRecipeRefUpdate] | Unset
     ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_ingredient_food import CreateIngredientFood
-        from ..models.create_ingredient_unit import CreateIngredientUnit
-        from ..models.ingredient_food import IngredientFood
-        from ..models.ingredient_unit import IngredientUnit
-        from ..models.recipe import Recipe
-        from ..models.shopping_list_item_recipe_ref_create import ShoppingListItemRecipeRefCreate
+        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
+        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
+        from ..models.ingredient_food import IngredientFood  # noqa: PLC0415
+        from ..models.ingredient_unit import IngredientUnit  # noqa: PLC0415
+        from ..models.recipe import Recipe  # noqa: PLC0415
+        from ..models.shopping_list_item_recipe_ref_create import (
+            ShoppingListItemRecipeRefCreate,
+        )
+        from ..models.shopping_list_item_update_bulk_extras_type_0 import (
+            ShoppingListItemUpdateBulkExtrasType0,
+        )
 
         shopping_list_id = self.shopping_list_id
 
@@ -195,13 +197,20 @@ class ShoppingListItemUpdateBulk:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_ingredient_food import CreateIngredientFood
-        from ..models.create_ingredient_unit import CreateIngredientUnit
-        from ..models.ingredient_food import IngredientFood
-        from ..models.ingredient_unit import IngredientUnit
-        from ..models.recipe import Recipe
-        from ..models.shopping_list_item_recipe_ref_create import ShoppingListItemRecipeRefCreate
-        from ..models.shopping_list_item_recipe_ref_update import ShoppingListItemRecipeRefUpdate
+        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
+        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
+        from ..models.ingredient_food import IngredientFood  # noqa: PLC0415
+        from ..models.ingredient_unit import IngredientUnit  # noqa: PLC0415
+        from ..models.recipe import Recipe  # noqa: PLC0415
+        from ..models.shopping_list_item_recipe_ref_create import (
+            ShoppingListItemRecipeRefCreate,
+        )
+        from ..models.shopping_list_item_recipe_ref_update import (
+            ShoppingListItemRecipeRefUpdate,
+        )
+        from ..models.shopping_list_item_update_bulk_extras_type_0 import (
+            ShoppingListItemUpdateBulkExtrasType0,
+        )
 
         d = dict(src_dict)
         shopping_list_id = d.pop("shoppingListId")

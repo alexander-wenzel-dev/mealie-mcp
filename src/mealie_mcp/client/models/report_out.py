@@ -85,7 +85,7 @@ class ReportOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.report_entry_out import ReportEntryOut
+        from ..models.report_entry_out import ReportEntryOut  # noqa: PLC0415
 
         d = dict(src_dict)
         category = ReportCategory(d.pop("category"))

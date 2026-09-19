@@ -42,7 +42,7 @@ class HouseholdInDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.read_household_preferences import ReadHouseholdPreferences
+        from ..models.read_household_preferences import ReadHouseholdPreferences  # noqa: PLC0415
 
         group_id = self.group_id
 
@@ -103,9 +103,9 @@ class HouseholdInDB:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.household_user_summary import HouseholdUserSummary
-        from ..models.read_household_preferences import ReadHouseholdPreferences
-        from ..models.read_webhook import ReadWebhook
+        from ..models.household_user_summary import HouseholdUserSummary  # noqa: PLC0415
+        from ..models.read_household_preferences import ReadHouseholdPreferences  # noqa: PLC0415
+        from ..models.read_webhook import ReadWebhook  # noqa: PLC0415
 
         d = dict(src_dict)
         group_id = d.pop("groupId")

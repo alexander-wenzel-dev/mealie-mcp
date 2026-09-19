@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class GroupRecipeActionType(str, Enum):
+class GroupRecipeActionType(StrEnum):
     LINK = "link"
     POST = "post"
 

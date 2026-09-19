@@ -87,7 +87,7 @@ class GroupRecipeActionPagination:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.group_recipe_action_out import GroupRecipeActionOut
+        from ..models.group_recipe_action_out import GroupRecipeActionOut  # noqa: PLC0415
 
         d = dict(src_dict)
         items = []

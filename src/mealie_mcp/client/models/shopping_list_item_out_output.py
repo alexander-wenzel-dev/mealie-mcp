@@ -7,9 +7,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.shopping_list_item_out_output_extras_type_0 import (
-    ShoppingListItemOutOutputExtrasType0,
-)
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -17,6 +14,9 @@ if TYPE_CHECKING:
     from ..models.ingredient_unit_output import IngredientUnitOutput
     from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
     from ..models.recipe_output import RecipeOutput
+    from ..models.shopping_list_item_out_output_extras_type_0 import (
+        ShoppingListItemOutOutputExtrasType0,
+    )
     from ..models.shopping_list_item_recipe_ref_out import ShoppingListItemRecipeRefOut
 
 
@@ -42,7 +42,7 @@ class ShoppingListItemOutOutput:
         food_id (None | str | Unset):
         label_id (None | str | Unset):
         unit_id (None | str | Unset):
-        extras (None | ShoppingListItemOutOutputExtrasType0 | Unset):  Default: ShoppingListItemOutOutputExtrasType0().
+        extras (None | ShoppingListItemOutOutputExtrasType0 | Unset):
         label (MultiPurposeLabelSummary | None | Unset):
         recipe_references (list[ShoppingListItemRecipeRefOut] | Unset):
         created_at (datetime.datetime | None | Unset):
@@ -64,9 +64,7 @@ class ShoppingListItemOutOutput:
     food_id: str | Unset | None = UNSET
     label_id: str | Unset | None = UNSET
     unit_id: str | Unset | None = UNSET
-    extras: ShoppingListItemOutOutputExtrasType0 | Unset | None = (
-        ShoppingListItemOutOutputExtrasType0()
-    )
+    extras: ShoppingListItemOutOutputExtrasType0 | Unset | None = UNSET
     label: MultiPurposeLabelSummary | Unset | None = UNSET
     recipe_references: list[ShoppingListItemRecipeRefOut] | Unset = UNSET
     created_at: datetime.datetime | Unset | None = UNSET
@@ -74,10 +72,13 @@ class ShoppingListItemOutOutput:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ingredient_food_output import IngredientFoodOutput
-        from ..models.ingredient_unit_output import IngredientUnitOutput
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
-        from ..models.recipe_output import RecipeOutput
+        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
+        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
+        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
+        from ..models.shopping_list_item_out_output_extras_type_0 import (
+            ShoppingListItemOutOutputExtrasType0,
+        )
 
         shopping_list_id = self.shopping_list_id
 
@@ -229,11 +230,16 @@ class ShoppingListItemOutOutput:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_food_output import IngredientFoodOutput
-        from ..models.ingredient_unit_output import IngredientUnitOutput
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
-        from ..models.recipe_output import RecipeOutput
-        from ..models.shopping_list_item_recipe_ref_out import ShoppingListItemRecipeRefOut
+        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
+        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
+        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
+        from ..models.shopping_list_item_out_output_extras_type_0 import (
+            ShoppingListItemOutOutputExtrasType0,
+        )
+        from ..models.shopping_list_item_recipe_ref_out import (
+            ShoppingListItemRecipeRefOut,
+        )
 
         d = dict(src_dict)
         shopping_list_id = d.pop("shoppingListId")

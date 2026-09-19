@@ -41,7 +41,7 @@ class CreateRecipeByUrlBulk:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_recipe_bulk import CreateRecipeBulk
+        from ..models.create_recipe_bulk import CreateRecipeBulk  # noqa: PLC0415
 
         d = dict(src_dict)
         imports = []

@@ -82,7 +82,7 @@ class PlanRulesOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.query_filter_json import QueryFilterJSON
+        from ..models.query_filter_json import QueryFilterJSON  # noqa: PLC0415
 
         d = dict(src_dict)
         group_id = d.pop("groupId")

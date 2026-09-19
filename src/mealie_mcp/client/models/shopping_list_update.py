@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.shopping_list_update_extras_type_0 import ShoppingListUpdateExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.shopping_list_item_out import ShoppingListItemOut
+    from ..models.shopping_list_update_extras_type_0 import ShoppingListUpdateExtrasType0
 
 
 T = TypeVar("T", bound="ShoppingListUpdate")
@@ -25,7 +25,7 @@ class ShoppingListUpdate:
         user_id (str):
         id (str):
         name (None | str | Unset):
-        extras (None | ShoppingListUpdateExtrasType0 | Unset):  Default: ShoppingListUpdateExtrasType0().
+        extras (None | ShoppingListUpdateExtrasType0 | Unset):
         created_at (datetime.datetime | None | Unset):
         update_at (datetime.datetime | None | Unset):
         list_items (list[ShoppingListItemOut] | Unset):
@@ -35,13 +35,17 @@ class ShoppingListUpdate:
     user_id: str
     id: str
     name: str | Unset | None = UNSET
-    extras: ShoppingListUpdateExtrasType0 | Unset | None = ShoppingListUpdateExtrasType0()
+    extras: ShoppingListUpdateExtrasType0 | Unset | None = UNSET
     created_at: datetime.datetime | Unset | None = UNSET
     update_at: datetime.datetime | Unset | None = UNSET
     list_items: list[ShoppingListItemOut] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.shopping_list_update_extras_type_0 import (
+            ShoppingListUpdateExtrasType0,
+        )
+
         group_id = self.group_id
 
         user_id = self.user_id
@@ -109,7 +113,10 @@ class ShoppingListUpdate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_item_out import ShoppingListItemOut
+        from ..models.shopping_list_item_out import ShoppingListItemOut  # noqa: PLC0415
+        from ..models.shopping_list_update_extras_type_0 import (
+            ShoppingListUpdateExtrasType0,
+        )
 
         d = dict(src_dict)
         group_id = d.pop("groupId")

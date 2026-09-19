@@ -87,7 +87,7 @@ class ShoppingListPagination:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_summary import ShoppingListSummary
+        from ..models.shopping_list_summary import ShoppingListSummary  # noqa: PLC0415
 
         d = dict(src_dict)
         items = []

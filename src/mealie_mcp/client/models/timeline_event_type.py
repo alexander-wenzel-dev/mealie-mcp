@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TimelineEventType(str, Enum):
+class TimelineEventType(StrEnum):
     COMMENT = "comment"
     INFO = "info"
     SYSTEM = "system"

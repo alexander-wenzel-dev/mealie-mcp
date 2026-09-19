@@ -54,7 +54,7 @@ class ShoppingListAddRecipeParams:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recipe_ingredient import RecipeIngredient
+        from ..models.recipe_ingredient import RecipeIngredient  # noqa: PLC0415
 
         d = dict(src_dict)
         recipe_increment_quantity = d.pop("recipeIncrementQuantity", UNSET)

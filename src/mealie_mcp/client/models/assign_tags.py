@@ -46,7 +46,7 @@ class AssignTags:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tag_base import TagBase
+        from ..models.tag_base import TagBase  # noqa: PLC0415
 
         d = dict(src_dict)
         recipes = cast(list[str], d.pop("recipes"))

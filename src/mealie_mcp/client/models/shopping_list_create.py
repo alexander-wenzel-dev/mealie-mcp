@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.shopping_list_create_extras_type_0 import ShoppingListCreateExtrasType0
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.shopping_list_create_extras_type_0 import ShoppingListCreateExtrasType0
+
 
 T = TypeVar("T", bound="ShoppingListCreate")
 
@@ -18,18 +21,22 @@ class ShoppingListCreate:
     """
     Attributes:
         name (None | str | Unset):
-        extras (None | ShoppingListCreateExtrasType0 | Unset):  Default: ShoppingListCreateExtrasType0().
+        extras (None | ShoppingListCreateExtrasType0 | Unset):
         created_at (datetime.datetime | None | Unset):
         update_at (datetime.datetime | None | Unset):
     """
 
     name: str | Unset | None = UNSET
-    extras: ShoppingListCreateExtrasType0 | Unset | None = ShoppingListCreateExtrasType0()
+    extras: ShoppingListCreateExtrasType0 | Unset | None = UNSET
     created_at: datetime.datetime | Unset | None = UNSET
     update_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.shopping_list_create_extras_type_0 import (
+            ShoppingListCreateExtrasType0,
+        )
+
         name: str | Unset | None
         if isinstance(self.name, Unset):
             name = UNSET
@@ -76,6 +83,10 @@ class ShoppingListCreate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.shopping_list_create_extras_type_0 import (
+            ShoppingListCreateExtrasType0,
+        )
+
         d = dict(src_dict)
 
         def _parse_name(data: object) -> str | Unset | None:

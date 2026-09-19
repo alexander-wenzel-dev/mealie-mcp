@@ -83,8 +83,12 @@ class AIProviderOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_out_requestheaders import AIProviderOutRequestheaders
-        from ..models.ai_provider_out_requestparams import AIProviderOutRequestparams
+        from ..models.ai_provider_out_requestheaders import (
+            AIProviderOutRequestheaders,
+        )
+        from ..models.ai_provider_out_requestparams import (
+            AIProviderOutRequestparams,
+        )
 
         d = dict(src_dict)
         name = d.pop("name")

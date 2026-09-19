@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class RelationalKeyword(str, Enum):
+class RelationalKeyword(StrEnum):
     CONTAINS_ALL = "CONTAINS ALL"
     IN = "IN"
     IS = "IS"

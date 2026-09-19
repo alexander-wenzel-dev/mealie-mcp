@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AuthMethod(str, Enum):
+class AuthMethod(StrEnum):
     LDAP = "LDAP"
     MEALIE = "Mealie"
     OIDC = "OIDC"

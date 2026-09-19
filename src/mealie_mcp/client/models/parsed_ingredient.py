@@ -59,8 +59,8 @@ class ParsedIngredient:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_confidence import IngredientConfidence
-        from ..models.recipe_ingredient_output import RecipeIngredientOutput
+        from ..models.ingredient_confidence import IngredientConfidence  # noqa: PLC0415
+        from ..models.recipe_ingredient_output import RecipeIngredientOutput  # noqa: PLC0415
 
         d = dict(src_dict)
         ingredient = RecipeIngredientOutput.from_dict(d.pop("ingredient"))

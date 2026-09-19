@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.shopping_list_out_extras_type_0 import ShoppingListOutExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.shopping_list_item_out_output import ShoppingListItemOutOutput
     from ..models.shopping_list_multi_purpose_label_out import ShoppingListMultiPurposeLabelOut
+    from ..models.shopping_list_out_extras_type_0 import ShoppingListOutExtrasType0
     from ..models.shopping_list_recipe_ref_out import ShoppingListRecipeRefOut
 
 
@@ -28,7 +28,7 @@ class ShoppingListOut:
         id (str):
         household_id (str):
         name (None | str | Unset):
-        extras (None | ShoppingListOutExtrasType0 | Unset):  Default: ShoppingListOutExtrasType0().
+        extras (None | ShoppingListOutExtrasType0 | Unset):
         created_at (datetime.datetime | None | Unset):
         updated_at (datetime.datetime | None | Unset):
         list_items (list[ShoppingListItemOutOutput] | Unset):
@@ -41,7 +41,7 @@ class ShoppingListOut:
     id: str
     household_id: str
     name: str | Unset | None = UNSET
-    extras: ShoppingListOutExtrasType0 | Unset | None = ShoppingListOutExtrasType0()
+    extras: ShoppingListOutExtrasType0 | Unset | None = UNSET
     created_at: datetime.datetime | Unset | None = UNSET
     updated_at: datetime.datetime | Unset | None = UNSET
     list_items: list[ShoppingListItemOutOutput] | Unset = UNSET
@@ -50,6 +50,10 @@ class ShoppingListOut:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.shopping_list_out_extras_type_0 import (
+            ShoppingListOutExtrasType0,
+        )
+
         group_id = self.group_id
 
         user_id = self.user_id
@@ -138,9 +142,16 @@ class ShoppingListOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_item_out_output import ShoppingListItemOutOutput
-        from ..models.shopping_list_multi_purpose_label_out import ShoppingListMultiPurposeLabelOut
-        from ..models.shopping_list_recipe_ref_out import ShoppingListRecipeRefOut
+        from ..models.shopping_list_item_out_output import (
+            ShoppingListItemOutOutput,
+        )
+        from ..models.shopping_list_multi_purpose_label_out import (
+            ShoppingListMultiPurposeLabelOut,
+        )
+        from ..models.shopping_list_out_extras_type_0 import (
+            ShoppingListOutExtrasType0,
+        )
+        from ..models.shopping_list_recipe_ref_out import ShoppingListRecipeRefOut  # noqa: PLC0415
 
         d = dict(src_dict)
         group_id = d.pop("groupId")

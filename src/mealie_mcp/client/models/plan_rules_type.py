@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class PlanRulesType(str, Enum):
+class PlanRulesType(StrEnum):
     BREAKFAST = "breakfast"
     DESSERT = "dessert"
     DINNER = "dinner"
