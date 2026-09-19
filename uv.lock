@@ -1084,8 +1084,8 @@ wheels = [
 
 [[package]]
 name = "openapi-python-client"
-version = "0.29.0"
-source = { git = "https://github.com/alexander-wenzel-dev/openapi-python-client?branch=pin%2Fmealie-mcp-combined#82ab2f215e4f183cdd0fc4bafe8b315154887217" }
+version = "0.29.1"
+source = { git = "https://github.com/alexander-wenzel-dev/openapi-python-client?branch=pin%2Fmealie-mcp-combined#a3071b11317cef5c75cc5658d2663c6a9eaa1755" }
 dependencies = [
     { name = "attrs" },
     { name = "colorama", marker = "sys_platform == 'win32'" },
