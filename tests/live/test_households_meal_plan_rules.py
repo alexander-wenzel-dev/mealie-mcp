@@ -175,25 +175,22 @@ def test_rules_matching_one_slot_intersect_rather_than_override(
 
         # On Monday both rules match. Under override the Monday rule would pick a
         # tag-b recipe; under a union either tag would do. Mealie ANDs the two
-        # filters instead, and two filters on the same relation match no recipe,
-        # so the pick fails even though one staged recipe carries both tags.
-        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
-            draw(monday)
-
-        # The same requirement written as one filter is satisfiable, which is the
-        # shape the tool docstring tells callers to use instead of stacking rules.
-        households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=monday_only["id"])
-        rule_ids.remove(monday_only["id"])
-        households_meal_plan_rules.update_mealplan_rule(
-            mealie_client,
-            item_id=any_day["id"],
-            query_filter_string=f'tags.name CONTAINS ALL ["{tag_a}","{tag_b}"]',
-        )
-        combined_pick = draw(monday)
+        # filters instead, so only the recipe carrying both tags qualifies.
+        monday_pick = draw(monday)
         assert (
-            combined_pick
+            monday_pick
             == recipe_crud.get_recipe(mealie_client, slug_or_id=tagged_recipes["slug_both"])["id"]
         )
+
+        # Narrowing the Monday rule to a tag no recipe carries empties the slot,
+        # which is the 404 the tool documents.
+        households_meal_plan_rules.update_mealplan_rule(
+            mealie_client,
+            item_id=monday_only["id"],
+            query_filter_string=f'tags.name CONTAINS ALL ["{tag_b}-absent"]',
+        )
+        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
+            draw(monday)
     finally:
         for entry_id in entry_ids:
             with contextlib.suppress(ToolError):

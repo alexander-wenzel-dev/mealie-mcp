@@ -211,11 +211,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         a matching day and entry type. Leaving ``day`` or ``entry_type`` unset
         applies the rule to any day or any type.
 
-        Rules do not override each other. Mealie joins the filters of every rule
-        matching a slot with ``AND``. Two filters on ``tags.name`` then match no
-        recipe, so the pick fails with a 404. Use at most one filtering rule per
-        day and slot, and combine requirements into one filter such as
-        ``'tags.name CONTAINS ALL ["Quick","Vegan"]'``.
+        Rules do not override each other. Mealie joins the filters of every
+        rule matching a slot with ``AND``, so a recipe has to satisfy all of
+        them to be picked. A slot whose rules together match no recipe fails
+        with a 404.
 
         Args:
             day: Optional day the rule applies to. One of ``monday``,
