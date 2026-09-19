@@ -100,9 +100,10 @@ def create_timeline_event(
     require_non_empty("recipe_id", recipe_id)
     require_non_empty("subject", subject)
     parsed_type = _parse_event_type(event_type)
-    # An omitted timestamp otherwise reaches Mealie as UNSET, and Mealie's schema
-    # default is frozen at server import, so every such event is stamped with the
-    # server boot time. Send the current time explicitly to sidestep that.
+    # A Mealie that carries a schema default for the timestamp evaluates it once
+    # at server import, so an event reaching it with an UNSET timestamp is
+    # stamped with the server boot time. v3.27.0 carries no default. Sending the
+    # current time explicitly makes this tool's own default hold either way.
     parsed_timestamp = (
         _parse_timestamp(timestamp) if timestamp is not None else dt.datetime.now(dt.UTC)
     )
