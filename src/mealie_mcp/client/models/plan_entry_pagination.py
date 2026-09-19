@@ -87,7 +87,7 @@ class PlanEntryPagination:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.read_plan_entry import ReadPlanEntry
+        from ..models.read_plan_entry import ReadPlanEntry  # noqa: PLC0415
 
         d = dict(src_dict)
         items = []

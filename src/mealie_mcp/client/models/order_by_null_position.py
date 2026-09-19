@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class OrderByNullPosition(str, Enum):
+class OrderByNullPosition(StrEnum):
     FIRST = "first"
     LAST = "last"
 

@@ -43,7 +43,7 @@ class QueryFilterJSON:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.query_filter_json_part import QueryFilterJSONPart
+        from ..models.query_filter_json_part import QueryFilterJSONPart  # noqa: PLC0415
 
         d = dict(src_dict)
         _parts = d.pop("parts", UNSET)

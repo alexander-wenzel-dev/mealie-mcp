@@ -69,7 +69,7 @@ class RecipeShareToken:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recipe_output import RecipeOutput
+        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
 
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")

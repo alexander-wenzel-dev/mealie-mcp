@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class RegisteredParser(str, Enum):
+class RegisteredParser(StrEnum):
     BRUTE = "brute"
     NLP = "nlp"
     OPENAI = "openai"

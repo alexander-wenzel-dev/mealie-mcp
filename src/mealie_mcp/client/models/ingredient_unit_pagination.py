@@ -87,7 +87,7 @@ class IngredientUnitPagination:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_unit_output import IngredientUnitOutput
+        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
 
         d = dict(src_dict)
         items = []

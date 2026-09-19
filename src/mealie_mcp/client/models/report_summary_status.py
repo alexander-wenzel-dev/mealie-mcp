@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ReportSummaryStatus(str, Enum):
+class ReportSummaryStatus(StrEnum):
     FAILURE = "failure"
     IN_PROGRESS = "in-progress"
     PARTIAL = "partial"

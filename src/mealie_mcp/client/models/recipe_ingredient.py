@@ -47,11 +47,11 @@ class RecipeIngredient:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_ingredient_food import CreateIngredientFood
-        from ..models.create_ingredient_unit import CreateIngredientUnit
-        from ..models.ingredient_food import IngredientFood
-        from ..models.ingredient_unit import IngredientUnit
-        from ..models.recipe import Recipe
+        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
+        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
+        from ..models.ingredient_food import IngredientFood  # noqa: PLC0415
+        from ..models.ingredient_unit import IngredientUnit  # noqa: PLC0415
+        from ..models.recipe import Recipe  # noqa: PLC0415
 
         quantity: float | Unset | None
         if isinstance(self.quantity, Unset):
@@ -133,11 +133,11 @@ class RecipeIngredient:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_ingredient_food import CreateIngredientFood
-        from ..models.create_ingredient_unit import CreateIngredientUnit
-        from ..models.ingredient_food import IngredientFood
-        from ..models.ingredient_unit import IngredientUnit
-        from ..models.recipe import Recipe
+        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
+        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
+        from ..models.ingredient_food import IngredientFood  # noqa: PLC0415
+        from ..models.ingredient_unit import IngredientUnit  # noqa: PLC0415
+        from ..models.recipe import Recipe  # noqa: PLC0415
 
         d = dict(src_dict)
 

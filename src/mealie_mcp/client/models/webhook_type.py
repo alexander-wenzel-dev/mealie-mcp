@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class WebhookType(str, Enum):
+class WebhookType(StrEnum):
     MEALPLAN = "mealplan"
 
     def __str__(self) -> str:

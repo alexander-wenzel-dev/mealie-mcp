@@ -284,9 +284,9 @@ class RecipeSummary:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recipe_category import RecipeCategory
-        from ..models.recipe_tag import RecipeTag
-        from ..models.recipe_tool import RecipeTool
+        from ..models.recipe_category import RecipeCategory  # noqa: PLC0415
+        from ..models.recipe_tag import RecipeTag  # noqa: PLC0415
+        from ..models.recipe_tool import RecipeTool  # noqa: PLC0415
 
         d = dict(src_dict)
 

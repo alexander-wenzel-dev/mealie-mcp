@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.recipe_extras_type_0 import RecipeExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -15,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.recipe_asset import RecipeAsset
     from ..models.recipe_category import RecipeCategory
     from ..models.recipe_comment_out import RecipeCommentOut
+    from ..models.recipe_extras_type_0 import RecipeExtrasType0
     from ..models.recipe_ingredient import RecipeIngredient
     from ..models.recipe_note import RecipeNote
     from ..models.recipe_settings import RecipeSettings
@@ -61,7 +61,7 @@ class Recipe:
         settings (None | RecipeSettings | Unset):
         assets (list[RecipeAsset] | None | Unset):
         notes (list[RecipeNote] | None | Unset):
-        extras (None | RecipeExtrasType0 | Unset):  Default: RecipeExtrasType0().
+        extras (None | RecipeExtrasType0 | Unset):
         comments (list[RecipeCommentOut] | None | Unset):
     """
 
@@ -96,13 +96,14 @@ class Recipe:
     settings: RecipeSettings | Unset | None = UNSET
     assets: list[RecipeAsset] | Unset | None = UNSET
     notes: list[RecipeNote] | Unset | None = UNSET
-    extras: RecipeExtrasType0 | Unset | None = RecipeExtrasType0()
+    extras: RecipeExtrasType0 | Unset | None = UNSET
     comments: list[RecipeCommentOut] | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.nutrition import Nutrition
-        from ..models.recipe_settings import RecipeSettings
+        from ..models.nutrition import Nutrition  # noqa: PLC0415
+        from ..models.recipe_extras_type_0 import RecipeExtrasType0  # noqa: PLC0415
+        from ..models.recipe_settings import RecipeSettings  # noqa: PLC0415
 
         id: str | Unset | None
         if isinstance(self.id, Unset):
@@ -406,16 +407,17 @@ class Recipe:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.nutrition import Nutrition
-        from ..models.recipe_asset import RecipeAsset
-        from ..models.recipe_category import RecipeCategory
-        from ..models.recipe_comment_out import RecipeCommentOut
-        from ..models.recipe_ingredient import RecipeIngredient
-        from ..models.recipe_note import RecipeNote
-        from ..models.recipe_settings import RecipeSettings
-        from ..models.recipe_step import RecipeStep
-        from ..models.recipe_tag import RecipeTag
-        from ..models.recipe_tool import RecipeTool
+        from ..models.nutrition import Nutrition  # noqa: PLC0415
+        from ..models.recipe_asset import RecipeAsset  # noqa: PLC0415
+        from ..models.recipe_category import RecipeCategory  # noqa: PLC0415
+        from ..models.recipe_comment_out import RecipeCommentOut  # noqa: PLC0415
+        from ..models.recipe_extras_type_0 import RecipeExtrasType0  # noqa: PLC0415
+        from ..models.recipe_ingredient import RecipeIngredient  # noqa: PLC0415
+        from ..models.recipe_note import RecipeNote  # noqa: PLC0415
+        from ..models.recipe_settings import RecipeSettings  # noqa: PLC0415
+        from ..models.recipe_step import RecipeStep  # noqa: PLC0415
+        from ..models.recipe_tag import RecipeTag  # noqa: PLC0415
+        from ..models.recipe_tool import RecipeTool  # noqa: PLC0415
 
         d = dict(src_dict)
 

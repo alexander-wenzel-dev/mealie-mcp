@@ -66,7 +66,9 @@ class ShoppingListItemsCollectionOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_item_out_output import ShoppingListItemOutOutput
+        from ..models.shopping_list_item_out_output import (
+            ShoppingListItemOutOutput,
+        )
 
         d = dict(src_dict)
         _created_items = d.pop("createdItems", UNSET)

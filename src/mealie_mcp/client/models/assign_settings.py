@@ -43,7 +43,7 @@ class AssignSettings:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recipe_settings import RecipeSettings
+        from ..models.recipe_settings import RecipeSettings  # noqa: PLC0415
 
         d = dict(src_dict)
         recipes = cast(list[str], d.pop("recipes"))

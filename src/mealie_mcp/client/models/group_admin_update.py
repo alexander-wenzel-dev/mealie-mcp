@@ -33,8 +33,8 @@ class GroupAdminUpdate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ai_provider_settings_update import AIProviderSettingsUpdate
-        from ..models.update_group_preferences import UpdateGroupPreferences
+        from ..models.ai_provider_settings_update import AIProviderSettingsUpdate  # noqa: PLC0415
+        from ..models.update_group_preferences import UpdateGroupPreferences  # noqa: PLC0415
 
         id = self.id
 
@@ -73,8 +73,8 @@ class GroupAdminUpdate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_settings_update import AIProviderSettingsUpdate
-        from ..models.update_group_preferences import UpdateGroupPreferences
+        from ..models.ai_provider_settings_update import AIProviderSettingsUpdate  # noqa: PLC0415
+        from ..models.update_group_preferences import UpdateGroupPreferences  # noqa: PLC0415
 
         d = dict(src_dict)
         id = d.pop("id")

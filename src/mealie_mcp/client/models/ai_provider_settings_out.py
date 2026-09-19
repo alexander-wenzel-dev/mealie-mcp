@@ -74,7 +74,7 @@ class AIProviderSettingsOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_summary import AIProviderSummary
+        from ..models.ai_provider_summary import AIProviderSummary  # noqa: PLC0415
 
         d = dict(src_dict)
 

@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.create_ingredient_food_extras_type_0 import CreateIngredientFoodExtrasType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.create_ingredient_food_alias import CreateIngredientFoodAlias
+    from ..models.create_ingredient_food_extras_type_0 import CreateIngredientFoodExtrasType0
 
 
 T = TypeVar("T", bound="CreateIngredientFood")
@@ -24,7 +24,7 @@ class CreateIngredientFood:
         id (None | str | Unset):
         plural_name (None | str | Unset):
         description (str | Unset):  Default: ''.
-        extras (CreateIngredientFoodExtrasType0 | None | Unset):  Default: CreateIngredientFoodExtrasType0().
+        extras (CreateIngredientFoodExtrasType0 | None | Unset):
         label_id (None | str | Unset):
         aliases (list[CreateIngredientFoodAlias] | Unset):
         households_with_ingredient_food (list[str] | Unset):
@@ -34,13 +34,17 @@ class CreateIngredientFood:
     id: str | Unset | None = UNSET
     plural_name: str | Unset | None = UNSET
     description: str | Unset = ""
-    extras: CreateIngredientFoodExtrasType0 | Unset | None = CreateIngredientFoodExtrasType0()
+    extras: CreateIngredientFoodExtrasType0 | Unset | None = UNSET
     label_id: str | Unset | None = UNSET
     aliases: list[CreateIngredientFoodAlias] | Unset = UNSET
     households_with_ingredient_food: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.create_ingredient_food_extras_type_0 import (
+            CreateIngredientFoodExtrasType0,
+        )
+
         name = self.name
 
         id: str | Unset | None
@@ -108,7 +112,10 @@ class CreateIngredientFood:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_ingredient_food_alias import CreateIngredientFoodAlias
+        from ..models.create_ingredient_food_alias import CreateIngredientFoodAlias  # noqa: PLC0415
+        from ..models.create_ingredient_food_extras_type_0 import (
+            CreateIngredientFoodExtrasType0,
+        )
 
         d = dict(src_dict)
         name = d.pop("name")

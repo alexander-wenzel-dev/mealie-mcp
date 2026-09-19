@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ReportCategory(str, Enum):
+class ReportCategory(StrEnum):
     BACKUP = "backup"
     BULK_IMPORT = "bulk_import"
     MIGRATION = "migration"

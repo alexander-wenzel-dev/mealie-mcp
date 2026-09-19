@@ -56,9 +56,9 @@ class RecipeSuggestionResponseItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_food_output import IngredientFoodOutput
-        from ..models.recipe_summary import RecipeSummary
-        from ..models.recipe_tool import RecipeTool
+        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
+        from ..models.recipe_summary import RecipeSummary  # noqa: PLC0415
+        from ..models.recipe_tool import RecipeTool  # noqa: PLC0415
 
         d = dict(src_dict)
         recipe = RecipeSummary.from_dict(d.pop("recipe"))

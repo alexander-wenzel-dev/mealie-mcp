@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class LogicalOperator(str, Enum):
+class LogicalOperator(StrEnum):
     AND = "AND"
     OR = "OR"
 

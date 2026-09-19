@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class SupportedMigrations(str, Enum):
+class SupportedMigrations(StrEnum):
     CHOWDOWN = "chowdown"
     COOKN = "cookn"
     COPYMETHAT = "copymethat"
