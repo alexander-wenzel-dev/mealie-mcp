@@ -6,12 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-19
+
 ### Changed
 
+- **Breaking:** the supported Mealie floor is v3.26.0, raised from v3.23.0.
+  Below it, merging a food or a unit strands the shopping list items that used
+  it, and two meal plan rules filtering one slot match no recipe. The tools
+  still run against an older Mealie; three of them describe behaviour it does
+  not have.
 - The pinned Mealie OpenAPI spec moved from v3.23.1 to v3.27.0.
-- The supported Mealie floor is v3.26.0. Below it, merging a food or a unit
-  strands the shopping list items that used it, and two meal plan rules
-  filtering one slot match no recipe.
 - `mealie_suggest_recipes` items carry a `substitutedFoods` list naming each
   missing food and the food that stands in for it, and the tool documents it.
   Mealie fills the list from the substitutions recorded on a food, and sends it
@@ -152,7 +156,8 @@ First public release.
 - The HTTP transport refuses to start without a bearer token, and helpers redact
   the `Authorization` header so tokens never reach logs.
 
-[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.2.0...v0.3.0
