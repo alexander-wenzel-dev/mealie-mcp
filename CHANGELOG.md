@@ -20,6 +20,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   missing food and the food that stands in for it, and the tool documents it.
   Mealie fills the list from the substitutions recorded on a food, and sends it
   because its `includeSubstitutions` parameter defaults to true server-side.
+- FastMCP moves to 4.0.3, which replaces mcp 1.28.1 with mcp 2.2.0 and
+  mcp-types.
 
 ### Fixed
 
@@ -36,6 +38,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_set_recipe_image_from_url` now states that Mealie refuses a URL
   resolving to a private or internal address unless its `HTTP_ALLOW_LIST`
   names the host. That check arrived in Mealie v3.26.0.
+- Fifteen `extras` fields on generated models defaulted to a model instance
+  that every object of its class shared, because a class body evaluates a
+  default once. They default to `UNSET` now.
+
+### Security
+
+- The generated client is built with openapi-python-client 0.29.1. 0.29.0 was
+  affected by GHSA-5293-mq8x-g3xj, where a malicious OpenAPI document can make
+  the generator emit arbitrary code that then runs in consumers of the
+  generated client.
 
 ## [0.4.0] - 2026-08-21
 
