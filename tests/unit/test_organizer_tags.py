@@ -12,6 +12,8 @@ from fastmcp.exceptions import ToolError
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.tools import organizer_tags
 
+ITEM_ID = "0b6c9a53-1f0e-4f7a-9d6e-3c2b8a7e5d41"
+
 
 @pytest.fixture
 def client() -> AuthenticatedClient:
@@ -61,3 +63,25 @@ class TestDeleteTag:
     def test_rejects_empty_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
             organizer_tags.delete_tag(client, item_id="")
+
+
+class TestMergeTag:
+    def test_rejects_empty_source_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="from_tag_id must be a non-empty string"):
+            organizer_tags.merge_tag(client, from_tag_id="", to_tag_id=ITEM_ID)
+
+    def test_rejects_empty_target_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="to_tag_id must be a non-empty string"):
+            organizer_tags.merge_tag(client, from_tag_id=ITEM_ID, to_tag_id="")
+
+    def test_rejects_a_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="to_tag_id must be a UUID"):
+            organizer_tags.merge_tag(client, from_tag_id=ITEM_ID, to_tag_id="dinner")
+
+    @pytest.mark.parametrize(
+        "to_tag_id",
+        [ITEM_ID, ITEM_ID.upper(), ITEM_ID.replace("-", ""), f"urn:uuid:{ITEM_ID}"],
+    )
+    def test_rejects_a_self_merge(self, client: AuthenticatedClient, to_tag_id: str) -> None:
+        with pytest.raises(ToolError, match="merge_tag requires two different tags"):
+            organizer_tags.merge_tag(client, from_tag_id=ITEM_ID, to_tag_id=to_tag_id)

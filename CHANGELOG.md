@@ -6,6 +6,13 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `mealie_merge_category` and `mealie_merge_tag` resolve a duplicate by merging
+  one organizer into another and return the surviving organizer. Recipes on the
+  source move to the target and the source is deleted. Cookbook and meal plan
+  rule filters that name the source keep its id. Both need Mealie v3.27.0.
+
 ## [0.5.0] - 2026-09-19
 
 ### Changed
