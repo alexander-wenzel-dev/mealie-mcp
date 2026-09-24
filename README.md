@@ -39,7 +39,7 @@ Once registered, you ask in plain language and the assistant picks the matching 
 - Mealie v3.26.0 or newer. The client is generated from the v3.27.0 OpenAPI
   spec. On an older Mealie, merging a food or a unit strands the shopping list
   items that used it, and two meal plan rules filtering one slot match no
-  recipe at all.
+  recipe at all. Merging a category or a tag needs v3.27.0.
 
 ## Install
 
@@ -212,7 +212,7 @@ probes `/health` over the loopback, stays green.
 
 ## Tools
 
-The server exposes 101 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
+The server exposes 103 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
 
 <details>
 <summary>All tool groups</summary>
@@ -230,8 +230,8 @@ The server exposes 101 tools across 16 groups, one per Mealie OpenAPI tag. New g
 
 | Group                         | Coverage                                                                            |
 | ----------------------------- | ----------------------------------------------------------------------------------- |
-| `organizer_categories`        | Create, read by id or slug, list (including empty ones), update, and delete recipe categories. |
-| `organizer_tags`              | Create, read by id or slug, list (including empty ones), update, and delete recipe tags.        |
+| `organizer_categories`        | Create, read by id or slug, list (including empty ones), update, delete, and merge recipe categories. |
+| `organizer_tags`              | Create, read by id or slug, list (including empty ones), update, delete, and merge recipe tags.        |
 | `organizer_tools`             | Create, read by id or slug, list, update, and delete recipe tools.                  |
 | `groups_multi_purpose_labels` | Create, read, list, update, and delete multi-purpose labels.                        |
 | `recipes_foods`               | Create, read, list, update, delete, and merge ingredient foods, with the label link that sorts them into aisles on a shopping list. |

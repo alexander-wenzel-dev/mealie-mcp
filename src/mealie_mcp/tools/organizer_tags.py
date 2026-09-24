@@ -1,7 +1,7 @@
 """Recipe tag tools.
 
 Mirrors `mealie_mcp.client.api.organizer_tags`. Exposes list, read, create,
-update, and delete for recipe tags.
+update, delete, and merge for recipe tags.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from http import HTTPStatus
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.organizer_tags import (
     create_one_api_organizers_tags_post,
@@ -18,16 +19,19 @@ from mealie_mcp.client.api.organizer_tags import (
     get_empty_tags_api_organizers_tags_empty_get,
     get_one_api_organizers_tags_item_id_get,
     get_one_by_slug_api_organizers_tags_slug_tag_slug_get,
+    merge_tags_api_organizers_tags_merge_post,
     update_one_api_organizers_tags_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.tag_in import TagIn
+from mealie_mcp.client.models.tag_merge import TagMerge
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     expect_list,
     parse_order_direction,
+    parse_uuid,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -108,6 +112,23 @@ def delete_tag(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
         item_id, client=client
     )
     return ack_delete("delete_tag", response, item_id)
+
+
+def merge_tag(client: AuthenticatedClient, from_tag_id: str, to_tag_id: str) -> dict[str, Any]:
+    """Merge one tag into another. Returns the surviving tag payload."""
+    require_non_empty("from_tag_id", from_tag_id)
+    require_non_empty("to_tag_id", to_tag_id)
+    source = parse_uuid("from_tag_id", from_tag_id)
+    target = parse_uuid("to_tag_id", to_tag_id)
+    # Mealie answers a self merge with a 400 and keeps the tag. The local
+    # check keeps that contract independent of the Mealie version.
+    if source == target:
+        raise ToolError("merge_tag requires two different tags")
+
+    response = merge_tags_api_organizers_tags_merge_post.sync_detailed(
+        client=client, body=TagMerge(from_id=str(source), to_id=str(target))
+    )
+    return expect_dict("merge_tag", response)
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -227,3 +248,23 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_tag(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_tag")
+    def _merge_tag(from_tag_id: str, to_tag_id: str) -> dict[str, Any]:
+        """Merge one Mealie tag into another, resolving a duplicate.
+
+        Recipes that carry the source tag carry the target instead, once
+        each. Cookbook and meal plan rule filters that name the source keep
+        its id; update them by hand.
+
+        Args:
+            from_tag_id: UUID of the tag to merge away, from
+                ``mealie_list_tags``; a name or slug is rejected. This tag is
+                deleted.
+            to_tag_id: UUID of the tag that survives. Must differ from
+                ``from_tag_id``.
+
+        Returns:
+            The surviving tag payload as a JSON-compatible dict.
+        """
+        return merge_tag(get_client(), from_tag_id=from_tag_id, to_tag_id=to_tag_id)

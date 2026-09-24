@@ -1,7 +1,7 @@
 """Recipe category tools.
 
 Mirrors `mealie_mcp.client.api.organizer_categories`. Exposes list, read,
-create, update, and delete for recipe categories.
+create, update, delete, and merge for recipe categories.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from http import HTTPStatus
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.organizer_categories import (
     create_one_api_organizers_categories_post,
@@ -18,16 +19,19 @@ from mealie_mcp.client.api.organizer_categories import (
     get_all_empty_api_organizers_categories_empty_get,
     get_one_api_organizers_categories_item_id_get,
     get_one_by_slug_api_organizers_categories_slug_category_slug_get,
+    merge_categories_api_organizers_categories_merge_post,
     update_one_api_organizers_categories_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.category_in import CategoryIn
+from mealie_mcp.client.models.category_merge import CategoryMerge
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
     expect_list,
     parse_order_direction,
+    parse_uuid,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -108,6 +112,25 @@ def delete_category(client: AuthenticatedClient, item_id: str) -> dict[str, Any]
         item_id, client=client
     )
     return ack_delete("delete_category", response, item_id)
+
+
+def merge_category(
+    client: AuthenticatedClient, from_category_id: str, to_category_id: str
+) -> dict[str, Any]:
+    """Merge one category into another. Returns the surviving category payload."""
+    require_non_empty("from_category_id", from_category_id)
+    require_non_empty("to_category_id", to_category_id)
+    source = parse_uuid("from_category_id", from_category_id)
+    target = parse_uuid("to_category_id", to_category_id)
+    # Mealie answers a self merge with a 400 and keeps the category. The local
+    # check keeps that contract independent of the Mealie version.
+    if source == target:
+        raise ToolError("merge_category requires two different categories")
+
+    response = merge_categories_api_organizers_categories_merge_post.sync_detailed(
+        client=client, body=CategoryMerge(from_id=str(source), to_id=str(target))
+    )
+    return expect_dict("merge_category", response)
 
 
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
@@ -227,3 +250,25 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_category(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_category")
+    def _merge_category(from_category_id: str, to_category_id: str) -> dict[str, Any]:
+        """Merge one Mealie category into another, resolving a duplicate.
+
+        Recipes that carry the source category carry the target instead, once
+        each. Cookbook and meal plan rule filters that name the source keep
+        its id; update them by hand.
+
+        Args:
+            from_category_id: UUID of the category to merge away, from
+                ``mealie_list_categories``; a name or slug is rejected. This
+                category is deleted.
+            to_category_id: UUID of the category that survives. Must differ from
+                ``from_category_id``.
+
+        Returns:
+            The surviving category payload as a JSON-compatible dict.
+        """
+        return merge_category(
+            get_client(), from_category_id=from_category_id, to_category_id=to_category_id
+        )
