@@ -14,9 +14,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-    "fastmcp>=4.0.8",
+    "fastmcp>=4.0.10",
     "httpx>=0.28.1",
-    "python-dotenv>=1.2.3",
+    "python-dotenv>=1.2.4",
     "starlette>=1.7.0",
 ]
 
@@ -43,7 +43,7 @@ packages = ["src/mealie_mcp"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.16.8",
+    "ruff>=0.16.9",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pre-commit>=4.6.2",
