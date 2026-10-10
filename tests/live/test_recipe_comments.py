@@ -47,7 +47,12 @@ def created_comment(
     try:
         yield {"id": comment_id, "text": initial_text}
     finally:
+        # A DELETE on a missing comment crashes Mealie's handler, and its server
+        # then drops the keep-alive connection. The next request can race the
+        # close and fail with RemoteProtocolError. A GET on a missing comment is
+        # a clean 404 that skips the DELETE.
         with contextlib.suppress(ToolError):
+            recipe_comments.get_comment(mealie_client, comment_id=comment_id)
             recipe_comments.delete_comment(mealie_client, comment_id=comment_id)
 
 
