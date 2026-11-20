@@ -192,23 +192,24 @@ def test_shopping_list_item_lifecycle(
 
 
 @pytest.mark.live
-def test_update_shopping_list_item_checkoff_drops_recipe_references(
+def test_update_shopping_list_item_checkoff_keeps_recipe_references(
     mealie_client: AuthenticatedClient,
     created_shopping_list: dict[str, str],
     sentinel_name: str,
 ) -> None:
-    """Checking an item off detaches its recipe references.
+    """Checking a recipe-linked item off keeps its recipe references.
 
-    Mealie clears a recipe-linked item's references server-side when the item
-    is checked off, so a bought item no longer feeds recipe aggregation. The
-    merged PUT body still carries the references; this pins the drop as Mealie
-    behaviour rather than a merge regression, and guards the docstring claim
-    against silent drift on a future Mealie version.
+    The merged PUT body carries the references, and Mealie stores them on a
+    checked item too.
     """
     list_id = created_shopping_list["id"]
     recipe = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")
     try:
-        recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=recipe["slug"])["id"]
+        recipe_id = recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe["slug"],
+            recipe_ingredient=[{"note": f"{sentinel_name}-ing"}],
+        )["id"]
         updated_list = households_shopping_lists.add_recipe_to_shopping_list(
             mealie_client, list_id=list_id, recipe_id=recipe_id
         )
@@ -227,7 +228,7 @@ def test_update_shopping_list_item_checkoff_drops_recipe_references(
             mealie_client, item_id=linked["id"], checked=True
         )
         assert checked["checked"] is True
-        assert checked["recipeReferences"] == []
+        assert checked["recipeReferences"] == linked["recipeReferences"]
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe["slug"])
@@ -239,15 +240,15 @@ def test_update_shopping_list_item_note_change_keeps_recipe_references(
     created_shopping_list: dict[str, str],
     sentinel_name: str,
 ) -> None:
-    """A non-checkoff update leaves a recipe-linked item's references intact.
-
-    The checkoff drop is the documented exception; a note-only edit that does not
-    check the item off must preserve its recipeReferences through the PUT-replace.
-    """
+    """A note-only update keeps a recipe-linked item's references through the PUT-replace."""
     list_id = created_shopping_list["id"]
     recipe = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-recipe")
     try:
-        recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=recipe["slug"])["id"]
+        recipe_id = recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe["slug"],
+            recipe_ingredient=[{"note": f"{sentinel_name}-ing"}],
+        )["id"]
         updated_list = households_shopping_lists.add_recipe_to_shopping_list(
             mealie_client, list_id=list_id, recipe_id=recipe_id
         )
