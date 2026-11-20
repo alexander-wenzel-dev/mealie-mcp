@@ -10,7 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.ai_provider_settings_update import AIProviderSettingsUpdate
-    from ..models.update_group_preferences import UpdateGroupPreferences
+    from ..models.group_preferences_update import GroupPreferencesUpdate
 
 
 T = TypeVar("T", bound="GroupAdminUpdate")
@@ -22,19 +22,19 @@ class GroupAdminUpdate:
     Attributes:
         id (str):
         name (str):
-        preferences (None | Unset | UpdateGroupPreferences):
+        preferences (GroupPreferencesUpdate | None | Unset):
         ai_provider_settings (AIProviderSettingsUpdate | None | Unset):
     """
 
     id: str
     name: str
-    preferences: Unset | UpdateGroupPreferences | None = UNSET
+    preferences: GroupPreferencesUpdate | Unset | None = UNSET
     ai_provider_settings: AIProviderSettingsUpdate | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.ai_provider_settings_update import AIProviderSettingsUpdate  # noqa: PLC0415
-        from ..models.update_group_preferences import UpdateGroupPreferences  # noqa: PLC0415
+        from ..models.group_preferences_update import GroupPreferencesUpdate  # noqa: PLC0415
 
         id = self.id
 
@@ -43,7 +43,7 @@ class GroupAdminUpdate:
         preferences: dict[str, Any] | Unset | None
         if isinstance(self.preferences, Unset):
             preferences = UNSET
-        elif isinstance(self.preferences, UpdateGroupPreferences):
+        elif isinstance(self.preferences, GroupPreferencesUpdate):
             preferences = self.preferences.to_dict()
         else:
             preferences = self.preferences
@@ -74,14 +74,14 @@ class GroupAdminUpdate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ai_provider_settings_update import AIProviderSettingsUpdate  # noqa: PLC0415
-        from ..models.update_group_preferences import UpdateGroupPreferences  # noqa: PLC0415
+        from ..models.group_preferences_update import GroupPreferencesUpdate  # noqa: PLC0415
 
         d = dict(src_dict)
         id = d.pop("id")
 
         name = d.pop("name")
 
-        def _parse_preferences(data: object) -> Unset | UpdateGroupPreferences | None:
+        def _parse_preferences(data: object) -> GroupPreferencesUpdate | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -89,12 +89,12 @@ class GroupAdminUpdate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                preferences_type_0 = UpdateGroupPreferences.from_dict(data)
+                preferences_type_0 = GroupPreferencesUpdate.from_dict(data)
 
                 return preferences_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | Unset | UpdateGroupPreferences, data)
+            return cast(GroupPreferencesUpdate | None | Unset, data)
 
         preferences = _parse_preferences(d.pop("preferences", UNSET))
 

@@ -6,16 +6,16 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.household_in_db import HouseholdInDB
+from ...models.household_admin_update import HouseholdAdminUpdate
+from ...models.household_out import HouseholdOut
 from ...models.http_validation_error import HTTPValidationError
-from ...models.update_household_admin import UpdateHouseholdAdmin
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: UpdateHouseholdAdmin,
+    body: HouseholdAdminUpdate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     if response.status_code == 200:
-        response_200 = HouseholdInDB.from_dict(response.json())
+        response_200 = HouseholdOut.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,22 +70,22 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: UpdateHouseholdAdmin,
+    body: HouseholdAdminUpdate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (UpdateHouseholdAdmin):
+        body (HouseholdAdminUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | HouseholdInDB]
+        Response[HTTPValidationError | HouseholdOut]
     """
 
     kwargs = _get_kwargs(
@@ -105,22 +105,22 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: UpdateHouseholdAdmin,
+    body: HouseholdAdminUpdate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (UpdateHouseholdAdmin):
+        body (HouseholdAdminUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | HouseholdInDB
+        HTTPValidationError | HouseholdOut
     """
 
     return sync_detailed(
@@ -135,22 +135,22 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: UpdateHouseholdAdmin,
+    body: HouseholdAdminUpdate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (UpdateHouseholdAdmin):
+        body (HouseholdAdminUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | HouseholdInDB]
+        Response[HTTPValidationError | HouseholdOut]
     """
 
     kwargs = _get_kwargs(
@@ -168,22 +168,22 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: UpdateHouseholdAdmin,
+    body: HouseholdAdminUpdate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (UpdateHouseholdAdmin):
+        body (HouseholdAdminUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | HouseholdInDB
+        HTTPValidationError | HouseholdOut
     """
 
     return (

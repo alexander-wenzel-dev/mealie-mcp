@@ -6,13 +6,14 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.recipe import Recipe
+from ...models.recipe_draft import RecipeDraft
+from ...models.recipe_out import RecipeOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: list[Recipe],
+    body: list[RecipeDraft],
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -37,9 +38,15 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | list[RecipeOut] | None:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = RecipeOut.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
+
         return response_200
 
     if response.status_code == 422:
@@ -54,7 +61,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | list[RecipeOut]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -66,21 +73,21 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: list[Recipe],
+    body: list[RecipeDraft],
     accept_language: str | Unset | None = UNSET,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | list[RecipeOut]]:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[Recipe]):
+        body (list[RecipeDraft]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | list[RecipeOut]]
     """
 
     kwargs = _get_kwargs(
@@ -98,21 +105,21 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: list[Recipe],
+    body: list[RecipeDraft],
     accept_language: str | Unset | None = UNSET,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | list[RecipeOut] | None:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[Recipe]):
+        body (list[RecipeDraft]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | list[RecipeOut]
     """
 
     return sync_detailed(
@@ -125,21 +132,21 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: list[Recipe],
+    body: list[RecipeDraft],
     accept_language: str | Unset | None = UNSET,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | list[RecipeOut]]:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[Recipe]):
+        body (list[RecipeDraft]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | list[RecipeOut]]
     """
 
     kwargs = _get_kwargs(
@@ -155,21 +162,21 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: list[Recipe],
+    body: list[RecipeDraft],
     accept_language: str | Unset | None = UNSET,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | list[RecipeOut] | None:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[Recipe]):
+        body (list[RecipeDraft]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | list[RecipeOut]
     """
 
     return (

@@ -8,7 +8,7 @@ from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.order_by_null_position import OrderByNullPosition
 from ...models.order_direction import OrderDirection
-from ...models.recipe_tag_pagination import RecipeTagPagination
+from ...models.tag_pagination import TagPagination
 from ...types import UNSET, Response, Unset
 
 
@@ -91,9 +91,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeTagPagination | None:
+) -> HTTPValidationError | TagPagination | None:
     if response.status_code == 200:
-        response_200 = RecipeTagPagination.from_dict(response.json())
+        response_200 = TagPagination.from_dict(response.json())
 
         return response_200
 
@@ -109,7 +109,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeTagPagination]:
+) -> Response[HTTPValidationError | TagPagination]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -130,7 +130,7 @@ def sync_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTagPagination]:
+) -> Response[HTTPValidationError | TagPagination]:
     """Get All
 
      Returns a list of available tags in the database
@@ -151,7 +151,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTagPagination]
+        Response[HTTPValidationError | TagPagination]
     """
 
     kwargs = _get_kwargs(
@@ -185,7 +185,7 @@ def sync(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTagPagination | None:
+) -> HTTPValidationError | TagPagination | None:
     """Get All
 
      Returns a list of available tags in the database
@@ -206,7 +206,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTagPagination
+        HTTPValidationError | TagPagination
     """
 
     return sync_detailed(
@@ -235,7 +235,7 @@ async def asyncio_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTagPagination]:
+) -> Response[HTTPValidationError | TagPagination]:
     """Get All
 
      Returns a list of available tags in the database
@@ -256,7 +256,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTagPagination]
+        Response[HTTPValidationError | TagPagination]
     """
 
     kwargs = _get_kwargs(
@@ -288,7 +288,7 @@ async def asyncio(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTagPagination | None:
+) -> HTTPValidationError | TagPagination | None:
     """Get All
 
      Returns a list of available tags in the database
@@ -309,7 +309,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTagPagination
+        HTTPValidationError | TagPagination
     """
 
     return (

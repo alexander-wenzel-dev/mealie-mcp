@@ -6,16 +6,16 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_webhook import CreateWebhook
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_webhook import ReadWebhook
+from ...models.webhook_create import WebhookCreate
+from ...models.webhook_out import WebhookOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: CreateWebhook,
+    body: WebhookCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadWebhook | None:
+) -> HTTPValidationError | WebhookOut | None:
     if response.status_code == 200:
-        response_200 = ReadWebhook.from_dict(response.json())
+        response_200 = WebhookOut.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadWebhook]:
+) -> Response[HTTPValidationError | WebhookOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,22 +70,22 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateWebhook,
+    body: WebhookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadWebhook]:
+) -> Response[HTTPValidationError | WebhookOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateWebhook):
+        body (WebhookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadWebhook]
+        Response[HTTPValidationError | WebhookOut]
     """
 
     kwargs = _get_kwargs(
@@ -105,22 +105,22 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateWebhook,
+    body: WebhookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadWebhook | None:
+) -> HTTPValidationError | WebhookOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateWebhook):
+        body (WebhookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadWebhook
+        HTTPValidationError | WebhookOut
     """
 
     return sync_detailed(
@@ -135,22 +135,22 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateWebhook,
+    body: WebhookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadWebhook]:
+) -> Response[HTTPValidationError | WebhookOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateWebhook):
+        body (WebhookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadWebhook]
+        Response[HTTPValidationError | WebhookOut]
     """
 
     kwargs = _get_kwargs(
@@ -168,22 +168,22 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateWebhook,
+    body: WebhookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadWebhook | None:
+) -> HTTPValidationError | WebhookOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateWebhook):
+        body (WebhookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadWebhook
+        HTTPValidationError | WebhookOut
     """
 
     return (

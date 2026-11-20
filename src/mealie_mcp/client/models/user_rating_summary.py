@@ -6,8 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="UserRatingSummary")
 
 
@@ -16,23 +14,20 @@ class UserRatingSummary:
     """
     Attributes:
         recipe_id (str):
-        rating (float | None | Unset):
-        is_favorite (bool | Unset):  Default: False.
+        rating (float | None):
+        is_favorite (bool):  Default: False.
     """
 
     recipe_id: str
-    rating: float | Unset | None = UNSET
-    is_favorite: bool | Unset = False
+    rating: float | None
+    is_favorite: bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         recipe_id = self.recipe_id
 
-        rating: float | Unset | None
-        if isinstance(self.rating, Unset):
-            rating = UNSET
-        else:
-            rating = self.rating
+        rating: float | None
+        rating = self.rating
 
         is_favorite = self.is_favorite
 
@@ -41,12 +36,10 @@ class UserRatingSummary:
         field_dict.update(
             {
                 "recipeId": recipe_id,
+                "rating": rating,
+                "isFavorite": is_favorite,
             }
         )
-        if rating is not UNSET:
-            field_dict["rating"] = rating
-        if is_favorite is not UNSET:
-            field_dict["isFavorite"] = is_favorite
 
         return field_dict
 
@@ -55,16 +48,14 @@ class UserRatingSummary:
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")
 
-        def _parse_rating(data: object) -> float | Unset | None:
+        def _parse_rating(data: object) -> float | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(float | None | Unset, data)
+            return cast(float | None, data)
 
-        rating = _parse_rating(d.pop("rating", UNSET))
+        rating = _parse_rating(d.pop("rating"))
 
-        is_favorite = d.pop("isFavorite", UNSET)
+        is_favorite = d.pop("isFavorite")
 
         user_rating_summary = cls(
             recipe_id=recipe_id,

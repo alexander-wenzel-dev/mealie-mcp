@@ -68,7 +68,11 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | str]:
     """Create Recipe From Html Or Json
 
-     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL
+     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -102,7 +106,11 @@ def sync(
 ) -> HTTPValidationError | str | None:
     """Create Recipe From Html Or Json
 
-     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL
+     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -131,7 +139,11 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | str]:
     """Create Recipe From Html Or Json
 
-     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL
+     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -163,7 +175,11 @@ async def asyncio(
 ) -> HTTPValidationError | str | None:
     """Create Recipe From Html Or Json
 
-     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL
+     Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):

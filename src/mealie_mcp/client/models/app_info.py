@@ -23,10 +23,13 @@ class AppInfo:
         enable_oidc (bool):
         oidc_redirect (bool):
         oidc_provider_name (str):
+        enable_reverse_proxy_auth (bool):
         token_time (int):
         default_group_slug (None | str | Unset):
         default_household_slug (None | str | Unset):
         allowed_iframe_hosts (list[str] | Unset):
+        branding_name (str | Unset):  Default: 'Mealie'.
+        branding_logo_url (None | str | Unset):
     """
 
     production: bool
@@ -37,10 +40,13 @@ class AppInfo:
     enable_oidc: bool
     oidc_redirect: bool
     oidc_provider_name: str
+    enable_reverse_proxy_auth: bool
     token_time: int
     default_group_slug: str | Unset | None = UNSET
     default_household_slug: str | Unset | None = UNSET
     allowed_iframe_hosts: list[str] | Unset = UNSET
+    branding_name: str | Unset = "Mealie"
+    branding_logo_url: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +66,8 @@ class AppInfo:
 
         oidc_provider_name = self.oidc_provider_name
 
+        enable_reverse_proxy_auth = self.enable_reverse_proxy_auth
+
         token_time = self.token_time
 
         default_group_slug: str | Unset | None
@@ -78,6 +86,14 @@ class AppInfo:
         if not isinstance(self.allowed_iframe_hosts, Unset):
             allowed_iframe_hosts = self.allowed_iframe_hosts
 
+        branding_name = self.branding_name
+
+        branding_logo_url: str | Unset | None
+        if isinstance(self.branding_logo_url, Unset):
+            branding_logo_url = UNSET
+        else:
+            branding_logo_url = self.branding_logo_url
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -90,6 +106,7 @@ class AppInfo:
                 "enableOidc": enable_oidc,
                 "oidcRedirect": oidc_redirect,
                 "oidcProviderName": oidc_provider_name,
+                "enableReverseProxyAuth": enable_reverse_proxy_auth,
                 "tokenTime": token_time,
             }
         )
@@ -99,6 +116,10 @@ class AppInfo:
             field_dict["defaultHouseholdSlug"] = default_household_slug
         if allowed_iframe_hosts is not UNSET:
             field_dict["allowedIframeHosts"] = allowed_iframe_hosts
+        if branding_name is not UNSET:
+            field_dict["brandingName"] = branding_name
+        if branding_logo_url is not UNSET:
+            field_dict["brandingLogoUrl"] = branding_logo_url
 
         return field_dict
 
@@ -120,6 +141,8 @@ class AppInfo:
         oidc_redirect = d.pop("oidcRedirect")
 
         oidc_provider_name = d.pop("oidcProviderName")
+
+        enable_reverse_proxy_auth = d.pop("enableReverseProxyAuth")
 
         token_time = d.pop("tokenTime")
 
@@ -143,6 +166,17 @@ class AppInfo:
 
         allowed_iframe_hosts = cast(list[str], d.pop("allowedIframeHosts", UNSET))
 
+        branding_name = d.pop("brandingName", UNSET)
+
+        def _parse_branding_logo_url(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        branding_logo_url = _parse_branding_logo_url(d.pop("brandingLogoUrl", UNSET))
+
         app_info = cls(
             production=production,
             version=version,
@@ -152,10 +186,13 @@ class AppInfo:
             enable_oidc=enable_oidc,
             oidc_redirect=oidc_redirect,
             oidc_provider_name=oidc_provider_name,
+            enable_reverse_proxy_auth=enable_reverse_proxy_auth,
             token_time=token_time,
             default_group_slug=default_group_slug,
             default_household_slug=default_household_slug,
             allowed_iframe_hosts=allowed_iframe_hosts,
+            branding_name=branding_name,
+            branding_logo_url=branding_logo_url,
         )
 
         app_info.additional_properties = d

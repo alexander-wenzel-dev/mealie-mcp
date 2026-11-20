@@ -7,12 +7,10 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
-    from ..models.recipe_category import RecipeCategory
-    from ..models.recipe_tag import RecipeTag
-    from ..models.recipe_tool import RecipeTool
+    from ..models.category_out import CategoryOut
+    from ..models.tag_out import TagOut
+    from ..models.tool_out import ToolOut
 
 
 T = TypeVar("T", bound="RecipeSummary")
@@ -20,68 +18,69 @@ T = TypeVar("T", bound="RecipeSummary")
 
 @_attrs_define
 class RecipeSummary:
-    """
-    Attributes:
-        id (None | str | Unset):
-        user_id (str | Unset):
-        household_id (str | Unset):
-        group_id (str | Unset):
-        name (None | str | Unset):
-        slug (str | Unset):  Default: ''.
-        image (Any | None | Unset):
-        recipe_servings (float | Unset):  Default: 0.0.
-        recipe_yield_quantity (float | Unset):  Default: 0.0.
-        recipe_yield (None | str | Unset):
-        total_time (None | str | Unset):
-        prep_time (None | str | Unset):
-        cook_time (None | str | Unset):
-        perform_time (None | str | Unset):
-        description (None | str | Unset):  Default: ''.
-        recipe_category (list[RecipeCategory] | None | Unset):
-        tags (list[RecipeTag] | None | Unset):
-        tools (list[RecipeTool] | Unset):
-        rating (float | None | Unset):
-        org_url (None | str | Unset):
-        date_added (datetime.date | None | Unset):
-        date_updated (datetime.datetime | None | Unset):
-        created_at (datetime.datetime | None | Unset):
-        updated_at (datetime.datetime | None | Unset):
-        last_made (datetime.datetime | None | Unset):
+    """A saved recipe without its ingredients, instructions and other details, as list views show it.
+
+    Every recipe has an owner: list queries skip rows whose user (and so household) is gone.
+
+        Attributes:
+            id (str):
+            user_id (str):
+            household_id (str):
+            group_id (str):
+            name (str):
+            slug (str):
+            image (None | str):
+            recipe_servings (float):  Default: 0.0.
+            recipe_yield_quantity (float):  Default: 0.0.
+            recipe_yield (None | str):
+            total_time (None | str):
+            prep_time (None | str):
+            perform_time (None | str):
+            total_time_seconds (int | None):
+            prep_time_seconds (int | None):
+            perform_time_seconds (int | None):
+            description (None | str):  Default: ''.
+            recipe_category (list[CategoryOut]):
+            tags (list[TagOut]):
+            tools (list[ToolOut]):
+            rating (float | None):
+            org_url (None | str):
+            date_added (datetime.date | None):
+            date_updated (datetime.datetime | None):
+            created_at (datetime.datetime | None):
+            updated_at (datetime.datetime | None):
     """
 
-    id: str | Unset | None = UNSET
-    user_id: str | Unset = UNSET
-    household_id: str | Unset = UNSET
-    group_id: str | Unset = UNSET
-    name: str | Unset | None = UNSET
-    slug: str | Unset = ""
-    image: Any | Unset | None = UNSET
-    recipe_servings: float | Unset = 0.0
-    recipe_yield_quantity: float | Unset = 0.0
-    recipe_yield: str | Unset | None = UNSET
-    total_time: str | Unset | None = UNSET
-    prep_time: str | Unset | None = UNSET
-    cook_time: str | Unset | None = UNSET
-    perform_time: str | Unset | None = UNSET
-    description: str | Unset | None = ""
-    recipe_category: list[RecipeCategory] | Unset | None = UNSET
-    tags: list[RecipeTag] | Unset | None = UNSET
-    tools: list[RecipeTool] | Unset = UNSET
-    rating: float | Unset | None = UNSET
-    org_url: str | Unset | None = UNSET
-    date_added: datetime.date | Unset | None = UNSET
-    date_updated: datetime.datetime | Unset | None = UNSET
-    created_at: datetime.datetime | Unset | None = UNSET
-    updated_at: datetime.datetime | Unset | None = UNSET
-    last_made: datetime.datetime | Unset | None = UNSET
+    id: str
+    user_id: str
+    household_id: str
+    group_id: str
+    name: str
+    slug: str
+    image: str | None
+    recipe_yield: str | None
+    total_time: str | None
+    prep_time: str | None
+    perform_time: str | None
+    total_time_seconds: int | None
+    prep_time_seconds: int | None
+    perform_time_seconds: int | None
+    recipe_category: list[CategoryOut]
+    tags: list[TagOut]
+    tools: list[ToolOut]
+    rating: float | None
+    org_url: str | None
+    date_added: datetime.date | None
+    date_updated: datetime.datetime | None
+    created_at: datetime.datetime | None
+    updated_at: datetime.datetime | None
+    recipe_servings: float = 0.0
+    recipe_yield_quantity: float = 0.0
+    description: str | None = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        id: str | Unset | None
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = self.id
 
         user_id = self.user_id
 
@@ -89,377 +88,244 @@ class RecipeSummary:
 
         group_id = self.group_id
 
-        name: str | Unset | None
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = self.name
 
         slug = self.slug
 
-        image: Any | Unset | None
-        if isinstance(self.image, Unset):
-            image = UNSET
-        else:
-            image = self.image
+        image: str | None
+        image = self.image
 
         recipe_servings = self.recipe_servings
 
         recipe_yield_quantity = self.recipe_yield_quantity
 
-        recipe_yield: str | Unset | None
-        if isinstance(self.recipe_yield, Unset):
-            recipe_yield = UNSET
-        else:
-            recipe_yield = self.recipe_yield
+        recipe_yield: str | None
+        recipe_yield = self.recipe_yield
 
-        total_time: str | Unset | None
-        if isinstance(self.total_time, Unset):
-            total_time = UNSET
-        else:
-            total_time = self.total_time
+        total_time: str | None
+        total_time = self.total_time
 
-        prep_time: str | Unset | None
-        if isinstance(self.prep_time, Unset):
-            prep_time = UNSET
-        else:
-            prep_time = self.prep_time
+        prep_time: str | None
+        prep_time = self.prep_time
 
-        cook_time: str | Unset | None
-        if isinstance(self.cook_time, Unset):
-            cook_time = UNSET
-        else:
-            cook_time = self.cook_time
+        perform_time: str | None
+        perform_time = self.perform_time
 
-        perform_time: str | Unset | None
-        if isinstance(self.perform_time, Unset):
-            perform_time = UNSET
-        else:
-            perform_time = self.perform_time
+        total_time_seconds: int | None
+        total_time_seconds = self.total_time_seconds
 
-        description: str | Unset | None
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        prep_time_seconds: int | None
+        prep_time_seconds = self.prep_time_seconds
 
-        recipe_category: list[dict[str, Any]] | Unset | None
-        if isinstance(self.recipe_category, Unset):
-            recipe_category = UNSET
-        elif isinstance(self.recipe_category, list):
-            recipe_category = []
-            for recipe_category_type_0_item_data in self.recipe_category:
-                recipe_category_type_0_item = recipe_category_type_0_item_data.to_dict()
-                recipe_category.append(recipe_category_type_0_item)
+        perform_time_seconds: int | None
+        perform_time_seconds = self.perform_time_seconds
 
-        else:
-            recipe_category = self.recipe_category
+        description: str | None
+        description = self.description
 
-        tags: list[dict[str, Any]] | Unset | None
-        if isinstance(self.tags, Unset):
-            tags = UNSET
-        elif isinstance(self.tags, list):
-            tags = []
-            for tags_type_0_item_data in self.tags:
-                tags_type_0_item = tags_type_0_item_data.to_dict()
-                tags.append(tags_type_0_item)
+        recipe_category = []
+        for recipe_category_item_data in self.recipe_category:
+            recipe_category_item = recipe_category_item_data.to_dict()
+            recipe_category.append(recipe_category_item)
 
-        else:
-            tags = self.tags
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
-        tools: list[dict[str, Any]] | Unset = UNSET
-        if not isinstance(self.tools, Unset):
-            tools = []
-            for tools_item_data in self.tools:
-                tools_item = tools_item_data.to_dict()
-                tools.append(tools_item)
+        tools = []
+        for tools_item_data in self.tools:
+            tools_item = tools_item_data.to_dict()
+            tools.append(tools_item)
 
-        rating: float | Unset | None
-        if isinstance(self.rating, Unset):
-            rating = UNSET
-        else:
-            rating = self.rating
+        rating: float | None
+        rating = self.rating
 
-        org_url: str | Unset | None
-        if isinstance(self.org_url, Unset):
-            org_url = UNSET
-        else:
-            org_url = self.org_url
+        org_url: str | None
+        org_url = self.org_url
 
-        date_added: str | Unset | None
-        if isinstance(self.date_added, Unset):
-            date_added = UNSET
-        elif isinstance(self.date_added, datetime.date):
+        date_added: str | None
+        if isinstance(self.date_added, datetime.date):
             date_added = self.date_added.isoformat()
         else:
             date_added = self.date_added
 
-        date_updated: str | Unset | None
-        if isinstance(self.date_updated, Unset):
-            date_updated = UNSET
-        elif isinstance(self.date_updated, datetime.datetime):
+        date_updated: str | None
+        if isinstance(self.date_updated, datetime.datetime):
             date_updated = self.date_updated.isoformat()
         else:
             date_updated = self.date_updated
 
-        created_at: str | Unset | None
-        if isinstance(self.created_at, Unset):
-            created_at = UNSET
-        elif isinstance(self.created_at, datetime.datetime):
+        created_at: str | None
+        if isinstance(self.created_at, datetime.datetime):
             created_at = self.created_at.isoformat()
         else:
             created_at = self.created_at
 
-        updated_at: str | Unset | None
-        if isinstance(self.updated_at, Unset):
-            updated_at = UNSET
-        elif isinstance(self.updated_at, datetime.datetime):
+        updated_at: str | None
+        if isinstance(self.updated_at, datetime.datetime):
             updated_at = self.updated_at.isoformat()
         else:
             updated_at = self.updated_at
 
-        last_made: str | Unset | None
-        if isinstance(self.last_made, Unset):
-            last_made = UNSET
-        elif isinstance(self.last_made, datetime.datetime):
-            last_made = self.last_made.isoformat()
-        else:
-            last_made = self.last_made
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
-        if id is not UNSET:
-            field_dict["id"] = id
-        if user_id is not UNSET:
-            field_dict["userId"] = user_id
-        if household_id is not UNSET:
-            field_dict["householdId"] = household_id
-        if group_id is not UNSET:
-            field_dict["groupId"] = group_id
-        if name is not UNSET:
-            field_dict["name"] = name
-        if slug is not UNSET:
-            field_dict["slug"] = slug
-        if image is not UNSET:
-            field_dict["image"] = image
-        if recipe_servings is not UNSET:
-            field_dict["recipeServings"] = recipe_servings
-        if recipe_yield_quantity is not UNSET:
-            field_dict["recipeYieldQuantity"] = recipe_yield_quantity
-        if recipe_yield is not UNSET:
-            field_dict["recipeYield"] = recipe_yield
-        if total_time is not UNSET:
-            field_dict["totalTime"] = total_time
-        if prep_time is not UNSET:
-            field_dict["prepTime"] = prep_time
-        if cook_time is not UNSET:
-            field_dict["cookTime"] = cook_time
-        if perform_time is not UNSET:
-            field_dict["performTime"] = perform_time
-        if description is not UNSET:
-            field_dict["description"] = description
-        if recipe_category is not UNSET:
-            field_dict["recipeCategory"] = recipe_category
-        if tags is not UNSET:
-            field_dict["tags"] = tags
-        if tools is not UNSET:
-            field_dict["tools"] = tools
-        if rating is not UNSET:
-            field_dict["rating"] = rating
-        if org_url is not UNSET:
-            field_dict["orgURL"] = org_url
-        if date_added is not UNSET:
-            field_dict["dateAdded"] = date_added
-        if date_updated is not UNSET:
-            field_dict["dateUpdated"] = date_updated
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
-        if last_made is not UNSET:
-            field_dict["lastMade"] = last_made
+        field_dict.update(
+            {
+                "id": id,
+                "userId": user_id,
+                "householdId": household_id,
+                "groupId": group_id,
+                "name": name,
+                "slug": slug,
+                "image": image,
+                "recipeServings": recipe_servings,
+                "recipeYieldQuantity": recipe_yield_quantity,
+                "recipeYield": recipe_yield,
+                "totalTime": total_time,
+                "prepTime": prep_time,
+                "performTime": perform_time,
+                "totalTimeSeconds": total_time_seconds,
+                "prepTimeSeconds": prep_time_seconds,
+                "performTimeSeconds": perform_time_seconds,
+                "description": description,
+                "recipeCategory": recipe_category,
+                "tags": tags,
+                "tools": tools,
+                "rating": rating,
+                "orgURL": org_url,
+                "dateAdded": date_added,
+                "dateUpdated": date_updated,
+                "createdAt": created_at,
+                "updatedAt": updated_at,
+            }
+        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recipe_category import RecipeCategory  # noqa: PLC0415
-        from ..models.recipe_tag import RecipeTag  # noqa: PLC0415
-        from ..models.recipe_tool import RecipeTool  # noqa: PLC0415
+        from ..models.category_out import CategoryOut  # noqa: PLC0415
+        from ..models.tag_out import TagOut  # noqa: PLC0415
+        from ..models.tool_out import ToolOut  # noqa: PLC0415
 
         d = dict(src_dict)
+        id = d.pop("id")
 
-        def _parse_id(data: object) -> str | Unset | None:
+        user_id = d.pop("userId")
+
+        household_id = d.pop("householdId")
+
+        group_id = d.pop("groupId")
+
+        name = d.pop("name")
+
+        slug = d.pop("slug")
+
+        def _parse_image(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        id = _parse_id(d.pop("id", UNSET))
+        image = _parse_image(d.pop("image"))
 
-        user_id = d.pop("userId", UNSET)
+        recipe_servings = d.pop("recipeServings")
 
-        household_id = d.pop("householdId", UNSET)
+        recipe_yield_quantity = d.pop("recipeYieldQuantity")
 
-        group_id = d.pop("groupId", UNSET)
-
-        def _parse_name(data: object) -> str | Unset | None:
+        def _parse_recipe_yield(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        name = _parse_name(d.pop("name", UNSET))
+        recipe_yield = _parse_recipe_yield(d.pop("recipeYield"))
 
-        slug = d.pop("slug", UNSET)
-
-        def _parse_image(data: object) -> Any | Unset | None:
+        def _parse_total_time(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Any | None | Unset, data)
+            return cast(None | str, data)
 
-        image = _parse_image(d.pop("image", UNSET))
+        total_time = _parse_total_time(d.pop("totalTime"))
 
-        recipe_servings = d.pop("recipeServings", UNSET)
-
-        recipe_yield_quantity = d.pop("recipeYieldQuantity", UNSET)
-
-        def _parse_recipe_yield(data: object) -> str | Unset | None:
+        def _parse_prep_time(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        recipe_yield = _parse_recipe_yield(d.pop("recipeYield", UNSET))
+        prep_time = _parse_prep_time(d.pop("prepTime"))
 
-        def _parse_total_time(data: object) -> str | Unset | None:
+        def _parse_perform_time(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        total_time = _parse_total_time(d.pop("totalTime", UNSET))
+        perform_time = _parse_perform_time(d.pop("performTime"))
 
-        def _parse_prep_time(data: object) -> str | Unset | None:
+        def _parse_total_time_seconds(data: object) -> int | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(int | None, data)
 
-        prep_time = _parse_prep_time(d.pop("prepTime", UNSET))
+        total_time_seconds = _parse_total_time_seconds(d.pop("totalTimeSeconds"))
 
-        def _parse_cook_time(data: object) -> str | Unset | None:
+        def _parse_prep_time_seconds(data: object) -> int | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(int | None, data)
 
-        cook_time = _parse_cook_time(d.pop("cookTime", UNSET))
+        prep_time_seconds = _parse_prep_time_seconds(d.pop("prepTimeSeconds"))
 
-        def _parse_perform_time(data: object) -> str | Unset | None:
+        def _parse_perform_time_seconds(data: object) -> int | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(int | None, data)
 
-        perform_time = _parse_perform_time(d.pop("performTime", UNSET))
+        perform_time_seconds = _parse_perform_time_seconds(d.pop("performTimeSeconds"))
 
-        def _parse_description(data: object) -> str | Unset | None:
+        def _parse_description(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        description = _parse_description(d.pop("description", UNSET))
+        description = _parse_description(d.pop("description"))
 
-        def _parse_recipe_category(data: object) -> list[RecipeCategory] | Unset | None:
+        recipe_category = []
+        _recipe_category = d.pop("recipeCategory")
+        for recipe_category_item_data in _recipe_category:
+            recipe_category_item = CategoryOut.from_dict(recipe_category_item_data)
+
+            recipe_category.append(recipe_category_item)
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = TagOut.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
+        tools = []
+        _tools = d.pop("tools")
+        for tools_item_data in _tools:
+            tools_item = ToolOut.from_dict(tools_item_data)
+
+            tools.append(tools_item)
+
+        def _parse_rating(data: object) -> float | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                recipe_category_type_0 = []
-                _recipe_category_type_0 = data
-                for recipe_category_type_0_item_data in _recipe_category_type_0:
-                    recipe_category_type_0_item = RecipeCategory.from_dict(
-                        recipe_category_type_0_item_data
-                    )
+            return cast(float | None, data)
 
-                    recipe_category_type_0.append(recipe_category_type_0_item)
+        rating = _parse_rating(d.pop("rating"))
 
-                return recipe_category_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(list[RecipeCategory] | None | Unset, data)
-
-        recipe_category = _parse_recipe_category(d.pop("recipeCategory", UNSET))
-
-        def _parse_tags(data: object) -> list[RecipeTag] | Unset | None:
+        def _parse_org_url(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                tags_type_0 = []
-                _tags_type_0 = data
-                for tags_type_0_item_data in _tags_type_0:
-                    tags_type_0_item = RecipeTag.from_dict(tags_type_0_item_data)
+            return cast(None | str, data)
 
-                    tags_type_0.append(tags_type_0_item)
+        org_url = _parse_org_url(d.pop("orgURL"))
 
-                return tags_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(list[RecipeTag] | None | Unset, data)
-
-        tags = _parse_tags(d.pop("tags", UNSET))
-
-        _tools = d.pop("tools", UNSET)
-        tools: list[RecipeTool] | Unset = UNSET
-        if _tools is not UNSET:
-            tools = []
-            for tools_item_data in _tools:
-                tools_item = RecipeTool.from_dict(tools_item_data)
-
-                tools.append(tools_item)
-
-        def _parse_rating(data: object) -> float | Unset | None:
+        def _parse_date_added(data: object) -> datetime.date | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(float | None | Unset, data)
-
-        rating = _parse_rating(d.pop("rating", UNSET))
-
-        def _parse_org_url(data: object) -> str | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        org_url = _parse_org_url(d.pop("orgURL", UNSET))
-
-        def _parse_date_added(data: object) -> datetime.date | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -469,14 +335,12 @@ class RecipeSummary:
                 return date_added_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.date | None | Unset, data)
+            return cast(datetime.date | None, data)
 
-        date_added = _parse_date_added(d.pop("dateAdded", UNSET))
+        date_added = _parse_date_added(d.pop("dateAdded"))
 
-        def _parse_date_updated(data: object) -> datetime.datetime | Unset | None:
+        def _parse_date_updated(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -486,14 +350,12 @@ class RecipeSummary:
                 return date_updated_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        date_updated = _parse_date_updated(d.pop("dateUpdated", UNSET))
+        date_updated = _parse_date_updated(d.pop("dateUpdated"))
 
-        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
+        def _parse_created_at(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -503,14 +365,12 @@ class RecipeSummary:
                 return created_at_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        created_at = _parse_created_at(d.pop("createdAt", UNSET))
+        created_at = _parse_created_at(d.pop("createdAt"))
 
-        def _parse_updated_at(data: object) -> datetime.datetime | Unset | None:
+        def _parse_updated_at(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -520,26 +380,9 @@ class RecipeSummary:
                 return updated_at_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        updated_at = _parse_updated_at(d.pop("updatedAt", UNSET))
-
-        def _parse_last_made(data: object) -> datetime.datetime | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                last_made_type_0 = datetime.datetime.fromisoformat(data)
-
-                return last_made_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(datetime.datetime | None | Unset, data)
-
-        last_made = _parse_last_made(d.pop("lastMade", UNSET))
+        updated_at = _parse_updated_at(d.pop("updatedAt"))
 
         recipe_summary = cls(
             id=id,
@@ -554,8 +397,10 @@ class RecipeSummary:
             recipe_yield=recipe_yield,
             total_time=total_time,
             prep_time=prep_time,
-            cook_time=cook_time,
             perform_time=perform_time,
+            total_time_seconds=total_time_seconds,
+            prep_time_seconds=prep_time_seconds,
+            perform_time_seconds=perform_time_seconds,
             description=description,
             recipe_category=recipe_category,
             tags=tags,
@@ -566,7 +411,6 @@ class RecipeSummary:
             date_updated=date_updated,
             created_at=created_at,
             updated_at=updated_at,
-            last_made=last_made,
         )
 
         recipe_summary.additional_properties = d

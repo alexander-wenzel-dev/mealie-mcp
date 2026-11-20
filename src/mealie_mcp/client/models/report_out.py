@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 
 from ..models.report_category import ReportCategory
 from ..models.report_summary_status import ReportSummaryStatus
-from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.report_entry_out import ReportEntryOut
@@ -22,64 +21,55 @@ T = TypeVar("T", bound="ReportOut")
 class ReportOut:
     """
     Attributes:
+        timestamp (datetime.datetime):
         category (ReportCategory):
         group_id (str):
         name (str):
+        status (ReportSummaryStatus):
         id (str):
-        timestamp (datetime.datetime | Unset):
-        status (ReportSummaryStatus | Unset):
-        entries (list[ReportEntryOut] | Unset):
+        entries (list[ReportEntryOut]):
     """
 
+    timestamp: datetime.datetime
     category: ReportCategory
     group_id: str
     name: str
+    status: ReportSummaryStatus
     id: str
-    timestamp: datetime.datetime | Unset = UNSET
-    status: ReportSummaryStatus | Unset = UNSET
-    entries: list[ReportEntryOut] | Unset = UNSET
+    entries: list[ReportEntryOut]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        timestamp = self.timestamp.isoformat()
+
         category = self.category.value
 
         group_id = self.group_id
 
         name = self.name
 
+        status = self.status.value
+
         id = self.id
 
-        timestamp: str | Unset = UNSET
-        if not isinstance(self.timestamp, Unset):
-            timestamp = self.timestamp.isoformat()
-
-        status: str | Unset = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
-
-        entries: list[dict[str, Any]] | Unset = UNSET
-        if not isinstance(self.entries, Unset):
-            entries = []
-            for entries_item_data in self.entries:
-                entries_item = entries_item_data.to_dict()
-                entries.append(entries_item)
+        entries = []
+        for entries_item_data in self.entries:
+            entries_item = entries_item_data.to_dict()
+            entries.append(entries_item)
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "timestamp": timestamp,
                 "category": category,
                 "groupId": group_id,
                 "name": name,
+                "status": status,
                 "id": id,
+                "entries": entries,
             }
         )
-        if timestamp is not UNSET:
-            field_dict["timestamp"] = timestamp
-        if status is not UNSET:
-            field_dict["status"] = status
-        if entries is not UNSET:
-            field_dict["entries"] = entries
 
         return field_dict
 
@@ -88,44 +78,32 @@ class ReportOut:
         from ..models.report_entry_out import ReportEntryOut  # noqa: PLC0415
 
         d = dict(src_dict)
+        timestamp = datetime.datetime.fromisoformat(d.pop("timestamp"))
+
         category = ReportCategory(d.pop("category"))
 
         group_id = d.pop("groupId")
 
         name = d.pop("name")
 
+        status = ReportSummaryStatus(d.pop("status"))
+
         id = d.pop("id")
 
-        _timestamp = d.pop("timestamp", UNSET)
-        timestamp: datetime.datetime | Unset
-        if isinstance(_timestamp, Unset):
-            timestamp = UNSET
-        else:
-            timestamp = datetime.datetime.fromisoformat(_timestamp)
+        entries = []
+        _entries = d.pop("entries")
+        for entries_item_data in _entries:
+            entries_item = ReportEntryOut.from_dict(entries_item_data)
 
-        _status = d.pop("status", UNSET)
-        status: ReportSummaryStatus | Unset
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ReportSummaryStatus(_status)
-
-        _entries = d.pop("entries", UNSET)
-        entries: list[ReportEntryOut] | Unset = UNSET
-        if _entries is not UNSET:
-            entries = []
-            for entries_item_data in _entries:
-                entries_item = ReportEntryOut.from_dict(entries_item_data)
-
-                entries.append(entries_item)
+            entries.append(entries_item)
 
         report_out = cls(
+            timestamp=timestamp,
             category=category,
             group_id=group_id,
             name=name,
-            id=id,
-            timestamp=timestamp,
             status=status,
+            id=id,
             entries=entries,
         )
 

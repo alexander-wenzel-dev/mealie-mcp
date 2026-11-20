@@ -17,7 +17,12 @@ T = TypeVar("T", bound="PlanRulesCreate")
 class PlanRulesCreate:
     """
     Attributes:
-        day (PlanRulesDay | Unset):
+        day (PlanRulesDay | Unset): The day a meal plan rule applies to, or the weekday of the meal plan entry rules are
+            looked up for.
+
+            On a rule, `unset` means the rule applies to all days. When looking up rules for an entry, `unset`
+            means the entry isn't on a specific weekday (e.g. it spans a week), so only rules that apply to all
+            days match it.
         entry_type (PlanRulesType | Unset):
         query_filter_string (str | Unset):  Default: ''.
     """

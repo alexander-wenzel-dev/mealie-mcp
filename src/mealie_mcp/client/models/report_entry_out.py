@@ -7,8 +7,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="ReportEntryOut")
 
 
@@ -17,51 +15,46 @@ class ReportEntryOut:
     """
     Attributes:
         report_id (str):
+        timestamp (datetime.datetime):
+        success (bool):  Default: True.
         message (str):
+        exception (str):  Default: ''.
         id (str):
-        timestamp (datetime.datetime | Unset):
-        success (bool | Unset):  Default: True.
-        exception (str | Unset):  Default: ''.
     """
 
     report_id: str
+    timestamp: datetime.datetime
     message: str
     id: str
-    timestamp: datetime.datetime | Unset = UNSET
-    success: bool | Unset = True
-    exception: str | Unset = ""
+    success: bool = True
+    exception: str = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         report_id = self.report_id
 
-        message = self.message
-
-        id = self.id
-
-        timestamp: str | Unset = UNSET
-        if not isinstance(self.timestamp, Unset):
-            timestamp = self.timestamp.isoformat()
+        timestamp = self.timestamp.isoformat()
 
         success = self.success
 
+        message = self.message
+
         exception = self.exception
+
+        id = self.id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "reportId": report_id,
+                "timestamp": timestamp,
+                "success": success,
                 "message": message,
+                "exception": exception,
                 "id": id,
             }
         )
-        if timestamp is not UNSET:
-            field_dict["timestamp"] = timestamp
-        if success is not UNSET:
-            field_dict["success"] = success
-        if exception is not UNSET:
-            field_dict["exception"] = exception
 
         return field_dict
 
@@ -70,28 +63,23 @@ class ReportEntryOut:
         d = dict(src_dict)
         report_id = d.pop("reportId")
 
+        timestamp = datetime.datetime.fromisoformat(d.pop("timestamp"))
+
+        success = d.pop("success")
+
         message = d.pop("message")
+
+        exception = d.pop("exception")
 
         id = d.pop("id")
 
-        _timestamp = d.pop("timestamp", UNSET)
-        timestamp: datetime.datetime | Unset
-        if isinstance(_timestamp, Unset):
-            timestamp = UNSET
-        else:
-            timestamp = datetime.datetime.fromisoformat(_timestamp)
-
-        success = d.pop("success", UNSET)
-
-        exception = d.pop("exception", UNSET)
-
         report_entry_out = cls(
             report_id=report_id,
-            message=message,
-            id=id,
             timestamp=timestamp,
             success=success,
+            message=message,
             exception=exception,
+            id=id,
         )
 
         report_entry_out.additional_properties = d

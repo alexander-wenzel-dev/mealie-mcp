@@ -7,15 +7,15 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.recipe_tag_response import RecipeTagResponse
-from ...models.tag_in import TagIn
+from ...models.tag_create import TagCreate
+from ...models.tag_with_recipes import TagWithRecipes
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: TagIn,
+    body: TagCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeTagResponse | None:
+) -> HTTPValidationError | TagWithRecipes | None:
     if response.status_code == 200:
-        response_200 = RecipeTagResponse.from_dict(response.json())
+        response_200 = TagWithRecipes.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeTagResponse]:
+) -> Response[HTTPValidationError | TagWithRecipes]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,9 +70,9 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: TagIn,
+    body: TagCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTagResponse]:
+) -> Response[HTTPValidationError | TagWithRecipes]:
     """Update One
 
      Updates an existing Tag in the database
@@ -80,14 +80,14 @@ def sync_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (TagIn):
+        body (TagCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTagResponse]
+        Response[HTTPValidationError | TagWithRecipes]
     """
 
     kwargs = _get_kwargs(
@@ -107,9 +107,9 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: TagIn,
+    body: TagCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTagResponse | None:
+) -> HTTPValidationError | TagWithRecipes | None:
     """Update One
 
      Updates an existing Tag in the database
@@ -117,14 +117,14 @@ def sync(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (TagIn):
+        body (TagCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTagResponse
+        HTTPValidationError | TagWithRecipes
     """
 
     return sync_detailed(
@@ -139,9 +139,9 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: TagIn,
+    body: TagCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTagResponse]:
+) -> Response[HTTPValidationError | TagWithRecipes]:
     """Update One
 
      Updates an existing Tag in the database
@@ -149,14 +149,14 @@ async def asyncio_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (TagIn):
+        body (TagCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTagResponse]
+        Response[HTTPValidationError | TagWithRecipes]
     """
 
     kwargs = _get_kwargs(
@@ -174,9 +174,9 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: TagIn,
+    body: TagCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTagResponse | None:
+) -> HTTPValidationError | TagWithRecipes | None:
     """Update One
 
      Updates an existing Tag in the database
@@ -184,14 +184,14 @@ async def asyncio(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (TagIn):
+        body (TagCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTagResponse
+        HTTPValidationError | TagWithRecipes
     """
 
     return (

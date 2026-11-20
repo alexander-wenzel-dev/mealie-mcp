@@ -10,12 +10,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.create_ingredient_food import CreateIngredientFood
-    from ..models.create_ingredient_unit import CreateIngredientUnit
-    from ..models.ingredient_food_output import IngredientFoodOutput
-    from ..models.ingredient_unit_output import IngredientUnitOutput
-    from ..models.recipe_ingredient_substitution import RecipeIngredientSubstitution
-    from ..models.recipe_output import RecipeOutput
+    from ..models.ingredient_food_create import IngredientFoodCreate
+    from ..models.ingredient_food_out_output import IngredientFoodOutOutput
+    from ..models.ingredient_unit_create import IngredientUnitCreate
+    from ..models.ingredient_unit_out_output import IngredientUnitOutOutput
+    from ..models.recipe_draft_output import RecipeDraftOutput
+    from ..models.recipe_ingredient_substitution_output import RecipeIngredientSubstitutionOutput
 
 
 T = TypeVar("T", bound="RecipeIngredientOutput")
@@ -26,35 +26,35 @@ class RecipeIngredientOutput:
     """
     Attributes:
         quantity (float | None | Unset):  Default: 0.0.
-        unit (CreateIngredientUnit | IngredientUnitOutput | None | Unset):
-        food (CreateIngredientFood | IngredientFoodOutput | None | Unset):
-        referenced_recipe (None | RecipeOutput | Unset):
+        unit (IngredientUnitCreate | IngredientUnitOutOutput | None | Unset):
+        food (IngredientFoodCreate | IngredientFoodOutOutput | None | Unset):
+        referenced_recipe (None | RecipeDraftOutput | Unset):
         note (None | str | Unset):  Default: ''.
         display (str | Unset):  Default: ''.
         title (None | str | Unset):
         original_text (None | str | Unset):
-        substitutions (list[RecipeIngredientSubstitution] | Unset):
+        substitutions (list[RecipeIngredientSubstitutionOutput] | Unset):
         reference_id (UUID | Unset):
     """
 
     quantity: float | Unset | None = 0.0
-    unit: CreateIngredientUnit | IngredientUnitOutput | Unset | None = UNSET
-    food: CreateIngredientFood | IngredientFoodOutput | Unset | None = UNSET
-    referenced_recipe: RecipeOutput | Unset | None = UNSET
+    unit: IngredientUnitCreate | IngredientUnitOutOutput | Unset | None = UNSET
+    food: IngredientFoodCreate | IngredientFoodOutOutput | Unset | None = UNSET
+    referenced_recipe: RecipeDraftOutput | Unset | None = UNSET
     note: str | Unset | None = ""
     display: str | Unset = ""
     title: str | Unset | None = UNSET
     original_text: str | Unset | None = UNSET
-    substitutions: list[RecipeIngredientSubstitution] | Unset = UNSET
+    substitutions: list[RecipeIngredientSubstitutionOutput] | Unset = UNSET
     reference_id: UUID | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
-        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
-        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
-        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
-        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
+        from ..models.ingredient_food_create import IngredientFoodCreate  # noqa: PLC0415
+        from ..models.ingredient_food_out_output import IngredientFoodOutOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_create import IngredientUnitCreate  # noqa: PLC0415
+        from ..models.ingredient_unit_out_output import IngredientUnitOutOutput  # noqa: PLC0415
+        from ..models.recipe_draft_output import RecipeDraftOutput  # noqa: PLC0415
 
         quantity: float | Unset | None
         if isinstance(self.quantity, Unset):
@@ -65,8 +65,8 @@ class RecipeIngredientOutput:
         unit: dict[str, Any] | Unset | None
         if isinstance(self.unit, Unset):
             unit = UNSET
-        elif isinstance(self.unit, IngredientUnitOutput) or isinstance(
-            self.unit, CreateIngredientUnit
+        elif isinstance(self.unit, IngredientUnitOutOutput) or isinstance(
+            self.unit, IngredientUnitCreate
         ):
             unit = self.unit.to_dict()
         else:
@@ -75,8 +75,8 @@ class RecipeIngredientOutput:
         food: dict[str, Any] | Unset | None
         if isinstance(self.food, Unset):
             food = UNSET
-        elif isinstance(self.food, IngredientFoodOutput) or isinstance(
-            self.food, CreateIngredientFood
+        elif isinstance(self.food, IngredientFoodOutOutput) or isinstance(
+            self.food, IngredientFoodCreate
         ):
             food = self.food.to_dict()
         else:
@@ -85,7 +85,7 @@ class RecipeIngredientOutput:
         referenced_recipe: dict[str, Any] | Unset | None
         if isinstance(self.referenced_recipe, Unset):
             referenced_recipe = UNSET
-        elif isinstance(self.referenced_recipe, RecipeOutput):
+        elif isinstance(self.referenced_recipe, RecipeDraftOutput):
             referenced_recipe = self.referenced_recipe.to_dict()
         else:
             referenced_recipe = self.referenced_recipe
@@ -149,14 +149,14 @@ class RecipeIngredientOutput:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_ingredient_food import CreateIngredientFood  # noqa: PLC0415
-        from ..models.create_ingredient_unit import CreateIngredientUnit  # noqa: PLC0415
-        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
-        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
-        from ..models.recipe_ingredient_substitution import (
-            RecipeIngredientSubstitution,
+        from ..models.ingredient_food_create import IngredientFoodCreate  # noqa: PLC0415
+        from ..models.ingredient_food_out_output import IngredientFoodOutOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_create import IngredientUnitCreate  # noqa: PLC0415
+        from ..models.ingredient_unit_out_output import IngredientUnitOutOutput  # noqa: PLC0415
+        from ..models.recipe_draft_output import RecipeDraftOutput  # noqa: PLC0415
+        from ..models.recipe_ingredient_substitution_output import (
+            RecipeIngredientSubstitutionOutput,
         )
-        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
 
         d = dict(src_dict)
 
@@ -169,7 +169,9 @@ class RecipeIngredientOutput:
 
         quantity = _parse_quantity(d.pop("quantity", UNSET))
 
-        def _parse_unit(data: object) -> CreateIngredientUnit | IngredientUnitOutput | Unset | None:
+        def _parse_unit(
+            data: object,
+        ) -> IngredientUnitCreate | IngredientUnitOutOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -177,7 +179,7 @@ class RecipeIngredientOutput:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                unit_type_0 = IngredientUnitOutput.from_dict(data)
+                unit_type_0 = IngredientUnitOutOutput.from_dict(data)
 
                 return unit_type_0
             except TypeError, ValueError, AttributeError, KeyError:
@@ -185,16 +187,18 @@ class RecipeIngredientOutput:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                unit_type_1 = CreateIngredientUnit.from_dict(data)
+                unit_type_1 = IngredientUnitCreate.from_dict(data)
 
                 return unit_type_1
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(CreateIngredientUnit | IngredientUnitOutput | None | Unset, data)
+            return cast(IngredientUnitCreate | IngredientUnitOutOutput | None | Unset, data)
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
-        def _parse_food(data: object) -> CreateIngredientFood | IngredientFoodOutput | Unset | None:
+        def _parse_food(
+            data: object,
+        ) -> IngredientFoodCreate | IngredientFoodOutOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -202,7 +206,7 @@ class RecipeIngredientOutput:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                food_type_0 = IngredientFoodOutput.from_dict(data)
+                food_type_0 = IngredientFoodOutOutput.from_dict(data)
 
                 return food_type_0
             except TypeError, ValueError, AttributeError, KeyError:
@@ -210,16 +214,16 @@ class RecipeIngredientOutput:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                food_type_1 = CreateIngredientFood.from_dict(data)
+                food_type_1 = IngredientFoodCreate.from_dict(data)
 
                 return food_type_1
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(CreateIngredientFood | IngredientFoodOutput | None | Unset, data)
+            return cast(IngredientFoodCreate | IngredientFoodOutOutput | None | Unset, data)
 
         food = _parse_food(d.pop("food", UNSET))
 
-        def _parse_referenced_recipe(data: object) -> RecipeOutput | Unset | None:
+        def _parse_referenced_recipe(data: object) -> RecipeDraftOutput | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -227,12 +231,12 @@ class RecipeIngredientOutput:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                referenced_recipe_type_0 = RecipeOutput.from_dict(data)
+                referenced_recipe_type_0 = RecipeDraftOutput.from_dict(data)
 
                 return referenced_recipe_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | RecipeOutput | Unset, data)
+            return cast(None | RecipeDraftOutput | Unset, data)
 
         referenced_recipe = _parse_referenced_recipe(d.pop("referencedRecipe", UNSET))
 
@@ -266,11 +270,13 @@ class RecipeIngredientOutput:
         original_text = _parse_original_text(d.pop("originalText", UNSET))
 
         _substitutions = d.pop("substitutions", UNSET)
-        substitutions: list[RecipeIngredientSubstitution] | Unset = UNSET
+        substitutions: list[RecipeIngredientSubstitutionOutput] | Unset = UNSET
         if _substitutions is not UNSET:
             substitutions = []
             for substitutions_item_data in _substitutions:
-                substitutions_item = RecipeIngredientSubstitution.from_dict(substitutions_item_data)
+                substitutions_item = RecipeIngredientSubstitutionOutput.from_dict(
+                    substitutions_item_data
+                )
 
                 substitutions.append(substitutions_item)
 

@@ -1,0 +1,143 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any, TypeVar, cast
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="ToolDraft")
+
+
+@_attrs_define
+class ToolDraft:
+    """
+    Attributes:
+        name (str):
+        id (None | str | Unset):
+        group_id (None | str | Unset):
+        slug (None | str | Unset):
+        recipe_count (int | Unset):  Default: 0.
+        households_with_tool (list[str] | Unset):
+    """
+
+    name: str
+    id: str | Unset | None = UNSET
+    group_id: str | Unset | None = UNSET
+    slug: str | Unset | None = UNSET
+    recipe_count: int | Unset = 0
+    households_with_tool: list[str] | Unset = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        name = self.name
+
+        id: str | Unset | None
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
+
+        group_id: str | Unset | None
+        if isinstance(self.group_id, Unset):
+            group_id = UNSET
+        else:
+            group_id = self.group_id
+
+        slug: str | Unset | None
+        if isinstance(self.slug, Unset):
+            slug = UNSET
+        else:
+            slug = self.slug
+
+        recipe_count = self.recipe_count
+
+        households_with_tool: list[str] | Unset = UNSET
+        if not isinstance(self.households_with_tool, Unset):
+            households_with_tool = self.households_with_tool
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "name": name,
+            }
+        )
+        if id is not UNSET:
+            field_dict["id"] = id
+        if group_id is not UNSET:
+            field_dict["groupId"] = group_id
+        if slug is not UNSET:
+            field_dict["slug"] = slug
+        if recipe_count is not UNSET:
+            field_dict["recipeCount"] = recipe_count
+        if households_with_tool is not UNSET:
+            field_dict["householdsWithTool"] = households_with_tool
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
+        name = d.pop("name")
+
+        def _parse_id(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_group_id(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        group_id = _parse_group_id(d.pop("groupId", UNSET))
+
+        def _parse_slug(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        slug = _parse_slug(d.pop("slug", UNSET))
+
+        recipe_count = d.pop("recipeCount", UNSET)
+
+        households_with_tool = cast(list[str], d.pop("householdsWithTool", UNSET))
+
+        tool_draft = cls(
+            name=name,
+            id=id,
+            group_id=group_id,
+            slug=slug,
+            recipe_count=recipe_count,
+            households_with_tool=households_with_tool,
+        )
+
+        tool_draft.additional_properties = d
+        return tool_draft
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

@@ -7,8 +7,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="RecipeShareTokenSummary")
 
 
@@ -17,21 +15,23 @@ class RecipeShareTokenSummary:
     """
     Attributes:
         recipe_id (str):
+        expires_at (datetime.datetime):
         group_id (str):
         id (str):
         created_at (datetime.datetime):
-        expires_at (datetime.datetime | Unset):
     """
 
     recipe_id: str
+    expires_at: datetime.datetime
     group_id: str
     id: str
     created_at: datetime.datetime
-    expires_at: datetime.datetime | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         recipe_id = self.recipe_id
+
+        expires_at = self.expires_at.isoformat()
 
         group_id = self.group_id
 
@@ -39,22 +39,17 @@ class RecipeShareTokenSummary:
 
         created_at = self.created_at.isoformat()
 
-        expires_at: str | Unset = UNSET
-        if not isinstance(self.expires_at, Unset):
-            expires_at = self.expires_at.isoformat()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "recipeId": recipe_id,
+                "expiresAt": expires_at,
                 "groupId": group_id,
                 "id": id,
                 "createdAt": created_at,
             }
         )
-        if expires_at is not UNSET:
-            field_dict["expiresAt"] = expires_at
 
         return field_dict
 
@@ -63,25 +58,20 @@ class RecipeShareTokenSummary:
         d = dict(src_dict)
         recipe_id = d.pop("recipeId")
 
+        expires_at = datetime.datetime.fromisoformat(d.pop("expiresAt"))
+
         group_id = d.pop("groupId")
 
         id = d.pop("id")
 
         created_at = datetime.datetime.fromisoformat(d.pop("createdAt"))
 
-        _expires_at = d.pop("expiresAt", UNSET)
-        expires_at: datetime.datetime | Unset
-        if isinstance(_expires_at, Unset):
-            expires_at = UNSET
-        else:
-            expires_at = datetime.datetime.fromisoformat(_expires_at)
-
         recipe_share_token_summary = cls(
             recipe_id=recipe_id,
+            expires_at=expires_at,
             group_id=group_id,
             id=id,
             created_at=created_at,
-            expires_at=expires_at,
         )
 
         recipe_share_token_summary.additional_properties = d

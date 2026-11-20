@@ -7,15 +7,15 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.recipe_tool import RecipeTool
-from ...models.recipe_tool_create import RecipeToolCreate
+from ...models.tool_create import ToolCreate
+from ...models.tool_out import ToolOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: RecipeToolCreate,
+    body: ToolCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeTool | None:
+) -> HTTPValidationError | ToolOut | None:
     if response.status_code == 200:
-        response_200 = RecipeTool.from_dict(response.json())
+        response_200 = ToolOut.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeTool]:
+) -> Response[HTTPValidationError | ToolOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,22 +70,22 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: RecipeToolCreate,
+    body: ToolCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTool]:
+) -> Response[HTTPValidationError | ToolOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (RecipeToolCreate):
+        body (ToolCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTool]
+        Response[HTTPValidationError | ToolOut]
     """
 
     kwargs = _get_kwargs(
@@ -105,22 +105,22 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: RecipeToolCreate,
+    body: ToolCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTool | None:
+) -> HTTPValidationError | ToolOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (RecipeToolCreate):
+        body (ToolCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTool
+        HTTPValidationError | ToolOut
     """
 
     return sync_detailed(
@@ -135,22 +135,22 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: RecipeToolCreate,
+    body: ToolCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeTool]:
+) -> Response[HTTPValidationError | ToolOut]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (RecipeToolCreate):
+        body (ToolCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeTool]
+        Response[HTTPValidationError | ToolOut]
     """
 
     kwargs = _get_kwargs(
@@ -168,22 +168,22 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: RecipeToolCreate,
+    body: ToolCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeTool | None:
+) -> HTTPValidationError | ToolOut | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (RecipeToolCreate):
+        body (ToolCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeTool
+        HTTPValidationError | ToolOut
     """
 
     return (

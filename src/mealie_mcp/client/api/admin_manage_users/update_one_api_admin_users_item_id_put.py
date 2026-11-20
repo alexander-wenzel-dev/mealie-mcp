@@ -8,6 +8,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_out import UserOut
+from ...models.user_out_output import UserOutOutput
 from ...types import UNSET, Response, Unset
 
 
@@ -38,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     if response.status_code == 200:
-        response_200 = UserOut.from_dict(response.json())
+        response_200 = UserOutOutput.from_dict(response.json())
 
         return response_200
 
@@ -56,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,7 +72,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: UserOut,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Update One
 
     Args:
@@ -85,7 +86,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -107,7 +108,7 @@ def sync(
     client: AuthenticatedClient,
     body: UserOut,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Update One
 
     Args:
@@ -121,7 +122,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return sync_detailed(
@@ -138,7 +139,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: UserOut,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Update One
 
     Args:
@@ -152,7 +153,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -172,7 +173,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: UserOut,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Update One
 
     Args:
@@ -186,7 +187,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return (
