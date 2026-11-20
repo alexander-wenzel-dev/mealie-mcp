@@ -7,7 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.recipe_tool_response import RecipeToolResponse
+from ...models.tool_with_recipes import ToolWithRecipes
 from ...types import UNSET, Response, Unset
 
 
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeToolResponse | None:
+) -> HTTPValidationError | ToolWithRecipes | None:
     if response.status_code == 200:
-        response_200 = RecipeToolResponse.from_dict(response.json())
+        response_200 = ToolWithRecipes.from_dict(response.json())
 
         return response_200
 
@@ -51,7 +51,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeToolResponse]:
+) -> Response[HTTPValidationError | ToolWithRecipes]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,7 +65,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeToolResponse]:
+) -> Response[HTTPValidationError | ToolWithRecipes]:
     """Get One By Slug
 
     Args:
@@ -77,7 +77,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeToolResponse]
+        Response[HTTPValidationError | ToolWithRecipes]
     """
 
     kwargs = _get_kwargs(
@@ -97,7 +97,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeToolResponse | None:
+) -> HTTPValidationError | ToolWithRecipes | None:
     """Get One By Slug
 
     Args:
@@ -109,7 +109,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeToolResponse
+        HTTPValidationError | ToolWithRecipes
     """
 
     return sync_detailed(
@@ -124,7 +124,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeToolResponse]:
+) -> Response[HTTPValidationError | ToolWithRecipes]:
     """Get One By Slug
 
     Args:
@@ -136,7 +136,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeToolResponse]
+        Response[HTTPValidationError | ToolWithRecipes]
     """
 
     kwargs = _get_kwargs(
@@ -154,7 +154,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeToolResponse | None:
+) -> HTTPValidationError | ToolWithRecipes | None:
     """Get One By Slug
 
     Args:
@@ -166,7 +166,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeToolResponse
+        HTTPValidationError | ToolWithRecipes
     """
 
     return (

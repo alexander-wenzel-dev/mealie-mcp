@@ -84,12 +84,8 @@ class AIProviderUpdate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_update_requestheaders import (
-            AIProviderUpdateRequestheaders,
-        )
-        from ..models.ai_provider_update_requestparams import (
-            AIProviderUpdateRequestparams,
-        )
+        from ..models.ai_provider_update_requestheaders import AIProviderUpdateRequestheaders  # noqa: PLC0415
+        from ..models.ai_provider_update_requestparams import AIProviderUpdateRequestparams  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")

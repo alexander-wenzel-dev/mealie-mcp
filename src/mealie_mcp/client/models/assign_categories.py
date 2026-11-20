@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.category_base import CategoryBase
+    from ..models.category_draft import CategoryDraft
 
 
 T = TypeVar("T", bound="AssignCategories")
@@ -18,11 +18,11 @@ class AssignCategories:
     """
     Attributes:
         recipes (list[str]):
-        categories (list[CategoryBase]):
+        categories (list[CategoryDraft]):
     """
 
     recipes: list[str]
-    categories: list[CategoryBase]
+    categories: list[CategoryDraft]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +46,7 @@ class AssignCategories:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.category_base import CategoryBase  # noqa: PLC0415
+        from ..models.category_draft import CategoryDraft  # noqa: PLC0415
 
         d = dict(src_dict)
         recipes = cast(list[str], d.pop("recipes"))
@@ -54,7 +54,7 @@ class AssignCategories:
         categories = []
         _categories = d.pop("categories")
         for categories_item_data in _categories:
-            categories_item = CategoryBase.from_dict(categories_item_data)
+            categories_item = CategoryDraft.from_dict(categories_item_data)
 
             categories.append(categories_item)
 

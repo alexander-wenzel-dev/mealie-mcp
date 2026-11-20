@@ -27,6 +27,7 @@ class RecipeStep:
         summary (None | str | Unset):  Default: ''.
         ingredient_references (list[IngredientReferences] | Unset):
         note_references (list[NoteReference] | Unset):
+        duration_seconds (int | None | Unset):
     """
 
     text: str
@@ -35,6 +36,7 @@ class RecipeStep:
     summary: str | Unset | None = ""
     ingredient_references: list[IngredientReferences] | Unset = UNSET
     note_references: list[NoteReference] | Unset = UNSET
+    duration_seconds: int | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,6 +76,12 @@ class RecipeStep:
                 note_references_item = note_references_item_data.to_dict()
                 note_references.append(note_references_item)
 
+        duration_seconds: int | Unset | None
+        if isinstance(self.duration_seconds, Unset):
+            duration_seconds = UNSET
+        else:
+            duration_seconds = self.duration_seconds
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -91,6 +99,8 @@ class RecipeStep:
             field_dict["ingredientReferences"] = ingredient_references
         if note_references is not UNSET:
             field_dict["noteReferences"] = note_references
+        if duration_seconds is not UNSET:
+            field_dict["durationSeconds"] = duration_seconds
 
         return field_dict
 
@@ -157,6 +167,15 @@ class RecipeStep:
 
                 note_references.append(note_references_item)
 
+        def _parse_duration_seconds(data: object) -> int | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        duration_seconds = _parse_duration_seconds(d.pop("durationSeconds", UNSET))
+
         recipe_step = cls(
             text=text,
             id=id,
@@ -164,6 +183,7 @@ class RecipeStep:
             summary=summary,
             ingredient_references=ingredient_references,
             note_references=note_references,
+            duration_seconds=duration_seconds,
         )
 
         recipe_step.additional_properties = d

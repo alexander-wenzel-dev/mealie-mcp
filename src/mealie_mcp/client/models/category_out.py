@@ -6,8 +6,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="CategoryOut")
 
 
@@ -15,26 +13,26 @@ T = TypeVar("T", bound="CategoryOut")
 class CategoryOut:
     """
     Attributes:
-        name (str):
         id (str):
         group_id (str):
+        name (str):
         slug (str):
-        recipe_count (int | Unset):  Default: 0.
+        recipe_count (int):  Default: 0.
     """
 
-    name: str
     id: str
     group_id: str
+    name: str
     slug: str
-    recipe_count: int | Unset = 0
+    recipe_count: int = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name = self.name
-
         id = self.id
 
         group_id = self.group_id
+
+        name = self.name
 
         slug = self.slug
 
@@ -44,34 +42,33 @@ class CategoryOut:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "name": name,
                 "id": id,
                 "groupId": group_id,
+                "name": name,
                 "slug": slug,
+                "recipeCount": recipe_count,
             }
         )
-        if recipe_count is not UNSET:
-            field_dict["recipeCount"] = recipe_count
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        name = d.pop("name")
-
         id = d.pop("id")
 
         group_id = d.pop("groupId")
 
+        name = d.pop("name")
+
         slug = d.pop("slug")
 
-        recipe_count = d.pop("recipeCount", UNSET)
+        recipe_count = d.pop("recipeCount")
 
         category_out = cls(
-            name=name,
             id=id,
             group_id=group_id,
+            name=name,
             slug=slug,
             recipe_count=recipe_count,
         )

@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
     from ..models.shopping_list_item_out_output import ShoppingListItemOutOutput
 
@@ -19,30 +17,25 @@ T = TypeVar("T", bound="ShoppingListItemPagination")
 class ShoppingListItemPagination:
     """
     Attributes:
+        page (int):  Default: 1.
+        per_page (int):  Default: 10.
+        total (int):  Default: 0.
+        total_pages (int):  Default: 0.
         items (list[ShoppingListItemOutOutput]):
-        page (int | Unset):  Default: 1.
-        per_page (int | Unset):  Default: 10.
-        total (int | Unset):  Default: 0.
-        total_pages (int | Unset):  Default: 0.
-        next_ (None | str | Unset):
-        previous (None | str | Unset):
+        next_ (None | str):
+        previous (None | str):
     """
 
     items: list[ShoppingListItemOutOutput]
-    page: int | Unset = 1
-    per_page: int | Unset = 10
-    total: int | Unset = 0
-    total_pages: int | Unset = 0
-    next_: str | Unset | None = UNSET
-    previous: str | Unset | None = UNSET
+    next_: str | None
+    previous: str | None
+    page: int = 1
+    per_page: int = 10
+    total: int = 0
+    total_pages: int = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        items = []
-        for items_item_data in self.items:
-            items_item = items_item_data.to_dict()
-            items.append(items_item)
-
         page = self.page
 
         per_page = self.per_page
@@ -51,47 +44,46 @@ class ShoppingListItemPagination:
 
         total_pages = self.total_pages
 
-        next_: str | Unset | None
-        if isinstance(self.next_, Unset):
-            next_ = UNSET
-        else:
-            next_ = self.next_
+        items = []
+        for items_item_data in self.items:
+            items_item = items_item_data.to_dict()
+            items.append(items_item)
 
-        previous: str | Unset | None
-        if isinstance(self.previous, Unset):
-            previous = UNSET
-        else:
-            previous = self.previous
+        next_: str | None
+        next_ = self.next_
+
+        previous: str | None
+        previous = self.previous
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "total_pages": total_pages,
                 "items": items,
+                "next": next_,
+                "previous": previous,
             }
         )
-        if page is not UNSET:
-            field_dict["page"] = page
-        if per_page is not UNSET:
-            field_dict["per_page"] = per_page
-        if total is not UNSET:
-            field_dict["total"] = total
-        if total_pages is not UNSET:
-            field_dict["total_pages"] = total_pages
-        if next_ is not UNSET:
-            field_dict["next"] = next_
-        if previous is not UNSET:
-            field_dict["previous"] = previous
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_item_out_output import (
-            ShoppingListItemOutOutput,
-        )
+        from ..models.shopping_list_item_out_output import ShoppingListItemOutOutput  # noqa: PLC0415
 
         d = dict(src_dict)
+        page = d.pop("page")
+
+        per_page = d.pop("per_page")
+
+        total = d.pop("total")
+
+        total_pages = d.pop("total_pages")
+
         items = []
         _items = d.pop("items")
         for items_item_data in _items:
@@ -99,38 +91,26 @@ class ShoppingListItemPagination:
 
             items.append(items_item)
 
-        page = d.pop("page", UNSET)
-
-        per_page = d.pop("per_page", UNSET)
-
-        total = d.pop("total", UNSET)
-
-        total_pages = d.pop("total_pages", UNSET)
-
-        def _parse_next_(data: object) -> str | Unset | None:
+        def _parse_next_(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        next_ = _parse_next_(d.pop("next", UNSET))
+        next_ = _parse_next_(d.pop("next"))
 
-        def _parse_previous(data: object) -> str | Unset | None:
+        def _parse_previous(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        previous = _parse_previous(d.pop("previous", UNSET))
+        previous = _parse_previous(d.pop("previous"))
 
         shopping_list_item_pagination = cls(
-            items=items,
             page=page,
             per_page=per_page,
             total=total,
             total_pages=total_pages,
+            items=items,
             next_=next_,
             previous=previous,
         )

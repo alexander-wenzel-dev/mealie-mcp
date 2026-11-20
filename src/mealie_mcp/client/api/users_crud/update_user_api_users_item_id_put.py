@@ -7,14 +7,14 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.mealie_schema_user_user_user_base import MealieSchemaUserUserUserBase
+from ...models.user_base import UserBase
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: MealieSchemaUserUserUserBase,
+    body: UserBase,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -68,7 +68,7 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: MealieSchemaUserUserUserBase,
+    body: UserBase,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Update User
@@ -76,9 +76,8 @@ def sync_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (MealieSchemaUserUserUserBase):  Example: {'admin': 'false', 'email':
-            'changeme@example.com', 'fullName': 'Change Me', 'group': 'Home', 'household': 'Family',
-            'username': 'ChangeMe'}.
+        body (UserBase):  Example: {'admin': 'false', 'email': 'changeme@example.com', 'fullName':
+            'Change Me', 'group': 'Home', 'household': 'Family', 'username': 'ChangeMe'}.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -105,7 +104,7 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: MealieSchemaUserUserUserBase,
+    body: UserBase,
     accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Update User
@@ -113,9 +112,8 @@ def sync(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (MealieSchemaUserUserUserBase):  Example: {'admin': 'false', 'email':
-            'changeme@example.com', 'fullName': 'Change Me', 'group': 'Home', 'household': 'Family',
-            'username': 'ChangeMe'}.
+        body (UserBase):  Example: {'admin': 'false', 'email': 'changeme@example.com', 'fullName':
+            'Change Me', 'group': 'Home', 'household': 'Family', 'username': 'ChangeMe'}.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +135,7 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: MealieSchemaUserUserUserBase,
+    body: UserBase,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[Any | HTTPValidationError]:
     """Update User
@@ -145,9 +143,8 @@ async def asyncio_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (MealieSchemaUserUserUserBase):  Example: {'admin': 'false', 'email':
-            'changeme@example.com', 'fullName': 'Change Me', 'group': 'Home', 'household': 'Family',
-            'username': 'ChangeMe'}.
+        body (UserBase):  Example: {'admin': 'false', 'email': 'changeme@example.com', 'fullName':
+            'Change Me', 'group': 'Home', 'household': 'Family', 'username': 'ChangeMe'}.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -172,7 +169,7 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: MealieSchemaUserUserUserBase,
+    body: UserBase,
     accept_language: str | Unset | None = UNSET,
 ) -> Any | HTTPValidationError | None:
     """Update User
@@ -180,9 +177,8 @@ async def asyncio(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (MealieSchemaUserUserUserBase):  Example: {'admin': 'false', 'email':
-            'changeme@example.com', 'fullName': 'Change Me', 'group': 'Home', 'household': 'Family',
-            'username': 'ChangeMe'}.
+        body (UserBase):  Example: {'admin': 'false', 'email': 'changeme@example.com', 'fullName':
+            'Change Me', 'group': 'Home', 'household': 'Family', 'username': 'ChangeMe'}.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

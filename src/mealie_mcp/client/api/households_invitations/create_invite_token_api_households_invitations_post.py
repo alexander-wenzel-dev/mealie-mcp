@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_invite_token import CreateInviteToken
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_invite_token import ReadInviteToken
+from ...models.invite_token_create import InviteTokenCreate
+from ...models.invite_token_out import InviteTokenOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: CreateInviteToken,
+    body: InviteTokenCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadInviteToken | None:
+) -> HTTPValidationError | InviteTokenOut | None:
     if response.status_code == 201:
-        response_201 = ReadInviteToken.from_dict(response.json())
+        response_201 = InviteTokenOut.from_dict(response.json())
 
         return response_201
 
@@ -53,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadInviteToken]:
+) -> Response[HTTPValidationError | InviteTokenOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,21 +65,21 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateInviteToken,
+    body: InviteTokenCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadInviteToken]:
+) -> Response[HTTPValidationError | InviteTokenOut]:
     """Create Invite Token
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateInviteToken):
+        body (InviteTokenCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadInviteToken]
+        Response[HTTPValidationError | InviteTokenOut]
     """
 
     kwargs = _get_kwargs(
@@ -97,21 +97,21 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: CreateInviteToken,
+    body: InviteTokenCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadInviteToken | None:
+) -> HTTPValidationError | InviteTokenOut | None:
     """Create Invite Token
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateInviteToken):
+        body (InviteTokenCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadInviteToken
+        HTTPValidationError | InviteTokenOut
     """
 
     return sync_detailed(
@@ -124,21 +124,21 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateInviteToken,
+    body: InviteTokenCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadInviteToken]:
+) -> Response[HTTPValidationError | InviteTokenOut]:
     """Create Invite Token
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateInviteToken):
+        body (InviteTokenCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadInviteToken]
+        Response[HTTPValidationError | InviteTokenOut]
     """
 
     kwargs = _get_kwargs(
@@ -154,21 +154,21 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: CreateInviteToken,
+    body: InviteTokenCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadInviteToken | None:
+) -> HTTPValidationError | InviteTokenOut | None:
     """Create Invite Token
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateInviteToken):
+        body (InviteTokenCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadInviteToken
+        HTTPValidationError | InviteTokenOut
     """
 
     return (

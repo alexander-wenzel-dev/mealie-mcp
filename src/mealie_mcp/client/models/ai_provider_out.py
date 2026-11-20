@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
     from ..models.ai_provider_out_requestheaders import AIProviderOutRequestheaders
     from ..models.ai_provider_out_requestparams import AIProviderOutRequestparams
@@ -21,115 +19,88 @@ class AIProviderOut:
     """
     Attributes:
         name (str):
+        base_url (None | str):
         model (str):
+        timeout (int):  Default: 300.
+        request_headers (AIProviderOutRequestheaders):
+        request_params (AIProviderOutRequestparams):
         id (str):
-        base_url (None | str | Unset):
-        timeout (int | Unset):  Default: 300.
-        request_headers (AIProviderOutRequestheaders | Unset):
-        request_params (AIProviderOutRequestparams | Unset):
     """
 
     name: str
+    base_url: str | None
     model: str
+    request_headers: AIProviderOutRequestheaders
+    request_params: AIProviderOutRequestparams
     id: str
-    base_url: str | Unset | None = UNSET
-    timeout: int | Unset = 300
-    request_headers: AIProviderOutRequestheaders | Unset = UNSET
-    request_params: AIProviderOutRequestparams | Unset = UNSET
+    timeout: int = 300
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
+        base_url: str | None
+        base_url = self.base_url
+
         model = self.model
-
-        id = self.id
-
-        base_url: str | Unset | None
-        if isinstance(self.base_url, Unset):
-            base_url = UNSET
-        else:
-            base_url = self.base_url
 
         timeout = self.timeout
 
-        request_headers: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.request_headers, Unset):
-            request_headers = self.request_headers.to_dict()
+        request_headers = self.request_headers.to_dict()
 
-        request_params: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.request_params, Unset):
-            request_params = self.request_params.to_dict()
+        request_params = self.request_params.to_dict()
+
+        id = self.id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "name": name,
+                "baseUrl": base_url,
                 "model": model,
+                "timeout": timeout,
+                "requestHeaders": request_headers,
+                "requestParams": request_params,
                 "id": id,
             }
         )
-        if base_url is not UNSET:
-            field_dict["baseUrl"] = base_url
-        if timeout is not UNSET:
-            field_dict["timeout"] = timeout
-        if request_headers is not UNSET:
-            field_dict["requestHeaders"] = request_headers
-        if request_params is not UNSET:
-            field_dict["requestParams"] = request_params
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_out_requestheaders import (
-            AIProviderOutRequestheaders,
-        )
-        from ..models.ai_provider_out_requestparams import (
-            AIProviderOutRequestparams,
-        )
+        from ..models.ai_provider_out_requestheaders import AIProviderOutRequestheaders  # noqa: PLC0415
+        from ..models.ai_provider_out_requestparams import AIProviderOutRequestparams  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")
 
+        def _parse_base_url(data: object) -> str | None:
+            if data is None:
+                return data
+            return cast(None | str, data)
+
+        base_url = _parse_base_url(d.pop("baseUrl"))
+
         model = d.pop("model")
+
+        timeout = d.pop("timeout")
+
+        request_headers = AIProviderOutRequestheaders.from_dict(d.pop("requestHeaders"))
+
+        request_params = AIProviderOutRequestparams.from_dict(d.pop("requestParams"))
 
         id = d.pop("id")
 
-        def _parse_base_url(data: object) -> str | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        base_url = _parse_base_url(d.pop("baseUrl", UNSET))
-
-        timeout = d.pop("timeout", UNSET)
-
-        _request_headers = d.pop("requestHeaders", UNSET)
-        request_headers: AIProviderOutRequestheaders | Unset
-        if isinstance(_request_headers, Unset):
-            request_headers = UNSET
-        else:
-            request_headers = AIProviderOutRequestheaders.from_dict(_request_headers)
-
-        _request_params = d.pop("requestParams", UNSET)
-        request_params: AIProviderOutRequestparams | Unset
-        if isinstance(_request_params, Unset):
-            request_params = UNSET
-        else:
-            request_params = AIProviderOutRequestparams.from_dict(_request_params)
-
         ai_provider_out = cls(
             name=name,
-            model=model,
-            id=id,
             base_url=base_url,
+            model=model,
             timeout=timeout,
             request_headers=request_headers,
             request_params=request_params,
+            id=id,
         )
 
         ai_provider_out.additional_properties = d

@@ -7,8 +7,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="LongLiveTokenCreateResponse")
 
 
@@ -19,14 +17,14 @@ class LongLiveTokenCreateResponse:
     Attributes:
         name (str):
         id (int):
+        created_at (datetime.datetime | None):
         token (str):
-        created_at (datetime.datetime | None | Unset):
     """
 
     name: str
     id: int
+    created_at: datetime.datetime | None
     token: str
-    created_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,15 +32,13 @@ class LongLiveTokenCreateResponse:
 
         id = self.id
 
-        token = self.token
-
-        created_at: str | Unset | None
-        if isinstance(self.created_at, Unset):
-            created_at = UNSET
-        elif isinstance(self.created_at, datetime.datetime):
+        created_at: str | None
+        if isinstance(self.created_at, datetime.datetime):
             created_at = self.created_at.isoformat()
         else:
             created_at = self.created_at
+
+        token = self.token
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,11 +46,10 @@ class LongLiveTokenCreateResponse:
             {
                 "name": name,
                 "id": id,
+                "createdAt": created_at,
                 "token": token,
             }
         )
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
 
         return field_dict
 
@@ -65,12 +60,8 @@ class LongLiveTokenCreateResponse:
 
         id = d.pop("id")
 
-        token = d.pop("token")
-
-        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
+        def _parse_created_at(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -80,15 +71,17 @@ class LongLiveTokenCreateResponse:
                 return created_at_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        created_at = _parse_created_at(d.pop("createdAt", UNSET))
+        created_at = _parse_created_at(d.pop("createdAt"))
+
+        token = d.pop("token")
 
         long_live_token_create_response = cls(
             name=name,
             id=id,
-            token=token,
             created_at=created_at,
+            token=token,
         )
 
         long_live_token_create_response.additional_properties = d

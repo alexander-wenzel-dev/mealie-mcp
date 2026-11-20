@@ -69,7 +69,11 @@ def sync_detailed(
     """Create Recipe From Html Or Json Stream
 
      Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL,
-    streaming progress via SSE
+    streaming progress via SSE.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -104,7 +108,11 @@ def sync(
     """Create Recipe From Html Or Json Stream
 
      Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL,
-    streaming progress via SSE
+    streaming progress via SSE.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -134,7 +142,11 @@ async def asyncio_detailed(
     """Create Recipe From Html Or Json Stream
 
      Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL,
-    streaming progress via SSE
+    streaming progress via SSE.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):
@@ -167,7 +179,11 @@ async def asyncio(
     """Create Recipe From Html Or Json Stream
 
      Takes in raw HTML or a https://schema.org/Recipe object as a JSON string and parses it like a URL,
-    streaming progress via SSE
+    streaming progress via SSE.
+
+    A complete recipe exported from Mealie (the JSON from an export zip, or the recipe as
+    returned by the API) is imported with its full structure instead of being parsed as
+    schema.org.
 
     Args:
         accept_language (None | str | Unset):

@@ -7,7 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_plan_entry import ReadPlanEntry
+from ...models.plan_entry_out import PlanEntryOut
 from ...types import UNSET, Response, Unset
 
 
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     if response.status_code == 200:
-        response_200 = ReadPlanEntry.from_dict(response.json())
+        response_200 = PlanEntryOut.from_dict(response.json())
 
         return response_200
 
@@ -51,7 +51,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,7 +65,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     """Delete One
 
     Args:
@@ -77,7 +77,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[HTTPValidationError | PlanEntryOut]
     """
 
     kwargs = _get_kwargs(
@@ -97,7 +97,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     """Delete One
 
     Args:
@@ -109,7 +109,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        HTTPValidationError | PlanEntryOut
     """
 
     return sync_detailed(
@@ -124,7 +124,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     """Delete One
 
     Args:
@@ -136,7 +136,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[HTTPValidationError | PlanEntryOut]
     """
 
     kwargs = _get_kwargs(
@@ -154,7 +154,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     """Delete One
 
     Args:
@@ -166,7 +166,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        HTTPValidationError | PlanEntryOut
     """
 
     return (

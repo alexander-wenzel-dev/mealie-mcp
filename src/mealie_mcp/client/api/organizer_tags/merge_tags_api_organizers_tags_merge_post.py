@@ -6,14 +6,14 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.tag_merge import TagMerge
+from ...models.organizer_merge import OrganizerMerge
 from ...models.tag_out import TagOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: TagMerge,
+    body: OrganizerMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -65,7 +65,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: TagMerge,
+    body: OrganizerMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | TagOut]:
     """Merge Tags
@@ -74,7 +74,8 @@ def sync_detailed(
 
     Args:
         accept_language (None | str | Unset):
-        body (TagMerge):
+        body (OrganizerMerge): Moves every recipe from one organizer to another, then deletes the
+            first one.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -99,7 +100,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: TagMerge,
+    body: OrganizerMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | TagOut | None:
     """Merge Tags
@@ -108,7 +109,8 @@ def sync(
 
     Args:
         accept_language (None | str | Unset):
-        body (TagMerge):
+        body (OrganizerMerge): Moves every recipe from one organizer to another, then deletes the
+            first one.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -128,7 +130,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: TagMerge,
+    body: OrganizerMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | TagOut]:
     """Merge Tags
@@ -137,7 +139,8 @@ async def asyncio_detailed(
 
     Args:
         accept_language (None | str | Unset):
-        body (TagMerge):
+        body (OrganizerMerge): Moves every recipe from one organizer to another, then deletes the
+            first one.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -160,7 +163,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: TagMerge,
+    body: OrganizerMerge,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | TagOut | None:
     """Merge Tags
@@ -169,7 +172,8 @@ async def asyncio(
 
     Args:
         accept_language (None | str | Unset):
-        body (TagMerge):
+        body (OrganizerMerge): Moves every recipe from one organizer to another, then deletes the
+            first one.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

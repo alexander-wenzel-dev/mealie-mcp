@@ -6,11 +6,9 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
     from ..models.ai_provider_settings_out import AIProviderSettingsOut
-    from ..models.read_group_preferences import ReadGroupPreferences
+    from ..models.group_preferences_out import GroupPreferencesOut
 
 
 T = TypeVar("T", bound="GroupSummary")
@@ -23,20 +21,20 @@ class GroupSummary:
         name (str):
         id (str):
         slug (str):
-        preferences (None | ReadGroupPreferences | Unset):
-        ai_provider_settings (AIProviderSettingsOut | None | Unset):
+        preferences (GroupPreferencesOut | None):
+        ai_provider_settings (AIProviderSettingsOut | None):
     """
 
     name: str
     id: str
     slug: str
-    preferences: ReadGroupPreferences | Unset | None = UNSET
-    ai_provider_settings: AIProviderSettingsOut | Unset | None = UNSET
+    preferences: GroupPreferencesOut | None
+    ai_provider_settings: AIProviderSettingsOut | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.ai_provider_settings_out import AIProviderSettingsOut  # noqa: PLC0415
-        from ..models.read_group_preferences import ReadGroupPreferences  # noqa: PLC0415
+        from ..models.group_preferences_out import GroupPreferencesOut  # noqa: PLC0415
 
         name = self.name
 
@@ -44,18 +42,14 @@ class GroupSummary:
 
         slug = self.slug
 
-        preferences: dict[str, Any] | Unset | None
-        if isinstance(self.preferences, Unset):
-            preferences = UNSET
-        elif isinstance(self.preferences, ReadGroupPreferences):
+        preferences: dict[str, Any] | None
+        if isinstance(self.preferences, GroupPreferencesOut):
             preferences = self.preferences.to_dict()
         else:
             preferences = self.preferences
 
-        ai_provider_settings: dict[str, Any] | Unset | None
-        if isinstance(self.ai_provider_settings, Unset):
-            ai_provider_settings = UNSET
-        elif isinstance(self.ai_provider_settings, AIProviderSettingsOut):
+        ai_provider_settings: dict[str, Any] | None
+        if isinstance(self.ai_provider_settings, AIProviderSettingsOut):
             ai_provider_settings = self.ai_provider_settings.to_dict()
         else:
             ai_provider_settings = self.ai_provider_settings
@@ -67,19 +61,17 @@ class GroupSummary:
                 "name": name,
                 "id": id,
                 "slug": slug,
+                "preferences": preferences,
+                "aiProviderSettings": ai_provider_settings,
             }
         )
-        if preferences is not UNSET:
-            field_dict["preferences"] = preferences
-        if ai_provider_settings is not UNSET:
-            field_dict["aiProviderSettings"] = ai_provider_settings
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ai_provider_settings_out import AIProviderSettingsOut  # noqa: PLC0415
-        from ..models.read_group_preferences import ReadGroupPreferences  # noqa: PLC0415
+        from ..models.group_preferences_out import GroupPreferencesOut  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")
@@ -88,27 +80,23 @@ class GroupSummary:
 
         slug = d.pop("slug")
 
-        def _parse_preferences(data: object) -> ReadGroupPreferences | Unset | None:
+        def _parse_preferences(data: object) -> GroupPreferencesOut | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                preferences_type_0 = ReadGroupPreferences.from_dict(data)
+                preferences_type_0 = GroupPreferencesOut.from_dict(data)
 
                 return preferences_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | ReadGroupPreferences | Unset, data)
+            return cast(GroupPreferencesOut | None, data)
 
-        preferences = _parse_preferences(d.pop("preferences", UNSET))
+        preferences = _parse_preferences(d.pop("preferences"))
 
-        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | Unset | None:
+        def _parse_ai_provider_settings(data: object) -> AIProviderSettingsOut | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
@@ -118,9 +106,9 @@ class GroupSummary:
                 return ai_provider_settings_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(AIProviderSettingsOut | None | Unset, data)
+            return cast(AIProviderSettingsOut | None, data)
 
-        ai_provider_settings = _parse_ai_provider_settings(d.pop("aiProviderSettings", UNSET))
+        ai_provider_settings = _parse_ai_provider_settings(d.pop("aiProviderSettings"))
 
         group_summary = cls(
             name=name,

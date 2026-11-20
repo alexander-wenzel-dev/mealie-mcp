@@ -7,7 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.recipe_output import RecipeOutput
+from ...models.recipe_out import RecipeOut
 from ...types import Response
 
 
@@ -27,9 +27,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeOutput | None:
+) -> HTTPValidationError | RecipeOut | None:
     if response.status_code == 200:
-        response_200 = RecipeOutput.from_dict(response.json())
+        response_200 = RecipeOut.from_dict(response.json())
 
         return response_200
 
@@ -45,7 +45,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeOutput]:
+) -> Response[HTTPValidationError | RecipeOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -58,7 +58,7 @@ def sync_detailed(
     token_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RecipeOutput]:
+) -> Response[HTTPValidationError | RecipeOut]:
     """Get Shared Recipe
 
     Args:
@@ -69,7 +69,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeOutput]
+        Response[HTTPValidationError | RecipeOut]
     """
 
     kwargs = _get_kwargs(
@@ -87,7 +87,7 @@ def sync(
     token_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RecipeOutput | None:
+) -> HTTPValidationError | RecipeOut | None:
     """Get Shared Recipe
 
     Args:
@@ -98,7 +98,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeOutput
+        HTTPValidationError | RecipeOut
     """
 
     return sync_detailed(
@@ -111,7 +111,7 @@ async def asyncio_detailed(
     token_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RecipeOutput]:
+) -> Response[HTTPValidationError | RecipeOut]:
     """Get Shared Recipe
 
     Args:
@@ -122,7 +122,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeOutput]
+        Response[HTTPValidationError | RecipeOut]
     """
 
     kwargs = _get_kwargs(
@@ -138,7 +138,7 @@ async def asyncio(
     token_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RecipeOutput | None:
+) -> HTTPValidationError | RecipeOut | None:
     """Get Shared Recipe
 
     Args:
@@ -149,7 +149,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeOutput
+        HTTPValidationError | RecipeOut
     """
 
     return (

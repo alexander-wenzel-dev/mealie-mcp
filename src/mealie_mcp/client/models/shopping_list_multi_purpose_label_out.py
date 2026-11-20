@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
-    from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
+    from ..models.multi_purpose_label_summary_output import MultiPurposeLabelSummaryOutput
 
 
 T = TypeVar("T", bound="ShoppingListMultiPurposeLabelOut")
@@ -21,16 +19,16 @@ class ShoppingListMultiPurposeLabelOut:
     Attributes:
         shopping_list_id (str):
         label_id (str):
+        position (int):  Default: 0.
         id (str):
-        label (MultiPurposeLabelSummary):
-        position (int | Unset):  Default: 0.
+        label (MultiPurposeLabelSummaryOutput):
     """
 
     shopping_list_id: str
     label_id: str
     id: str
-    label: MultiPurposeLabelSummary
-    position: int | Unset = 0
+    label: MultiPurposeLabelSummaryOutput
+    position: int = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,11 +36,11 @@ class ShoppingListMultiPurposeLabelOut:
 
         label_id = self.label_id
 
+        position = self.position
+
         id = self.id
 
         label = self.label.to_dict()
-
-        position = self.position
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,36 +48,35 @@ class ShoppingListMultiPurposeLabelOut:
             {
                 "shoppingListId": shopping_list_id,
                 "labelId": label_id,
+                "position": position,
                 "id": id,
                 "label": label,
             }
         )
-        if position is not UNSET:
-            field_dict["position"] = position
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
+        from ..models.multi_purpose_label_summary_output import MultiPurposeLabelSummaryOutput  # noqa: PLC0415
 
         d = dict(src_dict)
         shopping_list_id = d.pop("shoppingListId")
 
         label_id = d.pop("labelId")
 
+        position = d.pop("position")
+
         id = d.pop("id")
 
-        label = MultiPurposeLabelSummary.from_dict(d.pop("label"))
-
-        position = d.pop("position", UNSET)
+        label = MultiPurposeLabelSummaryOutput.from_dict(d.pop("label"))
 
         shopping_list_multi_purpose_label_out = cls(
             shopping_list_id=shopping_list_id,
             label_id=label_id,
+            position=position,
             id=id,
             label=label,
-            position=position,
         )
 
         shopping_list_multi_purpose_label_out.additional_properties = d

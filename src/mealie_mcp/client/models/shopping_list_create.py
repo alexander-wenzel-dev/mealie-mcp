@@ -33,9 +33,7 @@ class ShoppingListCreate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.shopping_list_create_extras_type_0 import (
-            ShoppingListCreateExtrasType0,
-        )
+        from ..models.shopping_list_create_extras_type_0 import ShoppingListCreateExtrasType0  # noqa: PLC0415
 
         name: str | Unset | None
         if isinstance(self.name, Unset):
@@ -83,9 +81,7 @@ class ShoppingListCreate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_create_extras_type_0 import (
-            ShoppingListCreateExtrasType0,
-        )
+        from ..models.shopping_list_create_extras_type_0 import ShoppingListCreateExtrasType0  # noqa: PLC0415
 
         d = dict(src_dict)
 

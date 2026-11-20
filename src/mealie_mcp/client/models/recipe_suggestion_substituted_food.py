@@ -7,8 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.ingredient_food_output import IngredientFoodOutput
-    from ..models.ingredient_food_summary import IngredientFoodSummary
+    from ..models.ingredient_food_out_output import IngredientFoodOutOutput
+    from ..models.ingredient_food_summary_output import IngredientFoodSummaryOutput
 
 
 T = TypeVar("T", bound="RecipeSuggestionSubstitutedFood")
@@ -19,16 +19,17 @@ class RecipeSuggestionSubstitutedFood:
     """A food the recipe calls for that the user doesn't have, and the one covering it.
 
     Attributes:
-        food (IngredientFoodOutput):
-        substitute_food (IngredientFoodSummary): A trimmed projection of a food, with nothing on it that can recurse.
+        food (IngredientFoodOutOutput):
+        substitute_food (IngredientFoodSummaryOutput): A trimmed projection of a food, with nothing on it that can
+            recurse.
 
-            Substitutions reference this rather than the full IngredientFood, which would make
+            Substitutions reference this rather than the full IngredientFoodOut, which would make
             Pydantic walk food -> substitutions -> food forever and generate an equally circular
             TypeScript type.
     """
 
-    food: IngredientFoodOutput
-    substitute_food: IngredientFoodSummary
+    food: IngredientFoodOutOutput
+    substitute_food: IngredientFoodSummaryOutput
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -49,13 +50,13 @@ class RecipeSuggestionSubstitutedFood:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
-        from ..models.ingredient_food_summary import IngredientFoodSummary  # noqa: PLC0415
+        from ..models.ingredient_food_out_output import IngredientFoodOutOutput  # noqa: PLC0415
+        from ..models.ingredient_food_summary_output import IngredientFoodSummaryOutput  # noqa: PLC0415
 
         d = dict(src_dict)
-        food = IngredientFoodOutput.from_dict(d.pop("food"))
+        food = IngredientFoodOutOutput.from_dict(d.pop("food"))
 
-        substitute_food = IngredientFoodSummary.from_dict(d.pop("substituteFood"))
+        substitute_food = IngredientFoodSummaryOutput.from_dict(d.pop("substituteFood"))
 
         recipe_suggestion_substituted_food = cls(
             food=food,

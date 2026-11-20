@@ -23,6 +23,7 @@ class AdminAboutInfo:
         enable_oidc (bool):
         oidc_redirect (bool):
         oidc_provider_name (str):
+        enable_reverse_proxy_auth (bool):
         token_time (int):
         version_latest (str):
         api_port (int):
@@ -35,6 +36,8 @@ class AdminAboutInfo:
         default_group_slug (None | str | Unset):
         default_household_slug (None | str | Unset):
         allowed_iframe_hosts (list[str] | Unset):
+        branding_name (str | Unset):  Default: 'Mealie'.
+        branding_logo_url (None | str | Unset):
         db_url (None | str | Unset):
     """
 
@@ -46,6 +49,7 @@ class AdminAboutInfo:
     enable_oidc: bool
     oidc_redirect: bool
     oidc_provider_name: str
+    enable_reverse_proxy_auth: bool
     token_time: int
     version_latest: str
     api_port: int
@@ -58,6 +62,8 @@ class AdminAboutInfo:
     default_group_slug: str | Unset | None = UNSET
     default_household_slug: str | Unset | None = UNSET
     allowed_iframe_hosts: list[str] | Unset = UNSET
+    branding_name: str | Unset = "Mealie"
+    branding_logo_url: str | Unset | None = UNSET
     db_url: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -77,6 +83,8 @@ class AdminAboutInfo:
         oidc_redirect = self.oidc_redirect
 
         oidc_provider_name = self.oidc_provider_name
+
+        enable_reverse_proxy_auth = self.enable_reverse_proxy_auth
 
         token_time = self.token_time
 
@@ -112,6 +120,14 @@ class AdminAboutInfo:
         if not isinstance(self.allowed_iframe_hosts, Unset):
             allowed_iframe_hosts = self.allowed_iframe_hosts
 
+        branding_name = self.branding_name
+
+        branding_logo_url: str | Unset | None
+        if isinstance(self.branding_logo_url, Unset):
+            branding_logo_url = UNSET
+        else:
+            branding_logo_url = self.branding_logo_url
+
         db_url: str | Unset | None
         if isinstance(self.db_url, Unset):
             db_url = UNSET
@@ -130,6 +146,7 @@ class AdminAboutInfo:
                 "enableOidc": enable_oidc,
                 "oidcRedirect": oidc_redirect,
                 "oidcProviderName": oidc_provider_name,
+                "enableReverseProxyAuth": enable_reverse_proxy_auth,
                 "tokenTime": token_time,
                 "versionLatest": version_latest,
                 "apiPort": api_port,
@@ -147,6 +164,10 @@ class AdminAboutInfo:
             field_dict["defaultHouseholdSlug"] = default_household_slug
         if allowed_iframe_hosts is not UNSET:
             field_dict["allowedIframeHosts"] = allowed_iframe_hosts
+        if branding_name is not UNSET:
+            field_dict["brandingName"] = branding_name
+        if branding_logo_url is not UNSET:
+            field_dict["brandingLogoUrl"] = branding_logo_url
         if db_url is not UNSET:
             field_dict["dbUrl"] = db_url
 
@@ -170,6 +191,8 @@ class AdminAboutInfo:
         oidc_redirect = d.pop("oidcRedirect")
 
         oidc_provider_name = d.pop("oidcProviderName")
+
+        enable_reverse_proxy_auth = d.pop("enableReverseProxyAuth")
 
         token_time = d.pop("tokenTime")
 
@@ -209,6 +232,17 @@ class AdminAboutInfo:
 
         allowed_iframe_hosts = cast(list[str], d.pop("allowedIframeHosts", UNSET))
 
+        branding_name = d.pop("brandingName", UNSET)
+
+        def _parse_branding_logo_url(data: object) -> str | Unset | None:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        branding_logo_url = _parse_branding_logo_url(d.pop("brandingLogoUrl", UNSET))
+
         def _parse_db_url(data: object) -> str | Unset | None:
             if data is None:
                 return data
@@ -227,6 +261,7 @@ class AdminAboutInfo:
             enable_oidc=enable_oidc,
             oidc_redirect=oidc_redirect,
             oidc_provider_name=oidc_provider_name,
+            enable_reverse_proxy_auth=enable_reverse_proxy_auth,
             token_time=token_time,
             version_latest=version_latest,
             api_port=api_port,
@@ -239,6 +274,8 @@ class AdminAboutInfo:
             default_group_slug=default_group_slug,
             default_household_slug=default_household_slug,
             allowed_iframe_hosts=allowed_iframe_hosts,
+            branding_name=branding_name,
+            branding_logo_url=branding_logo_url,
             db_url=db_url,
         )
 

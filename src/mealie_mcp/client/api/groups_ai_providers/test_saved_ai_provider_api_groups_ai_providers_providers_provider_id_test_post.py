@@ -83,8 +83,8 @@ def sync_detailed(
     Accepts optional unsaved edits to test against instead of what's in the database - e.g.
     while editing a provider, the caller may have changed the model/base_url but left the API
     key blank (meaning "keep the existing one"), so a plain "unsaved" test can't be used since
-    it has no way to supply that key. An `overrides.apiKey` of "" is treated the same way: keep
-    the saved key rather than testing with an empty one.
+    it has no way to supply that key. The saved key and header/param values are only used while
+    the base URL is unchanged; otherwise the caller must supply new ones.
 
     Args:
         provider_id (str):
@@ -126,8 +126,8 @@ def sync(
     Accepts optional unsaved edits to test against instead of what's in the database - e.g.
     while editing a provider, the caller may have changed the model/base_url but left the API
     key blank (meaning "keep the existing one"), so a plain "unsaved" test can't be used since
-    it has no way to supply that key. An `overrides.apiKey` of "" is treated the same way: keep
-    the saved key rather than testing with an empty one.
+    it has no way to supply that key. The saved key and header/param values are only used while
+    the base URL is unchanged; otherwise the caller must supply new ones.
 
     Args:
         provider_id (str):
@@ -164,8 +164,8 @@ async def asyncio_detailed(
     Accepts optional unsaved edits to test against instead of what's in the database - e.g.
     while editing a provider, the caller may have changed the model/base_url but left the API
     key blank (meaning "keep the existing one"), so a plain "unsaved" test can't be used since
-    it has no way to supply that key. An `overrides.apiKey` of "" is treated the same way: keep
-    the saved key rather than testing with an empty one.
+    it has no way to supply that key. The saved key and header/param values are only used while
+    the base URL is unchanged; otherwise the caller must supply new ones.
 
     Args:
         provider_id (str):
@@ -205,8 +205,8 @@ async def asyncio(
     Accepts optional unsaved edits to test against instead of what's in the database - e.g.
     while editing a provider, the caller may have changed the model/base_url but left the API
     key blank (meaning "keep the existing one"), so a plain "unsaved" test can't be used since
-    it has no way to supply that key. An `overrides.apiKey` of "" is treated the same way: keep
-    the saved key rather than testing with an empty one.
+    it has no way to supply that key. The saved key and header/param values are only used while
+    the base URL is unchanged; otherwise the caller must supply new ones.
 
     Args:
         provider_id (str):

@@ -21,7 +21,10 @@ class ShoppingListRecipeRefOut:
         shopping_list_id (str):
         recipe_id (str):
         recipe_quantity (float):
-        recipe (RecipeSummary):
+        recipe (RecipeSummary): A saved recipe without its ingredients, instructions and other details, as list views
+            show it.
+
+            Every recipe has an owner: list queries skip rows whose user (and so household) is gone.
     """
 
     id: str

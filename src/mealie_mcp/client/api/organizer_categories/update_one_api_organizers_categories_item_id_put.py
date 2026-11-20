@@ -6,8 +6,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.category_in import CategoryIn
-from ...models.category_summary import CategorySummary
+from ...models.category_create import CategoryCreate
+from ...models.category_out import CategoryOut
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
@@ -15,7 +15,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     item_id: str,
     *,
-    body: CategoryIn,
+    body: CategoryCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> CategorySummary | HTTPValidationError | None:
+) -> CategoryOut | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = CategorySummary.from_dict(response.json())
+        response_200 = CategoryOut.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[CategorySummary | HTTPValidationError]:
+) -> Response[CategoryOut | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,24 +70,24 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CategoryIn,
+    body: CategoryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[CategorySummary | HTTPValidationError]:
+) -> Response[CategoryOut | HTTPValidationError]:
     """Update One
 
-     Updates an existing Tag in the database
+     Updates an existing Category in the database
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CategoryIn):
+        body (CategoryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[CategorySummary | HTTPValidationError]
+        Response[CategoryOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -107,24 +107,24 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CategoryIn,
+    body: CategoryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> CategorySummary | HTTPValidationError | None:
+) -> CategoryOut | HTTPValidationError | None:
     """Update One
 
-     Updates an existing Tag in the database
+     Updates an existing Category in the database
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CategoryIn):
+        body (CategoryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        CategorySummary | HTTPValidationError
+        CategoryOut | HTTPValidationError
     """
 
     return sync_detailed(
@@ -139,24 +139,24 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CategoryIn,
+    body: CategoryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[CategorySummary | HTTPValidationError]:
+) -> Response[CategoryOut | HTTPValidationError]:
     """Update One
 
-     Updates an existing Tag in the database
+     Updates an existing Category in the database
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CategoryIn):
+        body (CategoryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[CategorySummary | HTTPValidationError]
+        Response[CategoryOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -174,24 +174,24 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CategoryIn,
+    body: CategoryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> CategorySummary | HTTPValidationError | None:
+) -> CategoryOut | HTTPValidationError | None:
     """Update One
 
-     Updates an existing Tag in the database
+     Updates an existing Category in the database
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CategoryIn):
+        body (CategoryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        CategorySummary | HTTPValidationError
+        CategoryOut | HTTPValidationError
     """
 
     return (

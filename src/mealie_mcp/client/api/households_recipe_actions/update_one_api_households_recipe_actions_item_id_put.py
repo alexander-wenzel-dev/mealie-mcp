@@ -7,15 +7,15 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.group_recipe_action_out import GroupRecipeActionOut
+from ...models.group_recipe_action_save import GroupRecipeActionSave
 from ...models.http_validation_error import HTTPValidationError
-from ...models.save_group_recipe_action import SaveGroupRecipeAction
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: SaveGroupRecipeAction,
+    body: GroupRecipeActionSave,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -70,7 +70,7 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: SaveGroupRecipeAction,
+    body: GroupRecipeActionSave,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[GroupRecipeActionOut | HTTPValidationError]:
     """Update One
@@ -78,7 +78,7 @@ def sync_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (SaveGroupRecipeAction):
+        body (GroupRecipeActionSave):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -105,7 +105,7 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: SaveGroupRecipeAction,
+    body: GroupRecipeActionSave,
     accept_language: str | Unset | None = UNSET,
 ) -> GroupRecipeActionOut | HTTPValidationError | None:
     """Update One
@@ -113,7 +113,7 @@ def sync(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (SaveGroupRecipeAction):
+        body (GroupRecipeActionSave):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -135,7 +135,7 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: SaveGroupRecipeAction,
+    body: GroupRecipeActionSave,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[GroupRecipeActionOut | HTTPValidationError]:
     """Update One
@@ -143,7 +143,7 @@ async def asyncio_detailed(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (SaveGroupRecipeAction):
+        body (GroupRecipeActionSave):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -168,7 +168,7 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: SaveGroupRecipeAction,
+    body: GroupRecipeActionSave,
     accept_language: str | Unset | None = UNSET,
 ) -> GroupRecipeActionOut | HTTPValidationError | None:
     """Update One
@@ -176,7 +176,7 @@ async def asyncio(
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (SaveGroupRecipeAction):
+        body (GroupRecipeActionSave):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

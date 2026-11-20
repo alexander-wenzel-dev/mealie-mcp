@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
-    from ..models.read_household_preferences import ReadHouseholdPreferences
+    from ..models.household_preferences_out import HouseholdPreferencesOut
 
 
 T = TypeVar("T", bound="HouseholdSummary")
@@ -23,18 +21,18 @@ class HouseholdSummary:
         name (str):
         id (str):
         slug (str):
-        preferences (None | ReadHouseholdPreferences | Unset):
+        preferences (HouseholdPreferencesOut | None):
     """
 
     group_id: str
     name: str
     id: str
     slug: str
-    preferences: ReadHouseholdPreferences | Unset | None = UNSET
+    preferences: HouseholdPreferencesOut | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.read_household_preferences import ReadHouseholdPreferences  # noqa: PLC0415
+        from ..models.household_preferences_out import HouseholdPreferencesOut  # noqa: PLC0415
 
         group_id = self.group_id
 
@@ -44,10 +42,8 @@ class HouseholdSummary:
 
         slug = self.slug
 
-        preferences: dict[str, Any] | Unset | None
-        if isinstance(self.preferences, Unset):
-            preferences = UNSET
-        elif isinstance(self.preferences, ReadHouseholdPreferences):
+        preferences: dict[str, Any] | None
+        if isinstance(self.preferences, HouseholdPreferencesOut):
             preferences = self.preferences.to_dict()
         else:
             preferences = self.preferences
@@ -60,16 +56,15 @@ class HouseholdSummary:
                 "name": name,
                 "id": id,
                 "slug": slug,
+                "preferences": preferences,
             }
         )
-        if preferences is not UNSET:
-            field_dict["preferences"] = preferences
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.read_household_preferences import ReadHouseholdPreferences  # noqa: PLC0415
+        from ..models.household_preferences_out import HouseholdPreferencesOut  # noqa: PLC0415
 
         d = dict(src_dict)
         group_id = d.pop("groupId")
@@ -80,22 +75,20 @@ class HouseholdSummary:
 
         slug = d.pop("slug")
 
-        def _parse_preferences(data: object) -> ReadHouseholdPreferences | Unset | None:
+        def _parse_preferences(data: object) -> HouseholdPreferencesOut | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                preferences_type_0 = ReadHouseholdPreferences.from_dict(data)
+                preferences_type_0 = HouseholdPreferencesOut.from_dict(data)
 
                 return preferences_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | ReadHouseholdPreferences | Unset, data)
+            return cast(HouseholdPreferencesOut | None, data)
 
-        preferences = _parse_preferences(d.pop("preferences", UNSET))
+        preferences = _parse_preferences(d.pop("preferences"))
 
         household_summary = cls(
             group_id=group_id,
