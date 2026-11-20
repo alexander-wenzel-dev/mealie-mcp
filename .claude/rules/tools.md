@@ -81,13 +81,13 @@ A non-underscore module that defines no `register` callable is rejected: `_requi
 
 An update tool's body shape depends on the endpoint's HTTP method and on whether the update model carries fields the tool does not expose. Three variants exist in the code; pick by this ladder.
 
-1. PATCH endpoint means a sparse body is correct. A PATCH applies only the fields present, so send just the caller's edits with no prefetch. `update_recipe` in `recipe_crud.py` builds a `Recipe` from the supplied fields alone and PATCHes it.
+1. PATCH endpoint means a sparse body is correct. A PATCH applies only the fields present, so send just the caller's edits with no prefetch. `update_recipe` in `recipe_crud.py` builds a `RecipeDraft` from the supplied fields alone and PATCHes it.
 
 2. PUT endpoint where every field of the update model is a tool input means a sparse body with no prefetch. Construct the body directly from the arguments. `update_tag` in `organizer_tags.py` is the exemplar: a small model built from its arguments.
 
 3. PUT endpoint where the update model has fields the tool does not expose means fetch-then-merge. A PUT replaces the resource: any field absent from the body resets to its schema default on the server, so send the full current resource with the caller's edits applied, never a sparse body. Two constructions:
    - `from_dict` merge when the model can absorb the fetched resource, as in `update_shopping_list` (`households_shopping_lists.py`).
-   - hand-construction when the update model has required structural fields `from_dict` cannot default, as in `update_mealplan`, which builds `UpdatePlanEntry` field by field (`households_meal_plans.py`).
+   - hand-construction when the update model has required structural fields `from_dict` cannot default, as in `update_mealplan`, which builds `PlanEntryUpdate` field by field (`households_meal_plans.py`).
 
 A PUT tool that builds a sparse body silently resets every unexposed field. Its live test must prove the merge holds; see the clobber rule in the live-test rubric.
 

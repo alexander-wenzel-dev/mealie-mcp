@@ -23,8 +23,8 @@ from mealie_mcp.client.api.organizer_categories import (
     update_one_api_organizers_categories_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.category_in import CategoryIn
-from mealie_mcp.client.models.category_merge import CategoryMerge
+from mealie_mcp.client.models.category_create import CategoryCreate
+from mealie_mcp.client.models.organizer_merge import OrganizerMerge
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -88,7 +88,7 @@ def create_category(client: AuthenticatedClient, name: str) -> dict[str, Any]:
     require_non_empty("name", name)
 
     response = create_one_api_organizers_categories_post.sync_detailed(
-        client=client, body=CategoryIn(name=name)
+        client=client, body=CategoryCreate(name=name)
     )
     return expect_dict("create_category", response, HTTPStatus.CREATED)
 
@@ -99,7 +99,7 @@ def update_category(client: AuthenticatedClient, item_id: str, name: str) -> dic
     require_non_empty("name", name)
 
     response = update_one_api_organizers_categories_item_id_put.sync_detailed(
-        item_id, client=client, body=CategoryIn(name=name)
+        item_id, client=client, body=CategoryCreate(name=name)
     )
     return expect_dict("update_category", response)
 
@@ -128,7 +128,7 @@ def merge_category(
         raise ToolError("merge_category requires two different categories")
 
     response = merge_categories_api_organizers_categories_merge_post.sync_detailed(
-        client=client, body=CategoryMerge(from_id=str(source), to_id=str(target))
+        client=client, body=OrganizerMerge(from_id=str(source), to_id=str(target))
     )
     return expect_dict("merge_category", response)
 

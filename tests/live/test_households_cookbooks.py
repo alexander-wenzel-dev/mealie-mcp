@@ -22,7 +22,7 @@ from mealie_mcp.client.api.households_cookbooks import (
     update_one_api_households_cookbooks_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_cook_book import CreateCookBook
+from mealie_mcp.client.models.cook_book_create import CookBookCreate
 from mealie_mcp.tools import households_cookbooks, organizer_tags, recipe_crud
 from mealie_mcp.tools._common import expect_dict
 
@@ -123,7 +123,7 @@ def _force_public_and_position(client: AuthenticatedClient, item_id: str, *, pos
     here lets the clobber test assert they survive a name-only update.
     """
     fetched = households_cookbooks.get_cookbook(client, item_id=item_id)
-    body = CreateCookBook.from_dict(fetched)
+    body = CookBookCreate.from_dict(fetched)
     body.additional_properties = {}
     body.public = True
     body.position = position

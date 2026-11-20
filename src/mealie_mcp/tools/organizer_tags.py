@@ -23,8 +23,8 @@ from mealie_mcp.client.api.organizer_tags import (
     update_one_api_organizers_tags_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.tag_in import TagIn
-from mealie_mcp.client.models.tag_merge import TagMerge
+from mealie_mcp.client.models.organizer_merge import OrganizerMerge
+from mealie_mcp.client.models.tag_create import TagCreate
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -88,7 +88,7 @@ def create_tag(client: AuthenticatedClient, name: str) -> dict[str, Any]:
     require_non_empty("name", name)
 
     response = create_one_api_organizers_tags_post.sync_detailed(
-        client=client, body=TagIn(name=name)
+        client=client, body=TagCreate(name=name)
     )
     return expect_dict("create_tag", response, HTTPStatus.CREATED)
 
@@ -99,7 +99,7 @@ def update_tag(client: AuthenticatedClient, item_id: str, name: str) -> dict[str
     require_non_empty("name", name)
 
     response = update_one_api_organizers_tags_item_id_put.sync_detailed(
-        item_id, client=client, body=TagIn(name=name)
+        item_id, client=client, body=TagCreate(name=name)
     )
     return expect_dict("update_tag", response)
 
@@ -126,7 +126,7 @@ def merge_tag(client: AuthenticatedClient, from_tag_id: str, to_tag_id: str) -> 
         raise ToolError("merge_tag requires two different tags")
 
     response = merge_tags_api_organizers_tags_merge_post.sync_detailed(
-        client=client, body=TagMerge(from_id=str(source), to_id=str(target))
+        client=client, body=OrganizerMerge(from_id=str(source), to_id=str(target))
     )
     return expect_dict("merge_tag", response)
 
