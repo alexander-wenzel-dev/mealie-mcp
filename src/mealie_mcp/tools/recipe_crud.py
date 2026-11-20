@@ -30,16 +30,16 @@ from mealie_mcp.client.api.recipe_crud import (
     update_last_made_api_recipes_slug_last_made_patch,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_recipe import CreateRecipe
-from mealie_mcp.client.models.recipe import Recipe
-from mealie_mcp.client.models.recipe_category import RecipeCategory
+from mealie_mcp.client.models.category_draft import CategoryDraft
+from mealie_mcp.client.models.recipe_create import RecipeCreate
+from mealie_mcp.client.models.recipe_draft import RecipeDraft
 from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
 from mealie_mcp.client.models.recipe_note import RecipeNote
 from mealie_mcp.client.models.recipe_step import RecipeStep
-from mealie_mcp.client.models.recipe_tag import RecipeTag
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
 from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
+from mealie_mcp.client.models.tag_draft import TagDraft
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -57,7 +57,7 @@ def create_recipe(client: AuthenticatedClient, name: str) -> dict[str, str]:
     require_non_empty("name", name)
 
     response = create_one_api_recipes_post.sync_detailed(
-        client=client, body=CreateRecipe(name=name)
+        client=client, body=RecipeCreate(name=name)
     )
     slug = expect_str("create_recipe", response, HTTPStatus.CREATED)
     return {"slug": slug}
@@ -198,15 +198,13 @@ _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "org_url": "orgURL",
 }
 
-# Recipe.from_dict keeps the whole list of any of these four fields as raw dicts
+# RecipeDraft.from_dict keeps the whole list of any of these four fields as raw dicts
 # when one item is unparsable, which raises AttributeError inside Recipe.to_dict.
-_UPDATE_RECIPE_ITEM_MODELS: dict[
-    str, type[RecipeCategory | RecipeNote | RecipeStep | RecipeTag]
-] = {
+_UPDATE_RECIPE_ITEM_MODELS: dict[str, type[CategoryDraft | RecipeNote | RecipeStep | TagDraft]] = {
     "recipe_instructions": RecipeStep,
     "notes": RecipeNote,
-    "tags": RecipeTag,
-    "recipe_category": RecipeCategory,
+    "tags": TagDraft,
+    "recipe_category": CategoryDraft,
 }
 
 
@@ -266,7 +264,7 @@ def update_recipe(
                 raise ToolError(f"update_recipe {field}[{index}] invalid: {exc}") from exc
 
     try:
-        body = Recipe.from_dict(patch)
+        body = RecipeDraft.from_dict(patch)
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"update_recipe payload invalid: {exc}") from exc
 

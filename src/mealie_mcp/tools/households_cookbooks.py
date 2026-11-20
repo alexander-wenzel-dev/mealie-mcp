@@ -25,7 +25,7 @@ from mealie_mcp.client.api.households_cookbooks import (
     update_one_api_households_cookbooks_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_cook_book import CreateCookBook
+from mealie_mcp.client.models.cook_book_create import CookBookCreate
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -69,7 +69,7 @@ def create_cookbook(
     server-side.
     """
     require_non_empty("name", name)
-    body = CreateCookBook(
+    body = CookBookCreate(
         name=name,
         description=to_unset(description),
         query_filter_string=to_unset(query_filter_string),
@@ -110,7 +110,7 @@ def update_cookbook(
 
     prefetch = get_one_api_households_cookbooks_item_id_get.sync_detailed(item_id, client=client)
     existing = expect_dict("update_cookbook", prefetch)
-    body = CreateCookBook.from_dict(existing)
+    body = CookBookCreate.from_dict(existing)
     body.additional_properties = {}
     if name is not None:
         body.name = name

@@ -18,7 +18,7 @@ from mealie_mcp.client.api.households_self_service import (
 )
 from mealie_mcp.client.api.organizer_tools import update_one_api_organizers_tools_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.recipe_tool_create import RecipeToolCreate
+from mealie_mcp.client.models.tool_create import ToolCreate
 from mealie_mcp.tools import organizer_tools, recipe_crud
 from mealie_mcp.tools._common import expect_dict
 
@@ -54,7 +54,7 @@ def created_tool(
             update_one_api_organizers_tools_item_id_put.sync_detailed(
                 item_id,
                 client=mealie_client,
-                body=RecipeToolCreate(name=sentinel_name, households_with_tool=households_seed),
+                body=ToolCreate(name=sentinel_name, households_with_tool=households_seed),
             ),
         )
         yield {

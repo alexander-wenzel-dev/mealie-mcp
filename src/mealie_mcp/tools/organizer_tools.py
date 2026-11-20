@@ -20,7 +20,7 @@ from mealie_mcp.client.api.organizer_tools import (
     update_one_api_organizers_tools_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.recipe_tool_create import RecipeToolCreate
+from mealie_mcp.client.models.tool_create import ToolCreate
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -76,7 +76,7 @@ def create_tool(client: AuthenticatedClient, name: str) -> dict[str, Any]:
     require_non_empty("name", name)
 
     response = create_one_api_organizers_tools_post.sync_detailed(
-        client=client, body=RecipeToolCreate(name=name)
+        client=client, body=ToolCreate(name=name)
     )
     return expect_dict("create_tool", response, HTTPStatus.CREATED)
 
@@ -95,7 +95,7 @@ def update_tool(client: AuthenticatedClient, item_id: str, name: str) -> dict[st
 
     prefetch = get_one_api_organizers_tools_item_id_get.sync_detailed(item_id, client=client)
     existing = expect_dict("update_tool", prefetch)
-    body = RecipeToolCreate.from_dict(existing)
+    body = ToolCreate.from_dict(existing)
     body.additional_properties = {}
     body.name = name
 

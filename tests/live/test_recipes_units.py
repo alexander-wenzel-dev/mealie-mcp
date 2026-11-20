@@ -16,7 +16,7 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.recipes_units import update_one_api_units_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_ingredient_unit import CreateIngredientUnit
+from mealie_mcp.client.models.ingredient_unit_create import IngredientUnitCreate
 from mealie_mcp.tools import (
     households_shopping_list_items,
     households_shopping_lists,
@@ -77,7 +77,7 @@ def created_unit(
             f"{sentinel_name}-alias-2",
         }
 
-        seed = CreateIngredientUnit.from_dict(created)
+        seed = IngredientUnitCreate.from_dict(created)
         seed.additional_properties = {}
         seed.standard_quantity = SEED_STANDARD_QUANTITY
         seed.standard_unit = f"{sentinel_name}-std-unit"

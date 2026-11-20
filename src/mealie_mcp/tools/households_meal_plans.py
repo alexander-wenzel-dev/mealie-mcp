@@ -26,10 +26,10 @@ from mealie_mcp.client.api.households_meal_plans import (
     update_one_api_households_mealplans_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_plan_entry import CreatePlanEntry
-from mealie_mcp.client.models.create_random_entry import CreateRandomEntry
+from mealie_mcp.client.models.plan_entry_create import PlanEntryCreate
 from mealie_mcp.client.models.plan_entry_type import PlanEntryType
-from mealie_mcp.client.models.update_plan_entry import UpdatePlanEntry
+from mealie_mcp.client.models.plan_entry_update import PlanEntryUpdate
+from mealie_mcp.client.models.random_plan_entry_create import RandomPlanEntryCreate
 from mealie_mcp.client.types import UNSET, Unset
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
@@ -114,7 +114,7 @@ def create_mealplan(
     entry_type: str | None = None,
 ) -> dict[str, Any]:
     """Create a meal plan entry. Returns the new entry payload."""
-    body = CreatePlanEntry(
+    body = PlanEntryCreate(
         date=_parse_date("date", date),
         recipe_id=_parse_recipe_id(recipe_id),
         title=to_unset(title),
@@ -135,7 +135,7 @@ def create_random_mealplan(
     Mealie selects the recipe server-side, honouring the household's meal plan
     rules. Returns the created entry payload.
     """
-    body = CreateRandomEntry(
+    body = RandomPlanEntryCreate(
         date=_parse_date("date", date),
         entry_type=_parse_entry_type(entry_type),
     )
@@ -174,7 +174,7 @@ def update_mealplan(
 
     current = get_mealplan(client, item_id)
     current_recipe_id = current.get("recipeId")
-    body = UpdatePlanEntry(
+    body = PlanEntryUpdate(
         id=item_id,
         group_id=UUID(current["groupId"]),
         user_id=UUID(current["userId"]),

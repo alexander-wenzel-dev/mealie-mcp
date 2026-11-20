@@ -21,9 +21,9 @@ from mealie_mcp.client.api.recipes_units import (
     update_one_api_units_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_ingredient_unit import CreateIngredientUnit
-from mealie_mcp.client.models.create_ingredient_unit_alias import CreateIngredientUnitAlias
-from mealie_mcp.client.models.merge_unit import MergeUnit
+from mealie_mcp.client.models.ingredient_unit_alias_create import IngredientUnitAliasCreate
+from mealie_mcp.client.models.ingredient_unit_create import IngredientUnitCreate
+from mealie_mcp.client.models.ingredient_unit_merge import IngredientUnitMerge
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -66,11 +66,11 @@ def get_unit(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
     return expect_dict("get_unit", response)
 
 
-def _alias_bodies(aliases: list[str]) -> list[CreateIngredientUnitAlias]:
+def _alias_bodies(aliases: list[str]) -> list[IngredientUnitAliasCreate]:
     """Translate caller alias names into the generated alias model."""
     for alias in aliases:
         require_non_empty("aliases entry", alias)
-    return [CreateIngredientUnitAlias(name=alias) for alias in aliases]
+    return [IngredientUnitAliasCreate(name=alias) for alias in aliases]
 
 
 def create_unit(
@@ -87,7 +87,7 @@ def create_unit(
     """Create a unit. Returns the new unit payload."""
     require_non_empty("name", name)
 
-    body = CreateIngredientUnit(
+    body = IngredientUnitCreate(
         name=name,
         abbreviation=to_unset(abbreviation),
         plural_name=to_unset(plural_name),
@@ -140,7 +140,7 @@ def update_unit(
 
     prefetch = get_one_api_units_item_id_get.sync_detailed(item_id, client=client)
     existing = expect_dict("update_unit", prefetch)
-    body = CreateIngredientUnit.from_dict(existing)
+    body = IngredientUnitCreate.from_dict(existing)
     body.additional_properties = {}
     if name is not None:
         body.name = name
@@ -182,7 +182,7 @@ def merge_unit(client: AuthenticatedClient, from_unit_id: str, to_unit_id: str) 
     if source == target:
         raise ToolError("merge_unit requires two different units")
 
-    body = MergeUnit(from_unit=str(source), to_unit=str(target))
+    body = IngredientUnitMerge(from_unit=str(source), to_unit=str(target))
     response = merge_one_api_units_merge_put.sync_detailed(client=client, body=body)
     if response.status_code != HTTPStatus.OK:
         raise_api_error("merge_unit", int(response.status_code), response.content)

@@ -19,9 +19,9 @@ from mealie_mcp.client.api.households_self_service import (
 )
 from mealie_mcp.client.api.recipes_foods import update_one_api_foods_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_ingredient_food import CreateIngredientFood
-from mealie_mcp.client.models.create_ingredient_food_extras_type_0 import (
-    CreateIngredientFoodExtrasType0,
+from mealie_mcp.client.models.ingredient_food_create import IngredientFoodCreate
+from mealie_mcp.client.models.ingredient_food_create_extras_type_0 import (
+    IngredientFoodCreateExtrasType0,
 )
 from mealie_mcp.tools import (
     groups_multi_purpose_labels,
@@ -112,9 +112,9 @@ def created_food(
         # change and a clobber back to the default is visible.
         assert created["householdsWithIngredientFood"] == []
 
-        seed = CreateIngredientFood.from_dict(created)
+        seed = IngredientFoodCreate.from_dict(created)
         seed.additional_properties = {}
-        extras_seed = CreateIngredientFoodExtrasType0()
+        extras_seed = IngredientFoodCreateExtrasType0()
         extras_seed[SEED_EXTRAS_KEY] = f"{sentinel_name}-extras"
         seed.extras = extras_seed
         seed.households_with_ingredient_food = [household_slug]

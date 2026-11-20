@@ -28,7 +28,7 @@ from mealie_mcp.client.api.households_cookbooks import (
     delete_one_api_households_cookbooks_item_id_delete,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_cook_book import CreateCookBook
+from mealie_mcp.client.models.cook_book_create import CookBookCreate
 from mealie_mcp.client.models.household_create import HouseholdCreate
 from mealie_mcp.tools import (
     organizer_categories,
@@ -802,7 +802,7 @@ def test_list_recipes_filters_by_cookbook(
         cookbook = decode(
             create_one_api_households_cookbooks_post.sync_detailed(
                 client=mealie_client,
-                body=CreateCookBook(name=f"{sentinel_name}-cb", query_filter_string=query),
+                body=CookBookCreate(name=f"{sentinel_name}-cb", query_filter_string=query),
             ).content
         )
 

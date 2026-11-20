@@ -21,9 +21,9 @@ from mealie_mcp.client.api.recipes_foods import (
     update_one_api_foods_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_ingredient_food import CreateIngredientFood
-from mealie_mcp.client.models.create_ingredient_food_alias import CreateIngredientFoodAlias
-from mealie_mcp.client.models.merge_food import MergeFood
+from mealie_mcp.client.models.ingredient_food_alias_create import IngredientFoodAliasCreate
+from mealie_mcp.client.models.ingredient_food_create import IngredientFoodCreate
+from mealie_mcp.client.models.ingredient_food_merge import IngredientFoodMerge
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -66,11 +66,11 @@ def get_food(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
     return expect_dict("get_food", response)
 
 
-def _alias_bodies(aliases: list[str]) -> list[CreateIngredientFoodAlias]:
+def _alias_bodies(aliases: list[str]) -> list[IngredientFoodAliasCreate]:
     """Translate caller alias names into the generated alias model."""
     for alias in aliases:
         require_non_empty("aliases entry", alias)
-    return [CreateIngredientFoodAlias(name=alias) for alias in aliases]
+    return [IngredientFoodAliasCreate(name=alias) for alias in aliases]
 
 
 def create_food(
@@ -86,7 +86,7 @@ def create_food(
     if label_id is not None:
         require_non_empty("label_id", label_id)
 
-    body = CreateIngredientFood(
+    body = IngredientFoodCreate(
         name=name,
         plural_name=to_unset(plural_name),
         description=to_unset(description),
@@ -124,7 +124,7 @@ def update_food(
 
     prefetch = get_one_api_foods_item_id_get.sync_detailed(item_id, client=client)
     existing = expect_dict("update_food", prefetch)
-    body = CreateIngredientFood.from_dict(existing)
+    body = IngredientFoodCreate.from_dict(existing)
     body.additional_properties = {}
     if name is not None:
         body.name = name
@@ -162,7 +162,7 @@ def merge_food(client: AuthenticatedClient, from_food_id: str, to_food_id: str) 
     if source == target:
         raise ToolError("merge_food requires two different foods")
 
-    body = MergeFood(from_food=str(source), to_food=str(target))
+    body = IngredientFoodMerge(from_food=str(source), to_food=str(target))
     response = merge_one_api_foods_merge_put.sync_detailed(client=client, body=body)
     if response.status_code != HTTPStatus.OK:
         raise_api_error("merge_food", int(response.status_code), response.content)

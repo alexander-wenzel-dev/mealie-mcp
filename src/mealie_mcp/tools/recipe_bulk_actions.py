@@ -30,10 +30,10 @@ from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.assign_categories import AssignCategories
 from mealie_mcp.client.models.assign_settings import AssignSettings
 from mealie_mcp.client.models.assign_tags import AssignTags
-from mealie_mcp.client.models.category_base import CategoryBase
+from mealie_mcp.client.models.category_draft import CategoryDraft
 from mealie_mcp.client.models.delete_recipes import DeleteRecipes
 from mealie_mcp.client.models.recipe_settings import RecipeSettings
-from mealie_mcp.client.models.tag_base import TagBase
+from mealie_mcp.client.models.tag_draft import TagDraft
 from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
@@ -79,7 +79,7 @@ def tag_recipes(
         raise ToolError("tags must contain at least one tag object")
 
     try:
-        tag_models = [TagBase.from_dict(tag) for tag in tags]
+        tag_models = [TagDraft.from_dict(tag) for tag in tags]
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"tag_recipes tags invalid: {exc}") from exc
 
@@ -103,7 +103,7 @@ def categorize_recipes(
         raise ToolError("categories must contain at least one category object")
 
     try:
-        category_models = [CategoryBase.from_dict(category) for category in categories]
+        category_models = [CategoryDraft.from_dict(category) for category in categories]
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"categorize_recipes categories invalid: {exc}") from exc
 

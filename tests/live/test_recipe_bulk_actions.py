@@ -16,7 +16,7 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.recipe_crud import patch_one_api_recipes_slug_patch
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.recipe import Recipe
+from mealie_mcp.client.models.recipe_draft import RecipeDraft
 from mealie_mcp.tools import organizer_categories, organizer_tags, recipe_bulk_actions, recipe_crud
 from mealie_mcp.tools._common import expect_dict
 
@@ -33,7 +33,7 @@ def _lock_recipe(client: AuthenticatedClient, slug: str) -> None:
     updated = expect_dict(
         "lock_recipe",
         patch_one_api_recipes_slug_patch.sync_detailed(
-            slug, client=client, body=Recipe.from_dict({"settings": settings})
+            slug, client=client, body=RecipeDraft.from_dict({"settings": settings})
         ),
     )
     assert updated["settings"]["locked"] is True, "staging failed to lock the recipe"
