@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable, Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -22,7 +23,7 @@ from mealie_mcp.tools._common import expect_dict
 
 
 def _full_object(item: dict[str, str]) -> dict[str, str]:
-    """A tag or category as the bulk endpoints expect it: a full object."""
+    """A tag or category reference carrying its id, name and slug."""
     return {"id": item["id"], "name": item["name"], "slug": item["slug"]}
 
 
@@ -206,27 +207,111 @@ def test_delete_recipes_removes_every_recipe(
 
 
 @pytest.mark.live
-def test_tag_recipes_missing_slug_raises_and_still_mutates_valid(
-    mealie_client: AuthenticatedClient, two_recipe_slugs: list[str], sentinel_name: str
+@pytest.mark.parametrize("action", ["tag_recipes", "categorize_recipes", "apply_recipe_settings"])
+def test_bulk_action_with_missing_slug_changes_no_recipe(
+    mealie_client: AuthenticatedClient,
+    two_recipe_slugs: list[str],
+    sentinel_name: str,
+    action: str,
 ) -> None:
-    # Partial-failure probe for the tag/categorize/settings family: a nonexistent
-    # slug makes the endpoint return 500, so the tool raises. The valid recipe is
-    # still mutated before the missing one is reached, so a partial failure is
-    # not silent but leaves the batch half-applied.
+    """A nonexistent slug fails the call before any recipe in the batch changes."""
     valid = two_recipe_slugs[0]
+    batch = [valid, f"{sentinel_name}-missing"]
     tag = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-tag")
+    category: dict[str, Any] | None = None
+    calls: dict[str, Callable[[], object]] = {
+        "tag_recipes": lambda: recipe_bulk_actions.tag_recipes(
+            mealie_client, recipes=batch, tags=[_full_object(tag)]
+        ),
+        "categorize_recipes": lambda: recipe_bulk_actions.categorize_recipes(
+            mealie_client, recipes=batch, categories=[_full_object(category or {})]
+        ),
+        "apply_recipe_settings": lambda: recipe_bulk_actions.apply_recipe_settings(
+            mealie_client,
+            recipes=batch,
+            public=True,
+            show_nutrition=True,
+            show_assets=True,
+            landscape_view=True,
+            disable_comments=True,
+        ),
+    }
     try:
-        with pytest.raises(ToolError, match=r"Mealie tag_recipes failed \(500"):
-            recipe_bulk_actions.tag_recipes(
-                mealie_client,
-                recipes=[valid, f"{sentinel_name}-missing"],
-                tags=[_full_object(tag)],
-            )
-        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=valid)
-        assert tag["slug"] in [t["slug"] for t in refreshed["tags"]]
+        category = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-cat")
+        before = recipe_crud.get_recipe(mealie_client, slug_or_id=valid)
+        with pytest.raises(ToolError, match=rf"Mealie {action} failed \(404"):
+            calls[action]()
+        after = recipe_crud.get_recipe(mealie_client, slug_or_id=valid)
+        for key in ("tags", "recipeCategory", "settings"):
+            assert after[key] == before[key]
     finally:
         with contextlib.suppress(ToolError):
             organizer_tags.delete_tag(mealie_client, item_id=tag["id"])
+        if category is not None:
+            with contextlib.suppress(ToolError):
+                organizer_categories.delete_category(mealie_client, item_id=category["id"])
+
+
+_BULK_ORGANIZERS: dict[
+    str, tuple[str, Callable[..., Any], Callable[..., Any], Callable[..., Any]]
+] = {
+    "tag_recipes": (
+        "tags",
+        organizer_tags.create_tag,
+        organizer_tags.delete_tag,
+        lambda client, recipes, items: recipe_bulk_actions.tag_recipes(
+            client, recipes=recipes, tags=items
+        ),
+    ),
+    "categorize_recipes": (
+        "recipeCategory",
+        organizer_categories.create_category,
+        organizer_categories.delete_category,
+        lambda client, recipes, items: recipe_bulk_actions.categorize_recipes(
+            client, recipes=recipes, categories=items
+        ),
+    ),
+}
+
+
+@pytest.mark.live
+@pytest.mark.parametrize("action", list(_BULK_ORGANIZERS))
+def test_bulk_organizer_items_resolve_by_id_then_name(
+    mealie_client: AuthenticatedClient,
+    two_recipe_slugs: list[str],
+    sentinel_name: str,
+    action: str,
+) -> None:
+    """An existing id wins over the name, a known name links, a new name creates."""
+    key, create, delete, apply = _BULK_ORGANIZERS[action]
+    one, two = two_recipe_slugs
+    new_name = f"{sentinel_name}-new"
+    staged: list[str] = []
+    minted: list[str] = []
+
+    def stored(slug: str) -> list[tuple[str, str]]:
+        recipe = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        return [(item["id"], item["name"]) for item in recipe[key]]
+
+    try:
+        first = create(mealie_client, name=f"{sentinel_name}-a")
+        staged.append(first["id"])
+        second = create(mealie_client, name=f"{sentinel_name}-b")
+        staged.append(second["id"])
+
+        apply(mealie_client, [one], [{"id": first["id"], "name": second["name"]}])
+        assert stored(one) == [(first["id"], first["name"])]
+
+        apply(mealie_client, [two], [{"name": second["name"]}, {"name": new_name}])
+        linked = stored(two)
+        minted = [item_id for item_id, name in linked if name == new_name]
+        assert (second["id"], second["name"]) in linked
+        assert len(minted) == 1
+        assert minted[0] not in {first["id"], second["id"]}
+    finally:
+        for item_id in [*staged, *minted]:
+            with contextlib.suppress(ToolError):
+                delete(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
