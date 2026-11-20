@@ -15,13 +15,18 @@ from __future__ import annotations
 import contextlib
 import datetime as dt
 from collections.abc import Callable, Iterator
+from http import HTTPStatus
 from typing import Any
+from uuid import UUID
 
 import pytest
 from fastmcp.exceptions import ToolError
 
+from mealie_mcp.client.api.households_meal_plans import create_one_api_households_mealplans_post
 from mealie_mcp.client.client import AuthenticatedClient
+from mealie_mcp.client.models.plan_entry_create import PlanEntryCreate
 from mealie_mcp.tools import households_meal_plan_rules, households_meal_plans, recipe_crud
+from mealie_mcp.tools._common import expect_dict
 
 
 @pytest.fixture
@@ -129,6 +134,65 @@ def test_mealplan_lifecycle(
 
 
 @pytest.mark.live
+def test_week_entry_is_listed_on_request_and_keeps_its_span_on_update(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """A week entry keeps its span and scale through an update, and a moved date moves the span."""
+    plan_date = dt.date(2030, 1, 7)
+    span = dt.timedelta(days=6)
+    created = expect_dict(
+        "create_mealplan",
+        create_one_api_households_mealplans_post.sync_detailed(
+            client=mealie_client,
+            body=PlanEntryCreate(
+                date=plan_date,
+                end_date=plan_date + span,
+                recipe_id=UUID(created_recipe["id"]),
+                recipe_scale=2.5,
+                title=sentinel_name,
+            ),
+        ),
+        HTTPStatus.CREATED,
+    )
+    item_id = created["id"]
+    try:
+        assert created["endDate"] == (plan_date + span).isoformat()
+        assert created["recipeScale"] == 2.5
+
+        mid_week = (plan_date + dt.timedelta(days=3)).isoformat()
+        listed: dict[bool, set[int]] = {}
+        for include in (False, True):
+            page = call_tool(
+                "mealie_list_mealplans",
+                {"start_date": mid_week, "end_date": mid_week, "include_week_entries": include},
+            )
+            assert isinstance(page, dict)
+            listed[include] = {entry["id"] for entry in page["items"]}
+        assert item_id not in listed[False]
+        assert item_id in listed[True]
+
+        updated = households_meal_plans.update_mealplan(
+            mealie_client, item_id=item_id, text=f"{sentinel_name}-note"
+        )
+        assert updated["endDate"] == (plan_date + span).isoformat()
+        assert updated["recipeScale"] == 2.5
+
+        new_date = plan_date + dt.timedelta(days=7)
+        moved = households_meal_plans.update_mealplan(
+            mealie_client, item_id=item_id, date=new_date.isoformat()
+        )
+        assert moved["date"] == new_date.isoformat()
+        assert moved["endDate"] == (new_date + span).isoformat()
+        assert moved["recipeScale"] == 2.5
+    finally:
+        with contextlib.suppress(ToolError):
+            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
 def test_todays_mealplan_lists_todays_entry(
     mealie_client: AuthenticatedClient,
     sentinel_name: str,
@@ -152,15 +216,29 @@ def test_todays_mealplan_lists_todays_entry(
     )
     todays_id = todays_entry["id"]
     other_id = other_entry["id"]
+    staged = [todays_id, other_id]
     try:
+        week_entry = expect_dict(
+            "create_mealplan",
+            create_one_api_households_mealplans_post.sync_detailed(
+                client=mealie_client,
+                body=PlanEntryCreate(
+                    date=today, end_date=today + dt.timedelta(days=6), title=sentinel_name
+                ),
+            ),
+            HTTPStatus.CREATED,
+        )
+        staged.append(week_entry["id"])
+
         entries = call_tool("mealie_get_todays_mealplan", {})
         assert isinstance(entries, list)
         ids = {entry["id"] for entry in entries}
         assert todays_id in ids
         # A dated-elsewhere entry must be filtered out, not returned wholesale.
         assert other_id not in ids
+        assert week_entry["id"] not in ids
     finally:
-        for item_id in (todays_id, other_id):
+        for item_id in staged:
             with contextlib.suppress(ToolError):
                 households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
