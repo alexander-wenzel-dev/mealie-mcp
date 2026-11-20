@@ -33,9 +33,9 @@ class TestTagRecipes:
         with pytest.raises(ToolError, match="tags must contain at least one tag object"):
             recipe_bulk_actions.tag_recipes(client, recipes=["a"], tags=[])
 
-    def test_rejects_malformed_tag(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match="tag_recipes tags invalid"):
-            recipe_bulk_actions.tag_recipes(client, recipes=["a"], tags=[{"name": "n"}])
+    def test_rejects_tag_without_name(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="tag_recipes tags invalid: 'name'"):
+            recipe_bulk_actions.tag_recipes(client, recipes=["a"], tags=[{"id": "x"}])
 
 
 class TestCategorizeRecipes:
@@ -53,11 +53,9 @@ class TestCategorizeRecipes:
         with pytest.raises(ToolError, match="categories must contain at least one category object"):
             recipe_bulk_actions.categorize_recipes(client, recipes=["a"], categories=[])
 
-    def test_rejects_malformed_category(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match="categorize_recipes categories invalid"):
-            recipe_bulk_actions.categorize_recipes(
-                client, recipes=["a"], categories=[{"name": "n"}]
-            )
+    def test_rejects_category_without_name(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="categorize_recipes categories invalid: 'name'"):
+            recipe_bulk_actions.categorize_recipes(client, recipes=["a"], categories=[{"id": "x"}])
 
 
 class TestApplyRecipeSettings:
