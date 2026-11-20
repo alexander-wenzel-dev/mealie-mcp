@@ -82,19 +82,12 @@ class TestUpdateRecipe:
         with pytest.raises(ToolError, match="at least one field"):
             recipe_crud.update_recipe(client, slug_or_id="abc")
 
-    def test_rejects_tool_reference_without_slug(self, client: AuthenticatedClient) -> None:
-        with pytest.raises(ToolError, match="update_recipe payload invalid: 'slug'"):
-            recipe_crud.update_recipe(
-                client,
-                slug_or_id="abc",
-                tools=[{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d", "name": "Wok"}],
-            )
-
     @pytest.mark.parametrize(
         ("field", "items", "missing"),
         [
             ("tags", [{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"}], "name"),
             ("recipe_category", [{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"}], "name"),
+            ("tools", [{"id": "0f1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"}], "name"),
             ("notes", [{"title": "Tip"}], "text"),
             ("recipe_instructions", [{"title": "Step"}], "text"),
         ],
