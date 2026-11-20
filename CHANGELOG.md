@@ -13,6 +13,44 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   source move to the target and the source is deleted. Cookbook and meal plan
   rule filters that name the source keep its id. Both need Mealie v3.27.0.
 
+### Changed
+
+- **Breaking:** the supported Mealie floor is v3.31.0, raised from v3.26.0. The
+  tools still run against an older Mealie, but their docstrings describe the
+  v3.31.0 behaviour.
+- **Breaking:** `mealie_update_recipe` no longer takes `cook_time`. Mealie
+  v3.31.0 drops the recipe `cookTime` field and moves stored values into
+  `performTime`, which the UI shows as Cook Time. Set the cooking duration
+  through `perform_time_seconds`.
+- The pinned Mealie OpenAPI spec moved from v3.27.0 to v3.31.0. Most request
+  and response schemas are renamed, and the tools follow the new models.
+- `mealie_update_recipe` takes `total_time_seconds`, `prep_time_seconds` and
+  `perform_time_seconds`. Mealie v3.31.0 stores a recipe time as a duration in
+  seconds and moves parseable time texts there on upgrade; `total_time`,
+  `prep_time` and `perform_time` are the free text displayed after it. A step
+  keeps its `durationSeconds` only when it is sent with it.
+- `mealie_list_mealplans` takes `include_week_entries`. Mealie leaves entries
+  planned for a whole week out of the list unless it is set, and out of
+  today's plan always.
+- `mealie_update_recipe` resolves each tag, category and tool by id or by name.
+  An id of an existing entry wins, a known name links its entry, a new name
+  creates one, and an empty name is dropped. An update no longer rewrites a
+  tool's catalogue entry.
+- `mealie_tag_recipes` and `mealie_categorize_recipes` take items with only a
+  name and resolve them the same way. The three bulk recipe actions fail with a
+  404 and change no recipe when a slug in the batch matches no recipe.
+- `mealie_update_shopping_list_item` keeps an item's recipe links when it
+  checks the item off.
+- `mealie_update_last_made` documents that the recipe payload carries no
+  `lastMade`; Mealie v3.31.0 stores the timestamp per household and shows it
+  only on the household's recipe summary, which no tool reads.
+
+### Fixed
+
+- `mealie_update_mealplan` keeps a week entry's span and the entry's recipe
+  scale. A new date moves the week with it. Against a Mealie without a recipe
+  scale it sends none instead of failing.
+
 ## [0.5.0] - 2026-09-19
 
 ### Changed

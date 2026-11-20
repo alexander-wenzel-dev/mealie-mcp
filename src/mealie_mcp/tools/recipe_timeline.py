@@ -102,8 +102,9 @@ def create_timeline_event(
     parsed_type = _parse_event_type(event_type)
     # A Mealie that carries a schema default for the timestamp evaluates it once
     # at server import, so an event reaching it with an UNSET timestamp is
-    # stamped with the server boot time. v3.27.0 carries no default. Sending the
-    # current time explicitly makes this tool's own default hold either way.
+    # stamped with the server boot time. The pinned spec carries no default.
+    # Sending the current time explicitly makes this tool's own default hold
+    # either way.
     parsed_timestamp = (
         _parse_timestamp(timestamp) if timestamp is not None else dt.datetime.now(dt.UTC)
     )

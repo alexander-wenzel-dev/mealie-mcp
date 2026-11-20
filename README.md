@@ -36,10 +36,10 @@ Once registered, you ask in plain language and the assistant picks the matching 
 - Python 3.14
 - [uv](https://docs.astral.sh/uv/)
 - A reachable Mealie instance and a Mealie API token
-- Mealie v3.26.0 or newer. The client is generated from the v3.27.0 OpenAPI
-  spec. On an older Mealie, merging a food or a unit strands the shopping list
-  items that used it, and two meal plan rules filtering one slot match no
-  recipe at all. Merging a category or a tag needs v3.27.0.
+- Mealie v3.31.0 or newer. The client is generated from the v3.31.0 OpenAPI
+  spec, and the tools describe the v3.31.0 behaviour: recipe times are
+  durations in seconds, tags, categories and tools resolve by id or name, and
+  bulk recipe actions check every slug first.
 
 ## Install
 
