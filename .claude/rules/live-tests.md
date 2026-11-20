@@ -39,7 +39,7 @@ The clobber rule is one case of a wider discipline. Every claim a wrapper docstr
 
 A claim earns an assertion when going false would mislead a caller: what the tool does with an input, what it rejects, what it seeds when an argument is omitted. One exception, and it is narrow: a claim whose instruction stays correct after the behaviour behind it changes. Telling a caller to supply their own `referenceId` holds whether or not Mealie persists a generated one, so an assertion on the old behaviour only reddens on an upgrade that broke nothing; record the measurement in the PR body. A claim that would send a caller to the wrong field is not this, however unobservable it is; that one is a deferral with a recorded reason.
 
-Assert the effect the claim promises. `update_recipe` asserts both that an id-bearing tag lands and that a name-and-slug-only tag is rejected, matching the docstring that says the id is required. A default-seeded argument is set to a non-default value with an observable assertion, or deferred with a recorded reason, as Behavioural assertions above requires; `create_label` asserts an omitted color stores Mealie's `#959595`.
+Assert the effect the claim promises. `update_recipe` asserts that an existing id wins over the name, a known name links and a new name creates an entry, matching the resolution order its docstring states. A default-seeded argument is set to a non-default value with an observable assertion, or deferred with a recorded reason, as Behavioural assertions above requires; `create_label` asserts an omitted color stores Mealie's `#959595`.
 
 When live behaviour contradicts the docstring, the docstring is what is wrong: correct it to match a live call, then assert the corrected claim.
 

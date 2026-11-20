@@ -11,7 +11,8 @@ import contextlib
 import datetime as dt
 import json
 import os
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -26,6 +27,9 @@ from mealie_mcp.client.api.admin_manage_households import (
 from mealie_mcp.client.api.households_cookbooks import (
     create_one_api_households_cookbooks_post,
     delete_one_api_households_cookbooks_item_id_delete,
+)
+from mealie_mcp.client.api.households_self_service import (
+    get_household_recipe_api_households_self_recipes_recipe_slug_get,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.cook_book_create import CookBookCreate
@@ -123,8 +127,6 @@ def test_update_recipe_patches_scalars_and_lists(
 ) -> None:
     slug = created_recipe["slug"]
     org_url = f"https://example.com/{created_recipe['name']}"
-    # Mealie leaves cookTime empty on its own, so the update turns absence into a value.
-    assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["cookTime"] is None
     updated = recipe_crud.update_recipe(
         mealie_client,
         slug_or_id=slug,
@@ -133,7 +135,6 @@ def test_update_recipe_patches_scalars_and_lists(
         total_time="55 minutes",
         prep_time="15 minutes",
         perform_time="40 minutes",
-        cook_time="25 minutes",
         org_url=org_url,
         recipe_ingredient=[{"note": "1 cup flour"}, {"note": "2 eggs"}],
         notes=[{"title": "mcp", "text": "patched note"}],
@@ -148,7 +149,6 @@ def test_update_recipe_patches_scalars_and_lists(
     assert refreshed["totalTime"] == "55 minutes"
     assert refreshed["prepTime"] == "15 minutes"
     assert refreshed["performTime"] == "40 minutes"
-    assert refreshed["cookTime"] == "25 minutes"
     assert refreshed["orgURL"] == org_url
     assert [ing["note"] for ing in refreshed["recipeIngredient"]] == [
         "1 cup flour",
@@ -189,6 +189,46 @@ def test_update_recipe_sets_servings_and_yield_quantity(
     recipe_crud.update_recipe(mealie_client, slug_or_id=slug, recipe_yield_quantity=0)
     both_cleared = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
     assert both_cleared["recipeYieldQuantity"] == 0
+
+
+@pytest.mark.live
+def test_update_recipe_time_seconds_and_text_are_independent(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    """A time text leaves the stored duration in place, and the total is never derived."""
+    slug = created_recipe["slug"]
+    recipe_crud.update_recipe(
+        mealie_client, slug_or_id=slug, prep_time_seconds=600, perform_time_seconds=1500
+    )
+    stored = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert (stored["prepTimeSeconds"], stored["performTimeSeconds"]) == (600, 1500)
+    assert stored["totalTimeSeconds"] is None
+
+    prep_text = f"{sentinel_name}-prep"
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, prep_time=prep_text)
+    stored = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert (stored["prepTime"], stored["prepTimeSeconds"]) == (prep_text, 600)
+
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, total_time_seconds=5400)
+    stored = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert (stored["totalTime"], stored["totalTimeSeconds"]) == (None, 5400)
+
+
+@pytest.mark.live
+def test_update_recipe_step_duration_lasts_until_a_step_is_sent_without_it(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+) -> None:
+    slug = created_recipe["slug"]
+    text = f"{sentinel_name}-step"
+    recipe_crud.update_recipe(
+        mealie_client, slug_or_id=slug, recipe_instructions=[{"text": text, "durationSeconds": 120}]
+    )
+    steps = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["recipeInstructions"]
+    assert [(step["text"], step["durationSeconds"]) for step in steps] == [(text, 120)]
+
+    recipe_crud.update_recipe(mealie_client, slug_or_id=slug, recipe_instructions=[{"text": text}])
+    steps = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["recipeInstructions"]
+    assert [(step["text"], step["durationSeconds"]) for step in steps] == [(text, None)]
 
 
 @pytest.mark.live
@@ -237,106 +277,86 @@ def test_update_recipe_attaches_tag_and_category(
             organizer_categories.delete_category(mealie_client, item_id=category["id"])
 
 
+_ORGANIZERS: dict[
+    str,
+    tuple[
+        str,
+        Callable[..., dict[str, Any]],
+        Callable[..., dict[str, Any]],
+        Callable[..., dict[str, Any]],
+    ],
+] = {
+    "tags": ("tags", organizer_tags.create_tag, organizer_tags.get_tag, organizer_tags.delete_tag),
+    "recipe_category": (
+        "recipeCategory",
+        organizer_categories.create_category,
+        organizer_categories.get_category,
+        organizer_categories.delete_category,
+    ),
+    "tools": (
+        "tools",
+        organizer_tools.create_tool,
+        organizer_tools.get_tool,
+        organizer_tools.delete_tool,
+    ),
+}
+
+
 @pytest.mark.live
-def test_update_recipe_attaches_tool_and_rewrites_its_catalogue_entry(
-    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
+@pytest.mark.parametrize("field", list(_ORGANIZERS))
+def test_update_recipe_organizer_items_resolve_against_the_catalogue(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    field: str,
 ) -> None:
-    """A tool attaches by id, and the supplied name and slug land on the catalogue entry.
+    """An existing id wins over the name, a known name links, a new name creates.
 
-    The second update sends a slug that is neither the stored one nor derivable
-    from the new name, so an ignored slug fails the same as a re-derived one.
+    The catalogue entry linked by id keeps its own name, an empty name is
+    dropped, and no item rewrites the catalogue.
     """
+    key, create, get, delete = _ORGANIZERS[field]
     slug = created_recipe["slug"]
-    tool = organizer_tools.create_tool(mealie_client, name=f"{sentinel_name}-tool")
-    try:
-        recipe_crud.update_recipe(mealie_client, slug_or_id=slug, tools=[_organizer_ref(tool)])
-        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
-        assert [t["slug"] for t in refreshed["tools"]] == [tool["slug"]]
+    staged: list[str] = []
+    minted: list[str] = []
 
-        renamed = f"{sentinel_name}-renamed"
-        reslugged = f"{tool['slug']}-rewritten"
+    def stored() -> list[tuple[str, str]]:
+        recipe = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+        return [(item["id"], item["name"]) for item in recipe[key]]
+
+    try:
+        first = create(mealie_client, name=f"{sentinel_name}-a")
+        staged.append(first["id"])
+        second = create(mealie_client, name=f"{sentinel_name}-b")
+        staged.append(second["id"])
+
+        recipe_crud.update_recipe(
+            mealie_client, slug_or_id=slug, **{field: [{"id": first["id"], "name": second["name"]}]}
+        )
+        assert stored() == [(first["id"], first["name"])]
+        refetched = get(mealie_client, item_id=first["id"])
+        assert (refetched["name"], refetched["slug"]) == (first["name"], first["slug"])
+
         recipe_crud.update_recipe(
             mealie_client,
             slug_or_id=slug,
-            tools=[{"id": tool["id"], "name": renamed, "slug": reslugged}],
+            **{field: [{"id": str(uuid4()), "name": second["name"]}]},
         )
-        stored = organizer_tools.get_tool(mealie_client, item_id=tool["id"])
-        assert stored["name"] == renamed
-        assert stored["slug"] == reslugged
+        assert stored() == [(second["id"], second["name"])]
+
+        new_name = f"{sentinel_name}-new"
+        recipe_crud.update_recipe(mealie_client, slug_or_id=slug, **{field: [{"name": new_name}]})
+        minted = [item_id for item_id, name in stored() if name == new_name]
+        assert len(minted) == 1
+        assert minted[0] not in {first["id"], second["id"]}
+        assert get(mealie_client, item_id=minted[0])["name"] == new_name
+
+        recipe_crud.update_recipe(mealie_client, slug_or_id=slug, **{field: [{"name": ""}]})
+        assert stored() == []
     finally:
-        with contextlib.suppress(ToolError):
-            organizer_tools.delete_tool(mealie_client, item_id=tool["id"])
-
-
-@pytest.mark.live
-def test_update_recipe_tool_reference_with_unknown_id_creates_a_catalogue_entry(
-    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
-) -> None:
-    """An id matching no tool does not fail; Mealie mints a catalogue entry under it."""
-    slug = created_recipe["slug"]
-    unknown_id = str(uuid4())
-    ghost_name = f"{sentinel_name}-ghost"
-    try:
-        recipe_crud.update_recipe(
-            mealie_client,
-            slug_or_id=slug,
-            tools=[{"id": unknown_id, "name": ghost_name, "slug": ghost_name}],
-        )
-        attached = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["tools"]
-        assert [(t["id"], t["name"]) for t in attached] == [(unknown_id, ghost_name)]
-        assert organizer_tools.get_tool(mealie_client, item_id=unknown_id)["name"] == ghost_name
-    finally:
-        with contextlib.suppress(ToolError):
-            organizer_tools.delete_tool(mealie_client, item_id=unknown_id)
-
-
-@pytest.mark.live
-def test_update_recipe_tag_without_id_is_rejected(
-    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
-) -> None:
-    """A tag reference carrying only name and slug fails; Mealie needs the id.
-
-    Mealie rejects an id-less tag item with a misleading 400 "Recipe already
-    exists" and leaves the recipe untouched. The tool must not swallow that as
-    success.
-    """
-    tag = organizer_tags.create_tag(mealie_client, name=f"{sentinel_name}-tag")
-    try:
-        with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(400"):
-            recipe_crud.update_recipe(
-                mealie_client,
-                slug_or_id=created_recipe["slug"],
-                tags=[{"name": tag["name"], "slug": tag["slug"]}],
-            )
-        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
-        assert refreshed["tags"] == []
-    finally:
-        with contextlib.suppress(ToolError):
-            organizer_tags.delete_tag(mealie_client, item_id=tag["id"])
-
-
-@pytest.mark.live
-def test_update_recipe_category_without_id_is_rejected(
-    mealie_client: AuthenticatedClient, created_recipe: dict[str, str], sentinel_name: str
-) -> None:
-    """A category carrying only name and slug fails; Mealie needs the id.
-
-    Mealie rejects an id-less category the same way it rejects an id-less tag:
-    a misleading 400 "Recipe already exists" that leaves the recipe untouched.
-    """
-    category = organizer_categories.create_category(mealie_client, name=f"{sentinel_name}-cat")
-    try:
-        with pytest.raises(ToolError, match=r"Mealie update_recipe failed \(400"):
-            recipe_crud.update_recipe(
-                mealie_client,
-                slug_or_id=created_recipe["slug"],
-                recipe_category=[{"name": category["name"], "slug": category["slug"]}],
-            )
-        refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
-        assert refreshed["recipeCategory"] == []
-    finally:
-        with contextlib.suppress(ToolError):
-            organizer_categories.delete_category(mealie_client, item_id=category["id"])
+        for item_id in [*staged, *minted]:
+            with contextlib.suppress(ToolError):
+                delete(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -473,12 +493,20 @@ def test_update_recipe_patch_preserves_scalars_and_replaces_lists(
 def test_update_last_made_persists_timestamp(
     mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
 ) -> None:
+    """The timestamp lands on the household's record, not on the recipe payload."""
     sent = dt.datetime(2026, 6, 1, 12, 0, 0, tzinfo=dt.UTC)
-    recipe_crud.update_last_made(
+    result = recipe_crud.update_last_made(
         mealie_client, slug_or_id=created_recipe["slug"], timestamp=sent.isoformat()
     )
-    refreshed = recipe_crud.get_recipe(mealie_client, slug_or_id=created_recipe["slug"])
-    returned_iso = refreshed["lastMade"]
+    assert result["slug"] == created_recipe["slug"]
+    assert "lastMade" not in result
+    household_recipe = expect_dict(
+        "get_household_recipe",
+        get_household_recipe_api_households_self_recipes_recipe_slug_get.sync_detailed(
+            created_recipe["slug"], client=mealie_client
+        ),
+    )
+    returned_iso = household_recipe["lastMade"]
     assert returned_iso is not None
     returned = dt.datetime.fromisoformat(returned_iso)
     if returned.tzinfo is None:
@@ -503,9 +531,9 @@ def test_create_recipe_from_html_or_json(
     try:
         fetched = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
         assert fetched["slug"] == slug
-        # The importer routes schema.org cookTime to performTime, leaving cookTime empty.
-        assert fetched["performTime"] == "25 minutes"
-        assert fetched["cookTime"] is None
+        # The importer stores schema.org cookTime as performTimeSeconds.
+        assert fetched["performTimeSeconds"] == 25 * 60
+        assert "cookTime" not in fetched
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
