@@ -17,6 +17,7 @@ def _get_kwargs(
     *,
     start_date: datetime.date | Unset | None = UNSET,
     end_date: datetime.date | Unset | None = UNSET,
+    include_week_entries: bool | Unset = False,
     order_by: str | Unset | None = UNSET,
     order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
@@ -49,6 +50,8 @@ def _get_kwargs(
     else:
         json_end_date = end_date
     params["end_date"] = json_end_date
+
+    params["include_week_entries"] = include_week_entries
 
     json_order_by: str | Unset | None
     if isinstance(order_by, Unset):
@@ -136,6 +139,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     start_date: datetime.date | Unset | None = UNSET,
     end_date: datetime.date | Unset | None = UNSET,
+    include_week_entries: bool | Unset = False,
     order_by: str | Unset | None = UNSET,
     order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
@@ -150,6 +154,7 @@ def sync_detailed(
     Args:
         start_date (datetime.date | None | Unset):
         end_date (datetime.date | None | Unset):
+        include_week_entries (bool | Unset):  Default: False.
         order_by (None | str | Unset):
         order_by_null_position (None | OrderByNullPosition | Unset):
         order_direction (OrderDirection | Unset):
@@ -170,6 +175,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         start_date=start_date,
         end_date=end_date,
+        include_week_entries=include_week_entries,
         order_by=order_by,
         order_by_null_position=order_by_null_position,
         order_direction=order_direction,
@@ -192,6 +198,7 @@ def sync(
     client: AuthenticatedClient,
     start_date: datetime.date | Unset | None = UNSET,
     end_date: datetime.date | Unset | None = UNSET,
+    include_week_entries: bool | Unset = False,
     order_by: str | Unset | None = UNSET,
     order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
@@ -206,6 +213,7 @@ def sync(
     Args:
         start_date (datetime.date | None | Unset):
         end_date (datetime.date | None | Unset):
+        include_week_entries (bool | Unset):  Default: False.
         order_by (None | str | Unset):
         order_by_null_position (None | OrderByNullPosition | Unset):
         order_direction (OrderDirection | Unset):
@@ -227,6 +235,7 @@ def sync(
         client=client,
         start_date=start_date,
         end_date=end_date,
+        include_week_entries=include_week_entries,
         order_by=order_by,
         order_by_null_position=order_by_null_position,
         order_direction=order_direction,
@@ -243,6 +252,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     start_date: datetime.date | Unset | None = UNSET,
     end_date: datetime.date | Unset | None = UNSET,
+    include_week_entries: bool | Unset = False,
     order_by: str | Unset | None = UNSET,
     order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
@@ -257,6 +267,7 @@ async def asyncio_detailed(
     Args:
         start_date (datetime.date | None | Unset):
         end_date (datetime.date | None | Unset):
+        include_week_entries (bool | Unset):  Default: False.
         order_by (None | str | Unset):
         order_by_null_position (None | OrderByNullPosition | Unset):
         order_direction (OrderDirection | Unset):
@@ -277,6 +288,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         start_date=start_date,
         end_date=end_date,
+        include_week_entries=include_week_entries,
         order_by=order_by,
         order_by_null_position=order_by_null_position,
         order_direction=order_direction,
@@ -297,6 +309,7 @@ async def asyncio(
     client: AuthenticatedClient,
     start_date: datetime.date | Unset | None = UNSET,
     end_date: datetime.date | Unset | None = UNSET,
+    include_week_entries: bool | Unset = False,
     order_by: str | Unset | None = UNSET,
     order_by_null_position: OrderByNullPosition | Unset | None = UNSET,
     order_direction: OrderDirection | Unset = UNSET,
@@ -311,6 +324,7 @@ async def asyncio(
     Args:
         start_date (datetime.date | None | Unset):
         end_date (datetime.date | None | Unset):
+        include_week_entries (bool | Unset):  Default: False.
         order_by (None | str | Unset):
         order_by_null_position (None | OrderByNullPosition | Unset):
         order_direction (OrderDirection | Unset):
@@ -333,6 +347,7 @@ async def asyncio(
             client=client,
             start_date=start_date,
             end_date=end_date,
+            include_week_entries=include_week_entries,
             order_by=order_by,
             order_by_null_position=order_by_null_position,
             order_direction=order_direction,

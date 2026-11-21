@@ -6,8 +6,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="MultiPurposeLabelOut")
 
 
@@ -16,37 +14,36 @@ class MultiPurposeLabelOut:
     """
     Attributes:
         name (str):
+        color (str):  Default: '#959595'.
         group_id (str):
         id (str):
-        color (str | Unset):  Default: '#959595'.
     """
 
     name: str
     group_id: str
     id: str
-    color: str | Unset = "#959595"
+    color: str = "#959595"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
+        color = self.color
+
         group_id = self.group_id
 
         id = self.id
-
-        color = self.color
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "name": name,
+                "color": color,
                 "groupId": group_id,
                 "id": id,
             }
         )
-        if color is not UNSET:
-            field_dict["color"] = color
 
         return field_dict
 
@@ -55,17 +52,17 @@ class MultiPurposeLabelOut:
         d = dict(src_dict)
         name = d.pop("name")
 
+        color = d.pop("color")
+
         group_id = d.pop("groupId")
 
         id = d.pop("id")
 
-        color = d.pop("color", UNSET)
-
         multi_purpose_label_out = cls(
             name=name,
+            color=color,
             group_id=group_id,
             id=id,
-            color=color,
         )
 
         multi_purpose_label_out.additional_properties = d

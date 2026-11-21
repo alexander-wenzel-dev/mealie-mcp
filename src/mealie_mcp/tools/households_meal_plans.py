@@ -26,10 +26,10 @@ from mealie_mcp.client.api.households_meal_plans import (
     update_one_api_households_mealplans_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_plan_entry import CreatePlanEntry
-from mealie_mcp.client.models.create_random_entry import CreateRandomEntry
+from mealie_mcp.client.models.plan_entry_create import PlanEntryCreate
 from mealie_mcp.client.models.plan_entry_type import PlanEntryType
-from mealie_mcp.client.models.update_plan_entry import UpdatePlanEntry
+from mealie_mcp.client.models.plan_entry_update import PlanEntryUpdate
+from mealie_mcp.client.models.random_plan_entry_create import RandomPlanEntryCreate
 from mealie_mcp.client.types import UNSET, Unset
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
@@ -84,6 +84,7 @@ def list_mealplans(
     end_date: str | None = None,
     order_by: str | None = None,
     order_direction: Literal["asc", "desc"] | None = None,
+    include_week_entries: bool = False,
 ) -> dict[str, Any]:
     """List meal plan entries, paginated and optionally date-range filtered."""
     require_pagination(page, per_page)
@@ -95,6 +96,7 @@ def list_mealplans(
         end_date=_parse_date_opt("end_date", end_date),
         order_by=to_unset(order_by),
         order_direction=parse_order_direction(order_direction),
+        include_week_entries=include_week_entries,
     )
     return expect_dict("list_mealplans", response)
 
@@ -114,7 +116,7 @@ def create_mealplan(
     entry_type: str | None = None,
 ) -> dict[str, Any]:
     """Create a meal plan entry. Returns the new entry payload."""
-    body = CreatePlanEntry(
+    body = PlanEntryCreate(
         date=_parse_date("date", date),
         recipe_id=_parse_recipe_id(recipe_id),
         title=to_unset(title),
@@ -135,7 +137,7 @@ def create_random_mealplan(
     Mealie selects the recipe server-side, honouring the household's meal plan
     rules. Returns the created entry payload.
     """
-    body = CreateRandomEntry(
+    body = RandomPlanEntryCreate(
         date=_parse_date("date", date),
         entry_type=_parse_entry_type(entry_type),
     )
@@ -164,7 +166,8 @@ def update_mealplan(
 
     The endpoint PUT-replaces the entry, so the current entry is fetched and
     the caller's edits are merged onto it. Fields left unset keep their current
-    value, and the entry's recipe link is preserved.
+    value, and the entry's recipe link, recipe scale and week span are
+    preserved. A new ``date`` moves the week span with it.
     """
     if date is None and title is None and text is None and entry_type is None:
         raise ToolError("update_mealplan requires at least one field to update")
@@ -174,11 +177,20 @@ def update_mealplan(
 
     current = get_mealplan(client, item_id)
     current_recipe_id = current.get("recipeId")
-    body = UpdatePlanEntry(
+    current_date = _parse_date("date", current["date"])
+    plan_date = new_date if new_date is not None else current_date
+    current_end_date = current.get("endDate")
+    end_date = (
+        plan_date + (_parse_date("endDate", current_end_date) - current_date)
+        if current_end_date
+        else None
+    )
+    body = PlanEntryUpdate(
         id=item_id,
         group_id=UUID(current["groupId"]),
         user_id=UUID(current["userId"]),
-        date=new_date if new_date is not None else _parse_date("date", current["date"]),
+        date=plan_date,
+        end_date=end_date,
         title=to_unset(title if title is not None else current.get("title")),
         text=to_unset(text if text is not None else current.get("text")),
         entry_type=(
@@ -187,6 +199,7 @@ def update_mealplan(
             else _parse_entry_type(current.get("entryType"))
         ),
         recipe_id=UUID(current_recipe_id) if current_recipe_id else None,
+        recipe_scale=to_unset(current.get("recipeScale")),
     )
     response = update_one_api_households_mealplans_item_id_put.sync_detailed(
         item_id, client=client, body=body
@@ -213,8 +226,13 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         end_date: str | None = None,
         order_by: str | None = None,
         order_direction: Literal["asc", "desc"] | None = None,
+        include_week_entries: bool = False,
     ) -> dict[str, Any]:
         """List meal plan entries for the household, paginated.
+
+        Entries planned for a whole week rather than a day are left out unless
+        ``include_week_entries`` is true. A week entry matches the date range
+        when its week overlaps it.
 
         Args:
             page: 1-indexed page number. Defaults to 1.
@@ -223,6 +241,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             end_date: Optional inclusive upper bound as ``YYYY-MM-DD``.
             order_by: Optional column name to sort on (e.g. ``"date"``).
             order_direction: ``"asc"`` or ``"desc"``.
+            include_week_entries: Also list week entries. Defaults to false.
 
         Returns:
             A pagination envelope with ``items`` and pagination metadata.
@@ -235,6 +254,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             end_date=end_date,
             order_by=order_by,
             order_direction=order_direction,
+            include_week_entries=include_week_entries,
         )
 
     @mcp.tool(name="mealie_get_todays_mealplan")
@@ -242,8 +262,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """List the meal plan entries scheduled for today.
 
         Mealie determines "today" server-side, so the caller supplies no date
-        and needs no knowledge of the server time zone. An empty plan returns
-        an empty list, not an error.
+        and needs no knowledge of the server time zone. Entries planned for a
+        whole week are not included. An empty plan returns an empty list, not
+        an error.
 
         Returns:
             A list of today's meal plan entries. The MCP structured output wraps
@@ -340,10 +361,11 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Edit fields on an existing meal plan entry.
 
         Only the fields supplied are changed; omitted fields keep their current
-        value and the entry's recipe link is preserved. At least one field
-        beyond ``item_id`` must be provided. The recipe link is read-only
-        through this tool; change it by deleting the entry and creating a new
-        one with the desired ``recipe_id``.
+        value and the entry's recipe link and recipe scale are preserved. A
+        week entry keeps its week, and a new ``date`` moves the week to start
+        on that day. At least one field beyond ``item_id`` must be provided.
+        The recipe link is read-only through this tool; change it by deleting
+        the entry and creating a new one with the desired ``recipe_id``.
 
         Args:
             item_id: Integer id of the meal plan entry.

@@ -30,10 +30,10 @@ from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.assign_categories import AssignCategories
 from mealie_mcp.client.models.assign_settings import AssignSettings
 from mealie_mcp.client.models.assign_tags import AssignTags
-from mealie_mcp.client.models.category_base import CategoryBase
+from mealie_mcp.client.models.category_draft import CategoryDraft
 from mealie_mcp.client.models.delete_recipes import DeleteRecipes
 from mealie_mcp.client.models.recipe_settings import RecipeSettings
-from mealie_mcp.client.models.tag_base import TagBase
+from mealie_mcp.client.models.tag_draft import TagDraft
 from mealie_mcp.client.types import Response
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
@@ -70,16 +70,16 @@ def tag_recipes(
 ) -> dict[str, Any]:
     """Add tags to each recipe. Returns a constructed acknowledgement.
 
-    ``recipes`` are recipe slugs. Each entry of ``tags`` is a full tag object
-    with ``name``, ``id``, and ``slug``. The endpoint appends the tags to each
-    recipe's existing tags; it does not replace them.
+    ``recipes`` are recipe slugs. Each entry of ``tags`` carries ``name`` and
+    may carry ``id``. The endpoint appends the tags to each recipe's existing
+    tags; it does not replace them.
     """
     _require_recipe_slugs(recipes)
     if not tags:
         raise ToolError("tags must contain at least one tag object")
 
     try:
-        tag_models = [TagBase.from_dict(tag) for tag in tags]
+        tag_models = [TagDraft.from_dict(tag) for tag in tags]
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"tag_recipes tags invalid: {exc}") from exc
 
@@ -94,16 +94,16 @@ def categorize_recipes(
 ) -> dict[str, Any]:
     """Add categories to each recipe. Returns a constructed acknowledgement.
 
-    ``recipes`` are recipe slugs. Each entry of ``categories`` is a full
-    category object with ``name``, ``id``, and ``slug``. The endpoint appends the
-    categories to each recipe's existing categories; it does not replace them.
+    ``recipes`` are recipe slugs. Each entry of ``categories`` carries ``name``
+    and may carry ``id``. The endpoint appends the categories to each recipe's
+    existing categories; it does not replace them.
     """
     _require_recipe_slugs(recipes)
     if not categories:
         raise ToolError("categories must contain at least one category object")
 
     try:
-        category_models = [CategoryBase.from_dict(category) for category in categories]
+        category_models = [CategoryDraft.from_dict(category) for category in categories]
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"categorize_recipes categories invalid: {exc}") from exc
 
@@ -161,18 +161,17 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Add one or more tags to many recipes in a single call.
 
         This is additive: the tags are appended to each recipe's existing tags,
-        not swapped in. To find the tag objects to pass, list tags first with
-        ``mealie_list_tags``; each entry must be a full object, not a slug.
+        not swapped in. Each tag resolves against the catalogue: an ``id`` of an
+        existing tag links that tag, otherwise the tag with that ``name`` is
+        linked, and a ``name`` no tag has creates a new tag.
 
-        The batch is not atomic. If any slug in ``recipes`` does not exist the
-        whole call fails, but recipes processed before the bad one are already
-        tagged, so retrying after the error can re-apply a tag.
+        If any slug in ``recipes`` does not exist, the call fails and no recipe
+        is tagged.
 
         Args:
             recipes: Recipe slugs to tag. Must contain at least one slug.
-            tags: Full tag objects, each with ``name``, ``id``, and ``slug`` (as
-                returned by ``mealie_list_tags`` or ``mealie_get_tag``). A
-                slug-only object does not resolve; the ``id`` is required.
+            tags: Tag objects, each with ``name`` and optionally ``id`` (as
+                returned by ``mealie_list_tags`` or ``mealie_get_tag``).
 
         Returns:
             ``{"recipes": <slugs>, "tagged": True}``.
@@ -184,20 +183,19 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Add one or more categories to many recipes in a single call.
 
         This is additive: the categories are appended to each recipe's existing
-        categories, not swapped in. To find the category objects to pass, list
-        categories first with ``mealie_list_categories``; each entry must be a
-        full object, not a slug.
+        categories, not swapped in. Each category resolves against the
+        catalogue: an ``id`` of an existing category links that category,
+        otherwise the category with that ``name`` is linked, and a ``name`` no
+        category has creates a new category.
 
-        The batch is not atomic. If any slug in ``recipes`` does not exist the
-        whole call fails, but recipes processed before the bad one are already
-        categorized, so retrying after the error can re-apply a category.
+        If any slug in ``recipes`` does not exist, the call fails and no recipe
+        is categorized.
 
         Args:
             recipes: Recipe slugs to categorize. Must contain at least one slug.
-            categories: Full category objects, each with ``name``, ``id``, and
-                ``slug`` (as returned by ``mealie_list_categories`` or
-                ``mealie_get_category``). A slug-only object does not resolve;
-                the ``id`` is required.
+            categories: Category objects, each with ``name`` and optionally
+                ``id`` (as returned by ``mealie_list_categories`` or
+                ``mealie_get_category``).
 
         Returns:
             ``{"recipes": <slugs>, "categorized": True}``.
@@ -221,9 +219,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         or unlock recipes; the endpoint preserves each recipe's existing lock
         state. Change lock state per recipe instead.
 
-        The batch is not atomic. If any slug in ``recipes`` does not exist the
-        whole call fails, but recipes processed before the bad one already carry
-        the new settings.
+        If any slug in ``recipes`` does not exist, the call fails and no recipe
+        changes.
 
         Args:
             recipes: Recipe slugs to update. Must contain at least one slug.

@@ -30,16 +30,17 @@ from mealie_mcp.client.api.recipe_crud import (
     update_last_made_api_recipes_slug_last_made_patch,
 )
 from mealie_mcp.client.client import AuthenticatedClient
-from mealie_mcp.client.models.create_recipe import CreateRecipe
-from mealie_mcp.client.models.recipe import Recipe
-from mealie_mcp.client.models.recipe_category import RecipeCategory
+from mealie_mcp.client.models.category_draft import CategoryDraft
+from mealie_mcp.client.models.recipe_create import RecipeCreate
+from mealie_mcp.client.models.recipe_draft import RecipeDraft
 from mealie_mcp.client.models.recipe_duplicate import RecipeDuplicate
 from mealie_mcp.client.models.recipe_last_made import RecipeLastMade
 from mealie_mcp.client.models.recipe_note import RecipeNote
 from mealie_mcp.client.models.recipe_step import RecipeStep
-from mealie_mcp.client.models.recipe_tag import RecipeTag
 from mealie_mcp.client.models.scrape_recipe import ScrapeRecipe
 from mealie_mcp.client.models.scrape_recipe_data import ScrapeRecipeData
+from mealie_mcp.client.models.tag_draft import TagDraft
+from mealie_mcp.client.models.tool_draft import ToolDraft
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
@@ -57,7 +58,7 @@ def create_recipe(client: AuthenticatedClient, name: str) -> dict[str, str]:
     require_non_empty("name", name)
 
     response = create_one_api_recipes_post.sync_detailed(
-        client=client, body=CreateRecipe(name=name)
+        client=client, body=RecipeCreate(name=name)
     )
     slug = expect_str("create_recipe", response, HTTPStatus.CREATED)
     return {"slug": slug}
@@ -188,7 +189,9 @@ _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "total_time": "totalTime",
     "prep_time": "prepTime",
     "perform_time": "performTime",
-    "cook_time": "cookTime",
+    "total_time_seconds": "totalTimeSeconds",
+    "prep_time_seconds": "prepTimeSeconds",
+    "perform_time_seconds": "performTimeSeconds",
     "recipe_ingredient": "recipeIngredient",
     "recipe_instructions": "recipeInstructions",
     "notes": "notes",
@@ -198,15 +201,15 @@ _UPDATE_RECIPE_FIELD_MAP: dict[str, str] = {
     "org_url": "orgURL",
 }
 
-# Recipe.from_dict keeps the whole list of any of these four fields as raw dicts
-# when one item is unparsable, which raises AttributeError inside Recipe.to_dict.
+# Parsing each list item on its own lets the error name the offending index.
 _UPDATE_RECIPE_ITEM_MODELS: dict[
-    str, type[RecipeCategory | RecipeNote | RecipeStep | RecipeTag]
+    str, type[CategoryDraft | RecipeNote | RecipeStep | TagDraft | ToolDraft]
 ] = {
     "recipe_instructions": RecipeStep,
     "notes": RecipeNote,
-    "tags": RecipeTag,
-    "recipe_category": RecipeCategory,
+    "tags": TagDraft,
+    "recipe_category": CategoryDraft,
+    "tools": ToolDraft,
 }
 
 
@@ -222,7 +225,9 @@ def update_recipe(
     total_time: str | None = None,
     prep_time: str | None = None,
     perform_time: str | None = None,
-    cook_time: str | None = None,
+    total_time_seconds: int | None = None,
+    prep_time_seconds: int | None = None,
+    perform_time_seconds: int | None = None,
     recipe_ingredient: list[dict[str, Any]] | None = None,
     recipe_instructions: list[dict[str, Any]] | None = None,
     notes: list[dict[str, Any]] | None = None,
@@ -243,7 +248,9 @@ def update_recipe(
         "total_time": total_time,
         "prep_time": prep_time,
         "perform_time": perform_time,
-        "cook_time": cook_time,
+        "total_time_seconds": total_time_seconds,
+        "prep_time_seconds": prep_time_seconds,
+        "perform_time_seconds": perform_time_seconds,
         "recipe_ingredient": recipe_ingredient,
         "recipe_instructions": recipe_instructions,
         "notes": notes,
@@ -266,7 +273,7 @@ def update_recipe(
                 raise ToolError(f"update_recipe {field}[{index}] invalid: {exc}") from exc
 
     try:
-        body = Recipe.from_dict(patch)
+        body = RecipeDraft.from_dict(patch)
     except (AttributeError, KeyError, TypeError, ValueError) as exc:
         raise ToolError(f"update_recipe payload invalid: {exc}") from exc
 
@@ -527,7 +534,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         total_time: str | None = None,
         prep_time: str | None = None,
         perform_time: str | None = None,
-        cook_time: str | None = None,
+        total_time_seconds: int | None = None,
+        prep_time_seconds: int | None = None,
+        perform_time_seconds: int | None = None,
         recipe_ingredient: list[dict[str, Any]] | None = None,
         recipe_instructions: list[dict[str, Any]] | None = None,
         notes: list[dict[str, Any]] | None = None,
@@ -542,10 +551,19 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         At least one field beyond ``slug_or_id`` must be provided. List fields
         replace the existing value wholesale; there is no per-item merge.
 
-        ``tools`` reaches beyond this recipe: the name and slug sent with a tool
-        overwrite that tool's catalogue entry for every recipe using it, and an
-        ``id`` matching no tool creates a new entry. Rename a tool through
+        ``tags``, ``recipe_category`` and ``tools`` items resolve against the
+        catalogue: an ``id`` of an existing entry links that entry and ignores
+        the ``name`` sent with it, otherwise the entry with that ``name`` is
+        linked, and a ``name`` no entry has creates a new one. An item with an
+        empty ``name`` is dropped. The catalogue entry itself never changes;
+        rename it through ``mealie_update_tag``, ``mealie_update_category`` or
         ``mealie_update_tool``.
+
+        Each recipe time is a duration in seconds plus an optional free text
+        that Mealie displays after it, as in ``5400`` with ``"plus overnight"``.
+        Set the duration through the ``*_time_seconds`` fields; a text such as
+        ``"30 minutes"`` beside a stored duration displays both. Mealie does not
+        derive ``total_time_seconds`` from the other two.
 
         ``recipe_ingredient`` items and ``recipe_instructions`` steps are linked
         by ``referenceId``. Read the current ids from ``mealie_get_recipe`` and
@@ -568,12 +586,13 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 Mealie scales against this when ``recipe_servings`` is ``0``,
                 and ``0`` clears it.
             recipe_yield: Human-readable yield (e.g. ``"4 servings"``).
-            total_time: Human-readable total time (e.g. ``"45 minutes"``).
-            prep_time: Human-readable preparation time.
-            perform_time: Human-readable active cooking time.
-            cook_time: Human-readable cooking time (e.g. ``"25 minutes"``).
-                Mealie never fills this field itself; its importers put a source
-                recipe's cook time in ``perform_time``.
+            total_time: Free text displayed after the total duration.
+            prep_time: Free text displayed after the preparation duration.
+            perform_time: Free text displayed after the cooking duration,
+                which Mealie labels "Cook Time".
+            total_time_seconds: Total duration in seconds, ``0`` or more.
+            prep_time_seconds: Preparation duration in seconds, ``0`` or more.
+            perform_time_seconds: Cooking duration in seconds, ``0`` or more.
             recipe_ingredient: Full ingredient list as Mealie ingredient dicts.
                 Each item accepts ``note``, ``quantity``, ``unit``, ``food``,
                 ``title``, ``display``, ``originalText`` and ``referenceId``.
@@ -581,23 +600,19 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 of an existing record; either alone is rejected. Fetch them via
                 ``mealie_list_foods`` and ``mealie_list_units``.
             recipe_instructions: Full step list. Each item must have ``text``
-                and may include ``title``, ``summary`` and
+                and may include ``title``, ``summary``, ``durationSeconds`` and
                 ``ingredientReferences``, a list of ``{"referenceId": ...}``
                 drawn from ``recipe_ingredient``. ``title`` renders as a section
                 heading above the step, ``summary`` as the step's own heading in
-                place of its ``Step: N`` label.
+                place of its ``Step: N`` label. ``durationSeconds`` is the
+                step's own duration; a step sent without it has none.
             notes: Full notes list. Each item must have ``title`` and ``text``.
-            tags: Full tag list. Each item needs the ``id``, ``name`` and
-                ``slug`` of an existing tag. Without ``id`` Mealie rejects the
-                call with a misleading "Recipe already exists" error, and
-                without ``name`` or ``slug`` the tool rejects it. Fetch all
-                three via ``mealie_list_tags``.
-            recipe_category: Full category list. Each item needs the ``id``,
-                ``name`` and ``slug`` of an existing category, and is rejected
-                the same way when one is missing. Fetch all three via
-                ``mealie_list_categories``.
-            tools: Full equipment list. Each item needs ``id``, ``name`` and
-                ``slug``; fetch them via ``mealie_list_tools``.
+            tags: Full tag list. Each item needs ``name`` and may carry
+                ``id``. Fetch existing tags via ``mealie_list_tags``.
+            recipe_category: Full category list, shaped like ``tags``. Fetch
+                existing categories via ``mealie_list_categories``.
+            tools: Full equipment list, shaped like ``tags``. Fetch existing
+                tools via ``mealie_list_tools``.
             org_url: Source URL of the recipe (e.g.
                 ``"https://example.com/recipes/stew"``).
 
@@ -615,7 +630,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             total_time=total_time,
             prep_time=prep_time,
             perform_time=perform_time,
-            cook_time=cook_time,
+            total_time_seconds=total_time_seconds,
+            prep_time_seconds=prep_time_seconds,
+            perform_time_seconds=perform_time_seconds,
             recipe_ingredient=recipe_ingredient,
             recipe_instructions=recipe_instructions,
             notes=notes,
@@ -628,6 +645,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     @mcp.tool(name="mealie_update_last_made")
     def _update_last_made(slug_or_id: str, timestamp: str) -> dict[str, Any]:
         """Set a recipe's last-made timestamp.
+
+        Mealie stores the timestamp per household, so the returned recipe
+        payload carries no ``lastMade`` field.
 
         Args:
             slug_or_id: Recipe slug or UUID.

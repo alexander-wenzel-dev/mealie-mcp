@@ -6,16 +6,16 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_cook_book import CreateCookBook
+from ...models.cook_book_create import CookBookCreate
+from ...models.cook_book_out import CookBookOut
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_cook_book import ReadCookBook
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     item_id: str,
     *,
-    body: CreateCookBook,
+    body: CookBookCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -39,9 +39,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadCookBook | None:
+) -> CookBookOut | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = ReadCookBook.from_dict(response.json())
+        response_200 = CookBookOut.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadCookBook]:
+) -> Response[CookBookOut | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,22 +70,22 @@ def sync_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateCookBook,
+    body: CookBookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadCookBook]:
+) -> Response[CookBookOut | HTTPValidationError]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateCookBook):
+        body (CookBookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadCookBook]
+        Response[CookBookOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -105,22 +105,22 @@ def sync(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateCookBook,
+    body: CookBookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadCookBook | None:
+) -> CookBookOut | HTTPValidationError | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateCookBook):
+        body (CookBookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadCookBook
+        CookBookOut | HTTPValidationError
     """
 
     return sync_detailed(
@@ -135,22 +135,22 @@ async def asyncio_detailed(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateCookBook,
+    body: CookBookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadCookBook]:
+) -> Response[CookBookOut | HTTPValidationError]:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateCookBook):
+        body (CookBookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadCookBook]
+        Response[CookBookOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -168,22 +168,22 @@ async def asyncio(
     item_id: str,
     *,
     client: AuthenticatedClient,
-    body: CreateCookBook,
+    body: CookBookCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadCookBook | None:
+) -> CookBookOut | HTTPValidationError | None:
     """Update One
 
     Args:
         item_id (str):
         accept_language (None | str | Unset):
-        body (CreateCookBook):
+        body (CookBookCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadCookBook
+        CookBookOut | HTTPValidationError
     """
 
     return (

@@ -210,10 +210,8 @@ def update_shopping_list_item(
     The endpoint PUT-replaces the item, and the body model defaults most fields
     to concrete values rather than leaving them unset. The current item is
     therefore fetched and the body rebuilt from it, so unsupplied fields and the
-    item's food and unit links keep their current values; only the caller's
-    edits are applied on top. Recipe links are the exception: Mealie drops an
-    item's recipe references server-side when the update checks it off,
-    regardless of the merged body.
+    item's food, unit and recipe links keep their current values; only the
+    caller's edits are applied on top.
     """
     require_non_empty("item_id", item_id)
     if note is None and quantity is None and checked is None and label_id is None:
@@ -417,10 +415,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Edit a shopping list item, or check it off.
 
         Only the fields supplied change; omitted fields keep their current value
-        and the item's food and unit links are preserved. Checking an item off
-        additionally drops its recipe links, which Mealie clears server-side. At
-        least one of ``note``, ``quantity``, ``checked``, or ``label_id`` must be
-        provided.
+        and the item's food, unit and recipe links are preserved, also when the
+        item is checked off. At least one of ``note``, ``quantity``,
+        ``checked``, or ``label_id`` must be provided.
 
         Args:
             item_id: UUID of the shopping list item.

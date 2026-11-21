@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
     from ..models.shopping_list_multi_purpose_label_out import ShoppingListMultiPurposeLabelOut
     from ..models.shopping_list_recipe_ref_out import ShoppingListRecipeRefOut
@@ -22,34 +20,53 @@ T = TypeVar("T", bound="ShoppingListSummary")
 class ShoppingListSummary:
     """
     Attributes:
+        name (None | str):
+        extras (None | ShoppingListSummaryExtrasType0):
+        created_at (datetime.datetime | None):
+        updated_at (datetime.datetime | None):
         group_id (str):
         user_id (str):
         id (str):
         household_id (str):
         recipe_references (list[ShoppingListRecipeRefOut]):
         label_settings (list[ShoppingListMultiPurposeLabelOut]):
-        name (None | str | Unset):
-        extras (None | ShoppingListSummaryExtrasType0 | Unset):
-        created_at (datetime.datetime | None | Unset):
-        updated_at (datetime.datetime | None | Unset):
     """
 
+    name: str | None
+    extras: ShoppingListSummaryExtrasType0 | None
+    created_at: datetime.datetime | None
+    updated_at: datetime.datetime | None
     group_id: str
     user_id: str
     id: str
     household_id: str
     recipe_references: list[ShoppingListRecipeRefOut]
     label_settings: list[ShoppingListMultiPurposeLabelOut]
-    name: str | Unset | None = UNSET
-    extras: ShoppingListSummaryExtrasType0 | Unset | None = UNSET
-    created_at: datetime.datetime | Unset | None = UNSET
-    updated_at: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.shopping_list_summary_extras_type_0 import (
-            ShoppingListSummaryExtrasType0,
-        )
+        from ..models.shopping_list_summary_extras_type_0 import ShoppingListSummaryExtrasType0  # noqa: PLC0415
+
+        name: str | None
+        name = self.name
+
+        extras: dict[str, Any] | None
+        if isinstance(self.extras, ShoppingListSummaryExtrasType0):
+            extras = self.extras.to_dict()
+        else:
+            extras = self.extras
+
+        created_at: str | None
+        if isinstance(self.created_at, datetime.datetime):
+            created_at = self.created_at.isoformat()
+        else:
+            created_at = self.created_at
+
+        updated_at: str | None
+        if isinstance(self.updated_at, datetime.datetime):
+            updated_at = self.updated_at.isoformat()
+        else:
+            updated_at = self.updated_at
 
         group_id = self.group_id
 
@@ -69,40 +86,14 @@ class ShoppingListSummary:
             label_settings_item = label_settings_item_data.to_dict()
             label_settings.append(label_settings_item)
 
-        name: str | Unset | None
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
-
-        extras: dict[str, Any] | Unset | None
-        if isinstance(self.extras, Unset):
-            extras = UNSET
-        elif isinstance(self.extras, ShoppingListSummaryExtrasType0):
-            extras = self.extras.to_dict()
-        else:
-            extras = self.extras
-
-        created_at: str | Unset | None
-        if isinstance(self.created_at, Unset):
-            created_at = UNSET
-        elif isinstance(self.created_at, datetime.datetime):
-            created_at = self.created_at.isoformat()
-        else:
-            created_at = self.created_at
-
-        updated_at: str | Unset | None
-        if isinstance(self.updated_at, Unset):
-            updated_at = UNSET
-        elif isinstance(self.updated_at, datetime.datetime):
-            updated_at = self.updated_at.isoformat()
-        else:
-            updated_at = self.updated_at
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "name": name,
+                "extras": extras,
+                "createdAt": created_at,
+                "updatedAt": updated_at,
                 "groupId": group_id,
                 "userId": user_id,
                 "id": id,
@@ -111,28 +102,69 @@ class ShoppingListSummary:
                 "labelSettings": label_settings,
             }
         )
-        if name is not UNSET:
-            field_dict["name"] = name
-        if extras is not UNSET:
-            field_dict["extras"] = extras
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.shopping_list_multi_purpose_label_out import (
-            ShoppingListMultiPurposeLabelOut,
-        )
+        from ..models.shopping_list_multi_purpose_label_out import ShoppingListMultiPurposeLabelOut  # noqa: PLC0415
         from ..models.shopping_list_recipe_ref_out import ShoppingListRecipeRefOut  # noqa: PLC0415
-        from ..models.shopping_list_summary_extras_type_0 import (
-            ShoppingListSummaryExtrasType0,
-        )
+        from ..models.shopping_list_summary_extras_type_0 import ShoppingListSummaryExtrasType0  # noqa: PLC0415
 
         d = dict(src_dict)
+
+        def _parse_name(data: object) -> str | None:
+            if data is None:
+                return data
+            return cast(None | str, data)
+
+        name = _parse_name(d.pop("name"))
+
+        def _parse_extras(data: object) -> ShoppingListSummaryExtrasType0 | None:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                extras_type_0 = ShoppingListSummaryExtrasType0.from_dict(data)
+
+                return extras_type_0
+            except TypeError, ValueError, AttributeError, KeyError:
+                pass
+            return cast(None | ShoppingListSummaryExtrasType0, data)
+
+        extras = _parse_extras(d.pop("extras"))
+
+        def _parse_created_at(data: object) -> datetime.datetime | None:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                created_at_type_0 = datetime.datetime.fromisoformat(data)
+
+                return created_at_type_0
+            except TypeError, ValueError, AttributeError, KeyError:
+                pass
+            return cast(datetime.datetime | None, data)
+
+        created_at = _parse_created_at(d.pop("createdAt"))
+
+        def _parse_updated_at(data: object) -> datetime.datetime | None:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                updated_at_type_0 = datetime.datetime.fromisoformat(data)
+
+                return updated_at_type_0
+            except TypeError, ValueError, AttributeError, KeyError:
+                pass
+            return cast(datetime.datetime | None, data)
+
+        updated_at = _parse_updated_at(d.pop("updatedAt"))
+
         group_id = d.pop("groupId")
 
         user_id = d.pop("userId")
@@ -157,77 +189,17 @@ class ShoppingListSummary:
 
             label_settings.append(label_settings_item)
 
-        def _parse_name(data: object) -> str | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        name = _parse_name(d.pop("name", UNSET))
-
-        def _parse_extras(data: object) -> ShoppingListSummaryExtrasType0 | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                extras_type_0 = ShoppingListSummaryExtrasType0.from_dict(data)
-
-                return extras_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(None | ShoppingListSummaryExtrasType0 | Unset, data)
-
-        extras = _parse_extras(d.pop("extras", UNSET))
-
-        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                created_at_type_0 = datetime.datetime.fromisoformat(data)
-
-                return created_at_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(datetime.datetime | None | Unset, data)
-
-        created_at = _parse_created_at(d.pop("createdAt", UNSET))
-
-        def _parse_updated_at(data: object) -> datetime.datetime | Unset | None:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                updated_at_type_0 = datetime.datetime.fromisoformat(data)
-
-                return updated_at_type_0
-            except TypeError, ValueError, AttributeError, KeyError:
-                pass
-            return cast(datetime.datetime | None | Unset, data)
-
-        updated_at = _parse_updated_at(d.pop("updatedAt", UNSET))
-
         shopping_list_summary = cls(
+            name=name,
+            extras=extras,
+            created_at=created_at,
+            updated_at=updated_at,
             group_id=group_id,
             user_id=user_id,
             id=id,
             household_id=household_id,
             recipe_references=recipe_references,
             label_settings=label_settings,
-            name=name,
-            extras=extras,
-            created_at=created_at,
-            updated_at=updated_at,
         )
 
         shopping_list_summary.additional_properties = d

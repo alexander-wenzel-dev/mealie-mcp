@@ -5,10 +5,10 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.category_pagination import CategoryPagination
 from ...models.http_validation_error import HTTPValidationError
 from ...models.order_by_null_position import OrderByNullPosition
 from ...models.order_direction import OrderDirection
-from ...models.recipe_category_pagination import RecipeCategoryPagination
 from ...types import UNSET, Response, Unset
 
 
@@ -91,9 +91,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RecipeCategoryPagination | None:
+) -> CategoryPagination | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = RecipeCategoryPagination.from_dict(response.json())
+        response_200 = CategoryPagination.from_dict(response.json())
 
         return response_200
 
@@ -109,7 +109,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RecipeCategoryPagination]:
+) -> Response[CategoryPagination | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -130,7 +130,7 @@ def sync_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeCategoryPagination]:
+) -> Response[CategoryPagination | HTTPValidationError]:
     """Get All
 
      Returns a list of available categories in the database
@@ -151,7 +151,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeCategoryPagination]
+        Response[CategoryPagination | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -185,7 +185,7 @@ def sync(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeCategoryPagination | None:
+) -> CategoryPagination | HTTPValidationError | None:
     """Get All
 
      Returns a list of available categories in the database
@@ -206,7 +206,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeCategoryPagination
+        CategoryPagination | HTTPValidationError
     """
 
     return sync_detailed(
@@ -235,7 +235,7 @@ async def asyncio_detailed(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | RecipeCategoryPagination]:
+) -> Response[CategoryPagination | HTTPValidationError]:
     """Get All
 
      Returns a list of available categories in the database
@@ -256,7 +256,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RecipeCategoryPagination]
+        Response[CategoryPagination | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -288,7 +288,7 @@ async def asyncio(
     page: int | Unset = 1,
     per_page: int | Unset = 50,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | RecipeCategoryPagination | None:
+) -> CategoryPagination | HTTPValidationError | None:
     """Get All
 
      Returns a list of available categories in the database
@@ -309,7 +309,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RecipeCategoryPagination
+        CategoryPagination | HTTPValidationError
     """
 
     return (

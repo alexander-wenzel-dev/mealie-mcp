@@ -84,12 +84,8 @@ class AIProviderCreate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ai_provider_create_requestheaders import (
-            AIProviderCreateRequestheaders,
-        )
-        from ..models.ai_provider_create_requestparams import (
-            AIProviderCreateRequestparams,
-        )
+        from ..models.ai_provider_create_requestheaders import AIProviderCreateRequestheaders  # noqa: PLC0415
+        from ..models.ai_provider_create_requestparams import AIProviderCreateRequestparams  # noqa: PLC0415
 
         d = dict(src_dict)
         name = d.pop("name")

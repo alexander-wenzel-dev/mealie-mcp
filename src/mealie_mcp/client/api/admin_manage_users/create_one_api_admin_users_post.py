@@ -7,7 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_in import UserIn
-from ...models.user_out import UserOut
+from ...models.user_out_output import UserOutOutput
 from ...types import UNSET, Response, Unset
 
 
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     if response.status_code == 201:
-        response_201 = UserOut.from_dict(response.json())
+        response_201 = UserOutOutput.from_dict(response.json())
 
         return response_201
 
@@ -53,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +67,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: UserIn,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Create One
 
     Args:
@@ -80,7 +80,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -100,7 +100,7 @@ def sync(
     client: AuthenticatedClient,
     body: UserIn,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Create One
 
     Args:
@@ -113,7 +113,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return sync_detailed(
@@ -128,7 +128,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: UserIn,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Create One
 
     Args:
@@ -141,7 +141,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -159,7 +159,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: UserIn,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Create One
 
     Args:
@@ -172,7 +172,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return (

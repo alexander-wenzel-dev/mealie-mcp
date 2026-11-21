@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_plan_entry import CreatePlanEntry
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_plan_entry import ReadPlanEntry
+from ...models.plan_entry_create import PlanEntryCreate
+from ...models.plan_entry_out import PlanEntryOut
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: CreatePlanEntry,
+    body: PlanEntryCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     if response.status_code == 201:
-        response_201 = ReadPlanEntry.from_dict(response.json())
+        response_201 = PlanEntryOut.from_dict(response.json())
 
         return response_201
 
@@ -53,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,21 +65,21 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreatePlanEntry,
+    body: PlanEntryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreatePlanEntry):
+        body (PlanEntryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[HTTPValidationError | PlanEntryOut]
     """
 
     kwargs = _get_kwargs(
@@ -97,21 +97,21 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: CreatePlanEntry,
+    body: PlanEntryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreatePlanEntry):
+        body (PlanEntryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        HTTPValidationError | PlanEntryOut
     """
 
     return sync_detailed(
@@ -124,21 +124,21 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreatePlanEntry,
+    body: PlanEntryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | ReadPlanEntry]:
+) -> Response[HTTPValidationError | PlanEntryOut]:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreatePlanEntry):
+        body (PlanEntryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReadPlanEntry]
+        Response[HTTPValidationError | PlanEntryOut]
     """
 
     kwargs = _get_kwargs(
@@ -154,21 +154,21 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: CreatePlanEntry,
+    body: PlanEntryCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | ReadPlanEntry | None:
+) -> HTTPValidationError | PlanEntryOut | None:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreatePlanEntry):
+        body (PlanEntryCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReadPlanEntry
+        HTTPValidationError | PlanEntryOut
     """
 
     return (

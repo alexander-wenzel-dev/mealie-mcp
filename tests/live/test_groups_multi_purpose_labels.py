@@ -56,11 +56,7 @@ def test_label_lifecycle_color_survives_name_only_update(
         assert ack == {"id": item_id, "deleted": True}
         deleted_id, item_id = item_id, None
 
-        # A get on a deleted label is gone: Mealie's labels endpoint answers a
-        # valid but absent id with a 500 rather than the 404 the cookbook and tag
-        # endpoints return, so the delete is proven by the tool raising, not by a
-        # specific status.
-        with pytest.raises(ToolError, match=r"Mealie get_label failed \(500"):
+        with pytest.raises(ToolError, match=r"Mealie get_label failed \(404"):
             groups_multi_purpose_labels.get_label(mealie_client, item_id=deleted_id)
     finally:
         if item_id is not None:

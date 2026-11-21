@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_user_registration import CreateUserRegistration
 from ...models.http_validation_error import HTTPValidationError
-from ...models.user_out import UserOut
+from ...models.user_out_output import UserOutOutput
+from ...models.user_registration_create import UserRegistrationCreate
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: CreateUserRegistration,
+    body: UserRegistrationCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     if response.status_code == 201:
-        response_201 = UserOut.from_dict(response.json())
+        response_201 = UserOutOutput.from_dict(response.json())
 
         return response_201
 
@@ -53,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,21 +65,21 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: CreateUserRegistration,
+    body: UserRegistrationCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Register New User
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateUserRegistration):
+        body (UserRegistrationCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -97,21 +97,21 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    body: CreateUserRegistration,
+    body: UserRegistrationCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Register New User
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateUserRegistration):
+        body (UserRegistrationCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return sync_detailed(
@@ -124,21 +124,21 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: CreateUserRegistration,
+    body: UserRegistrationCreate,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | UserOut]:
+) -> Response[HTTPValidationError | UserOutOutput]:
     """Register New User
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateUserRegistration):
+        body (UserRegistrationCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserOut]
+        Response[HTTPValidationError | UserOutOutput]
     """
 
     kwargs = _get_kwargs(
@@ -154,21 +154,21 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    body: CreateUserRegistration,
+    body: UserRegistrationCreate,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | UserOut | None:
+) -> HTTPValidationError | UserOutOutput | None:
     """Register New User
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateUserRegistration):
+        body (UserRegistrationCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserOut
+        HTTPValidationError | UserOutOutput
     """
 
     return (

@@ -8,9 +8,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.mealie_schema_recipe_recipe_comments_user_base import (
-        MealieSchemaRecipeRecipeCommentsUserBase,
-    )
+    from ..models.recipe_comment_user import RecipeCommentUser
 
 
 T = TypeVar("T", bound="RecipeCommentOut")
@@ -20,30 +18,30 @@ T = TypeVar("T", bound="RecipeCommentOut")
 class RecipeCommentOut:
     """
     Attributes:
+        id (str):
         recipe_id (str):
         text (str):
-        id (str):
         created_at (datetime.datetime):
         update_at (datetime.datetime):
         user_id (str):
-        user (MealieSchemaRecipeRecipeCommentsUserBase):
+        user (RecipeCommentUser):
     """
 
+    id: str
     recipe_id: str
     text: str
-    id: str
     created_at: datetime.datetime
     update_at: datetime.datetime
     user_id: str
-    user: MealieSchemaRecipeRecipeCommentsUserBase
+    user: RecipeCommentUser
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        id = self.id
+
         recipe_id = self.recipe_id
 
         text = self.text
-
-        id = self.id
 
         created_at = self.created_at.isoformat()
 
@@ -57,9 +55,9 @@ class RecipeCommentOut:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "id": id,
                 "recipeId": recipe_id,
                 "text": text,
-                "id": id,
                 "createdAt": created_at,
                 "update_at": update_at,
                 "userId": user_id,
@@ -71,16 +69,14 @@ class RecipeCommentOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.mealie_schema_recipe_recipe_comments_user_base import (
-            MealieSchemaRecipeRecipeCommentsUserBase,
-        )
+        from ..models.recipe_comment_user import RecipeCommentUser  # noqa: PLC0415
 
         d = dict(src_dict)
+        id = d.pop("id")
+
         recipe_id = d.pop("recipeId")
 
         text = d.pop("text")
-
-        id = d.pop("id")
 
         created_at = datetime.datetime.fromisoformat(d.pop("createdAt"))
 
@@ -88,12 +84,12 @@ class RecipeCommentOut:
 
         user_id = d.pop("userId")
 
-        user = MealieSchemaRecipeRecipeCommentsUserBase.from_dict(d.pop("user"))
+        user = RecipeCommentUser.from_dict(d.pop("user"))
 
         recipe_comment_out = cls(
+            id=id,
             recipe_id=recipe_id,
             text=text,
-            id=id,
             created_at=created_at,
             update_at=update_at,
             user_id=user_id,

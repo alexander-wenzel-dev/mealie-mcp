@@ -5,14 +5,14 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_recipe import CreateRecipe
 from ...models.http_validation_error import HTTPValidationError
+from ...models.recipe_create import RecipeCreate
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: CreateRecipe,
+    body: RecipeCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -63,7 +63,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateRecipe,
+    body: RecipeCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | str]:
     """Create One
@@ -72,7 +72,7 @@ def sync_detailed(
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRecipe):
+        body (RecipeCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -97,7 +97,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: CreateRecipe,
+    body: RecipeCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | str | None:
     """Create One
@@ -106,7 +106,7 @@ def sync(
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRecipe):
+        body (RecipeCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -126,7 +126,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateRecipe,
+    body: RecipeCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[HTTPValidationError | str]:
     """Create One
@@ -135,7 +135,7 @@ async def asyncio_detailed(
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRecipe):
+        body (RecipeCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -158,7 +158,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: CreateRecipe,
+    body: RecipeCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> HTTPValidationError | str | None:
     """Create One
@@ -167,7 +167,7 @@ async def asyncio(
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateRecipe):
+        body (RecipeCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

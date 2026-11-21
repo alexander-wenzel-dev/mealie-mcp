@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.create_group_recipe_action import CreateGroupRecipeAction
+from ...models.group_recipe_action_create import GroupRecipeActionCreate
 from ...models.group_recipe_action_out import GroupRecipeActionOut
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
@@ -13,7 +13,7 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    body: CreateGroupRecipeAction,
+    body: GroupRecipeActionCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -65,14 +65,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateGroupRecipeAction,
+    body: GroupRecipeActionCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[GroupRecipeActionOut | HTTPValidationError]:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateGroupRecipeAction):
+        body (GroupRecipeActionCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -97,14 +97,14 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: CreateGroupRecipeAction,
+    body: GroupRecipeActionCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> GroupRecipeActionOut | HTTPValidationError | None:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateGroupRecipeAction):
+        body (GroupRecipeActionCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -124,14 +124,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: CreateGroupRecipeAction,
+    body: GroupRecipeActionCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> Response[GroupRecipeActionOut | HTTPValidationError]:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateGroupRecipeAction):
+        body (GroupRecipeActionCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -154,14 +154,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: CreateGroupRecipeAction,
+    body: GroupRecipeActionCreate,
     accept_language: str | Unset | None = UNSET,
 ) -> GroupRecipeActionOut | HTTPValidationError | None:
     """Create One
 
     Args:
         accept_language (None | str | Unset):
-        body (CreateGroupRecipeAction):
+        body (GroupRecipeActionCreate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

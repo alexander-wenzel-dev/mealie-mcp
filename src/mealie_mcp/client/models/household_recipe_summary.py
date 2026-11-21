@@ -7,8 +7,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 T = TypeVar("T", bound="HouseholdRecipeSummary")
 
 
@@ -16,46 +14,40 @@ T = TypeVar("T", bound="HouseholdRecipeSummary")
 class HouseholdRecipeSummary:
     """
     Attributes:
+        last_made (datetime.datetime | None):
         recipe_id (str):
-        last_made (datetime.datetime | None | Unset):
     """
 
+    last_made: datetime.datetime | None
     recipe_id: str
-    last_made: datetime.datetime | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        recipe_id = self.recipe_id
-
-        last_made: str | Unset | None
-        if isinstance(self.last_made, Unset):
-            last_made = UNSET
-        elif isinstance(self.last_made, datetime.datetime):
+        last_made: str | None
+        if isinstance(self.last_made, datetime.datetime):
             last_made = self.last_made.isoformat()
         else:
             last_made = self.last_made
+
+        recipe_id = self.recipe_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "lastMade": last_made,
                 "recipeId": recipe_id,
             }
         )
-        if last_made is not UNSET:
-            field_dict["lastMade"] = last_made
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        recipe_id = d.pop("recipeId")
 
-        def _parse_last_made(data: object) -> datetime.datetime | Unset | None:
+        def _parse_last_made(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -65,13 +57,15 @@ class HouseholdRecipeSummary:
                 return last_made_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        last_made = _parse_last_made(d.pop("lastMade", UNSET))
+        last_made = _parse_last_made(d.pop("lastMade"))
+
+        recipe_id = d.pop("recipeId")
 
         household_recipe_summary = cls(
-            recipe_id=recipe_id,
             last_made=last_made,
+            recipe_id=recipe_id,
         )
 
         household_recipe_summary.additional_properties = d

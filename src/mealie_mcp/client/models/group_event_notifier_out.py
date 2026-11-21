@@ -63,9 +63,7 @@ class GroupEventNotifierOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.group_event_notifier_options_out import (
-            GroupEventNotifierOptionsOut,
-        )
+        from ..models.group_event_notifier_options_out import GroupEventNotifierOptionsOut  # noqa: PLC0415
 
         d = dict(src_dict)
         id = d.pop("id")

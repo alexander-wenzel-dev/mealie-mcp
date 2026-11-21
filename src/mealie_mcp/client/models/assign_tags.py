@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.tag_base import TagBase
+    from ..models.tag_draft import TagDraft
 
 
 T = TypeVar("T", bound="AssignTags")
@@ -18,11 +18,11 @@ class AssignTags:
     """
     Attributes:
         recipes (list[str]):
-        tags (list[TagBase]):
+        tags (list[TagDraft]):
     """
 
     recipes: list[str]
-    tags: list[TagBase]
+    tags: list[TagDraft]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +46,7 @@ class AssignTags:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tag_base import TagBase  # noqa: PLC0415
+        from ..models.tag_draft import TagDraft  # noqa: PLC0415
 
         d = dict(src_dict)
         recipes = cast(list[str], d.pop("recipes"))
@@ -54,7 +54,7 @@ class AssignTags:
         tags = []
         _tags = d.pop("tags")
         for tags_item_data in _tags:
-            tags_item = TagBase.from_dict(tags_item_data)
+            tags_item = TagDraft.from_dict(tags_item_data)
 
             tags.append(tags_item)
 

@@ -18,6 +18,8 @@ class CheckAppConfig:
         ldap_disabled (bool):
         oidc_ready (bool):
         oidc_disabled (bool):
+        reverse_proxy_auth_ready (bool):
+        reverse_proxy_auth_disabled (bool):
         base_url_set (bool):
         is_up_to_date (bool):
     """
@@ -27,6 +29,8 @@ class CheckAppConfig:
     ldap_disabled: bool
     oidc_ready: bool
     oidc_disabled: bool
+    reverse_proxy_auth_ready: bool
+    reverse_proxy_auth_disabled: bool
     base_url_set: bool
     is_up_to_date: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -42,6 +46,10 @@ class CheckAppConfig:
 
         oidc_disabled = self.oidc_disabled
 
+        reverse_proxy_auth_ready = self.reverse_proxy_auth_ready
+
+        reverse_proxy_auth_disabled = self.reverse_proxy_auth_disabled
+
         base_url_set = self.base_url_set
 
         is_up_to_date = self.is_up_to_date
@@ -55,6 +63,8 @@ class CheckAppConfig:
                 "ldapDisabled": ldap_disabled,
                 "oidcReady": oidc_ready,
                 "oidcDisabled": oidc_disabled,
+                "reverseProxyAuthReady": reverse_proxy_auth_ready,
+                "reverseProxyAuthDisabled": reverse_proxy_auth_disabled,
                 "baseUrlSet": base_url_set,
                 "isUpToDate": is_up_to_date,
             }
@@ -75,6 +85,10 @@ class CheckAppConfig:
 
         oidc_disabled = d.pop("oidcDisabled")
 
+        reverse_proxy_auth_ready = d.pop("reverseProxyAuthReady")
+
+        reverse_proxy_auth_disabled = d.pop("reverseProxyAuthDisabled")
+
         base_url_set = d.pop("baseUrlSet")
 
         is_up_to_date = d.pop("isUpToDate")
@@ -85,6 +99,8 @@ class CheckAppConfig:
             ldap_disabled=ldap_disabled,
             oidc_ready=oidc_ready,
             oidc_disabled=oidc_disabled,
+            reverse_proxy_auth_ready=reverse_proxy_auth_ready,
+            reverse_proxy_auth_disabled=reverse_proxy_auth_disabled,
             base_url_set=base_url_set,
             is_up_to_date=is_up_to_date,
         )

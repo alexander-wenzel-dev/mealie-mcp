@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.cook_book_out import CookBookOut
+from ...models.cook_book_update import CookBookUpdate
 from ...models.http_validation_error import HTTPValidationError
-from ...models.read_cook_book import ReadCookBook
-from ...models.update_cook_book import UpdateCookBook
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: list[UpdateCookBook],
+    body: list[CookBookUpdate],
     accept_language: str | Unset | None = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -38,12 +38,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | list[ReadCookBook] | None:
+) -> HTTPValidationError | list[CookBookOut] | None:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = ReadCookBook.from_dict(response_200_item_data)
+            response_200_item = CookBookOut.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -61,7 +61,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | list[ReadCookBook]]:
+) -> Response[HTTPValidationError | list[CookBookOut]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,21 +73,21 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: list[UpdateCookBook],
+    body: list[CookBookUpdate],
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | list[ReadCookBook]]:
+) -> Response[HTTPValidationError | list[CookBookOut]]:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[UpdateCookBook]):
+        body (list[CookBookUpdate]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | list[ReadCookBook]]
+        Response[HTTPValidationError | list[CookBookOut]]
     """
 
     kwargs = _get_kwargs(
@@ -105,21 +105,21 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: list[UpdateCookBook],
+    body: list[CookBookUpdate],
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | list[ReadCookBook] | None:
+) -> HTTPValidationError | list[CookBookOut] | None:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[UpdateCookBook]):
+        body (list[CookBookUpdate]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | list[ReadCookBook]
+        HTTPValidationError | list[CookBookOut]
     """
 
     return sync_detailed(
@@ -132,21 +132,21 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: list[UpdateCookBook],
+    body: list[CookBookUpdate],
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | list[ReadCookBook]]:
+) -> Response[HTTPValidationError | list[CookBookOut]]:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[UpdateCookBook]):
+        body (list[CookBookUpdate]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | list[ReadCookBook]]
+        Response[HTTPValidationError | list[CookBookOut]]
     """
 
     kwargs = _get_kwargs(
@@ -162,21 +162,21 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: list[UpdateCookBook],
+    body: list[CookBookUpdate],
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | list[ReadCookBook] | None:
+) -> HTTPValidationError | list[CookBookOut] | None:
     """Update Many
 
     Args:
         accept_language (None | str | Unset):
-        body (list[UpdateCookBook]):
+        body (list[CookBookUpdate]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | list[ReadCookBook]
+        HTTPValidationError | list[CookBookOut]
     """
 
     return (

@@ -6,7 +6,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.household_in_db import HouseholdInDB
+from ...models.household_out import HouseholdOut
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     if response.status_code == 200:
-        response_200 = HouseholdInDB.from_dict(response.json())
+        response_200 = HouseholdOut.from_dict(response.json())
 
         return response_200
 
@@ -51,7 +51,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,7 +65,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     """Delete One
 
     Args:
@@ -77,7 +77,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | HouseholdInDB]
+        Response[HTTPValidationError | HouseholdOut]
     """
 
     kwargs = _get_kwargs(
@@ -97,7 +97,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     """Delete One
 
     Args:
@@ -109,7 +109,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | HouseholdInDB
+        HTTPValidationError | HouseholdOut
     """
 
     return sync_detailed(
@@ -124,7 +124,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> Response[HTTPValidationError | HouseholdInDB]:
+) -> Response[HTTPValidationError | HouseholdOut]:
     """Delete One
 
     Args:
@@ -136,7 +136,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | HouseholdInDB]
+        Response[HTTPValidationError | HouseholdOut]
     """
 
     kwargs = _get_kwargs(
@@ -154,7 +154,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     accept_language: str | Unset | None = UNSET,
-) -> HTTPValidationError | HouseholdInDB | None:
+) -> HTTPValidationError | HouseholdOut | None:
     """Delete One
 
     Args:
@@ -166,7 +166,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | HouseholdInDB
+        HTTPValidationError | HouseholdOut
     """
 
     return (

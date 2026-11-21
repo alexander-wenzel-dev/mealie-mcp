@@ -7,17 +7,15 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 if TYPE_CHECKING:
-    from ..models.ingredient_food_output import IngredientFoodOutput
-    from ..models.ingredient_unit_output import IngredientUnitOutput
-    from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary
-    from ..models.recipe_output import RecipeOutput
+    from ..models.ingredient_food_out_output import IngredientFoodOutOutput
+    from ..models.ingredient_unit_out_output import IngredientUnitOutOutput
+    from ..models.multi_purpose_label_summary_output import MultiPurposeLabelSummaryOutput
+    from ..models.recipe_draft_output import RecipeDraftOutput
     from ..models.shopping_list_item_out_output_extras_type_0 import (
         ShoppingListItemOutOutputExtrasType0,
     )
-    from ..models.shopping_list_item_recipe_ref_out import ShoppingListItemRecipeRefOut
+    from ..models.shopping_list_item_recipe_ref_out_output import ShoppingListItemRecipeRefOutOutput
 
 
 T = TypeVar("T", bound="ShoppingListItemOutOutput")
@@ -27,60 +25,104 @@ T = TypeVar("T", bound="ShoppingListItemOutOutput")
 class ShoppingListItemOutOutput:
     """
     Attributes:
+        quantity (float):  Default: 1.0.
+        unit (IngredientUnitOutOutput | None):
+        food (IngredientFoodOutOutput | None):
+        referenced_recipe (None | RecipeDraftOutput):
+        note (None | str):  Default: ''.
+        display (str):  Default: ''.
         shopping_list_id (str):
+        checked (bool):  Default: False.
+        position (int):  Default: 0.
+        food_id (None | str):
+        label_id (None | str):
+        unit_id (None | str):
+        extras (None | ShoppingListItemOutOutputExtrasType0):
         id (str):
         group_id (str):
         household_id (str):
-        quantity (float | Unset):  Default: 1.0.
-        unit (IngredientUnitOutput | None | Unset):
-        food (IngredientFoodOutput | None | Unset):
-        referenced_recipe (None | RecipeOutput | Unset):
-        note (None | str | Unset):  Default: ''.
-        display (str | Unset):  Default: ''.
-        checked (bool | Unset):  Default: False.
-        position (int | Unset):  Default: 0.
-        food_id (None | str | Unset):
-        label_id (None | str | Unset):
-        unit_id (None | str | Unset):
-        extras (None | ShoppingListItemOutOutputExtrasType0 | Unset):
-        label (MultiPurposeLabelSummary | None | Unset):
-        recipe_references (list[ShoppingListItemRecipeRefOut] | Unset):
-        created_at (datetime.datetime | None | Unset):
-        updated_at (datetime.datetime | None | Unset):
+        label (MultiPurposeLabelSummaryOutput | None):
+        recipe_references (list[ShoppingListItemRecipeRefOutOutput]):
+        created_at (datetime.datetime | None):
+        updated_at (datetime.datetime | None):
     """
 
+    unit: IngredientUnitOutOutput | None
+    food: IngredientFoodOutOutput | None
+    referenced_recipe: RecipeDraftOutput | None
     shopping_list_id: str
+    food_id: str | None
+    label_id: str | None
+    unit_id: str | None
+    extras: ShoppingListItemOutOutputExtrasType0 | None
     id: str
     group_id: str
     household_id: str
-    quantity: float | Unset = 1.0
-    unit: IngredientUnitOutput | Unset | None = UNSET
-    food: IngredientFoodOutput | Unset | None = UNSET
-    referenced_recipe: RecipeOutput | Unset | None = UNSET
-    note: str | Unset | None = ""
-    display: str | Unset = ""
-    checked: bool | Unset = False
-    position: int | Unset = 0
-    food_id: str | Unset | None = UNSET
-    label_id: str | Unset | None = UNSET
-    unit_id: str | Unset | None = UNSET
-    extras: ShoppingListItemOutOutputExtrasType0 | Unset | None = UNSET
-    label: MultiPurposeLabelSummary | Unset | None = UNSET
-    recipe_references: list[ShoppingListItemRecipeRefOut] | Unset = UNSET
-    created_at: datetime.datetime | Unset | None = UNSET
-    updated_at: datetime.datetime | Unset | None = UNSET
+    label: MultiPurposeLabelSummaryOutput | None
+    recipe_references: list[ShoppingListItemRecipeRefOutOutput]
+    created_at: datetime.datetime | None
+    updated_at: datetime.datetime | None
+    quantity: float = 1.0
+    note: str | None = ""
+    display: str = ""
+    checked: bool = False
+    position: int = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
-        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
-        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
+        from ..models.ingredient_food_out_output import IngredientFoodOutOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_out_output import IngredientUnitOutOutput  # noqa: PLC0415
+        from ..models.multi_purpose_label_summary_output import MultiPurposeLabelSummaryOutput  # noqa: PLC0415
+        from ..models.recipe_draft_output import RecipeDraftOutput  # noqa: PLC0415
         from ..models.shopping_list_item_out_output_extras_type_0 import (
             ShoppingListItemOutOutputExtrasType0,
         )
 
+        quantity = self.quantity
+
+        unit: dict[str, Any] | None
+        if isinstance(self.unit, IngredientUnitOutOutput):
+            unit = self.unit.to_dict()
+        else:
+            unit = self.unit
+
+        food: dict[str, Any] | None
+        if isinstance(self.food, IngredientFoodOutOutput):
+            food = self.food.to_dict()
+        else:
+            food = self.food
+
+        referenced_recipe: dict[str, Any] | None
+        if isinstance(self.referenced_recipe, RecipeDraftOutput):
+            referenced_recipe = self.referenced_recipe.to_dict()
+        else:
+            referenced_recipe = self.referenced_recipe
+
+        note: str | None
+        note = self.note
+
+        display = self.display
+
         shopping_list_id = self.shopping_list_id
+
+        checked = self.checked
+
+        position = self.position
+
+        food_id: str | None
+        food_id = self.food_id
+
+        label_id: str | None
+        label_id = self.label_id
+
+        unit_id: str | None
+        unit_id = self.unit_id
+
+        extras: dict[str, Any] | None
+        if isinstance(self.extras, ShoppingListItemOutOutputExtrasType0):
+            extras = self.extras.to_dict()
+        else:
+            extras = self.extras
 
         id = self.id
 
@@ -88,97 +130,25 @@ class ShoppingListItemOutOutput:
 
         household_id = self.household_id
 
-        quantity = self.quantity
-
-        unit: dict[str, Any] | Unset | None
-        if isinstance(self.unit, Unset):
-            unit = UNSET
-        elif isinstance(self.unit, IngredientUnitOutput):
-            unit = self.unit.to_dict()
-        else:
-            unit = self.unit
-
-        food: dict[str, Any] | Unset | None
-        if isinstance(self.food, Unset):
-            food = UNSET
-        elif isinstance(self.food, IngredientFoodOutput):
-            food = self.food.to_dict()
-        else:
-            food = self.food
-
-        referenced_recipe: dict[str, Any] | Unset | None
-        if isinstance(self.referenced_recipe, Unset):
-            referenced_recipe = UNSET
-        elif isinstance(self.referenced_recipe, RecipeOutput):
-            referenced_recipe = self.referenced_recipe.to_dict()
-        else:
-            referenced_recipe = self.referenced_recipe
-
-        note: str | Unset | None
-        if isinstance(self.note, Unset):
-            note = UNSET
-        else:
-            note = self.note
-
-        display = self.display
-
-        checked = self.checked
-
-        position = self.position
-
-        food_id: str | Unset | None
-        if isinstance(self.food_id, Unset):
-            food_id = UNSET
-        else:
-            food_id = self.food_id
-
-        label_id: str | Unset | None
-        if isinstance(self.label_id, Unset):
-            label_id = UNSET
-        else:
-            label_id = self.label_id
-
-        unit_id: str | Unset | None
-        if isinstance(self.unit_id, Unset):
-            unit_id = UNSET
-        else:
-            unit_id = self.unit_id
-
-        extras: dict[str, Any] | Unset | None
-        if isinstance(self.extras, Unset):
-            extras = UNSET
-        elif isinstance(self.extras, ShoppingListItemOutOutputExtrasType0):
-            extras = self.extras.to_dict()
-        else:
-            extras = self.extras
-
-        label: dict[str, Any] | Unset | None
-        if isinstance(self.label, Unset):
-            label = UNSET
-        elif isinstance(self.label, MultiPurposeLabelSummary):
+        label: dict[str, Any] | None
+        if isinstance(self.label, MultiPurposeLabelSummaryOutput):
             label = self.label.to_dict()
         else:
             label = self.label
 
-        recipe_references: list[dict[str, Any]] | Unset = UNSET
-        if not isinstance(self.recipe_references, Unset):
-            recipe_references = []
-            for recipe_references_item_data in self.recipe_references:
-                recipe_references_item = recipe_references_item_data.to_dict()
-                recipe_references.append(recipe_references_item)
+        recipe_references = []
+        for recipe_references_item_data in self.recipe_references:
+            recipe_references_item = recipe_references_item_data.to_dict()
+            recipe_references.append(recipe_references_item)
 
-        created_at: str | Unset | None
-        if isinstance(self.created_at, Unset):
-            created_at = UNSET
-        elif isinstance(self.created_at, datetime.datetime):
+        created_at: str | None
+        if isinstance(self.created_at, datetime.datetime):
             created_at = self.created_at.isoformat()
         else:
             created_at = self.created_at
 
-        updated_at: str | Unset | None
-        if isinstance(self.updated_at, Unset):
-            updated_at = UNSET
-        elif isinstance(self.updated_at, datetime.datetime):
+        updated_at: str | None
+        if isinstance(self.updated_at, datetime.datetime):
             updated_at = self.updated_at.isoformat()
         else:
             updated_at = self.updated_at
@@ -187,168 +157,130 @@ class ShoppingListItemOutOutput:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "quantity": quantity,
+                "unit": unit,
+                "food": food,
+                "referencedRecipe": referenced_recipe,
+                "note": note,
+                "display": display,
                 "shoppingListId": shopping_list_id,
+                "checked": checked,
+                "position": position,
+                "foodId": food_id,
+                "labelId": label_id,
+                "unitId": unit_id,
+                "extras": extras,
                 "id": id,
                 "groupId": group_id,
                 "householdId": household_id,
+                "label": label,
+                "recipeReferences": recipe_references,
+                "createdAt": created_at,
+                "updatedAt": updated_at,
             }
         )
-        if quantity is not UNSET:
-            field_dict["quantity"] = quantity
-        if unit is not UNSET:
-            field_dict["unit"] = unit
-        if food is not UNSET:
-            field_dict["food"] = food
-        if referenced_recipe is not UNSET:
-            field_dict["referencedRecipe"] = referenced_recipe
-        if note is not UNSET:
-            field_dict["note"] = note
-        if display is not UNSET:
-            field_dict["display"] = display
-        if checked is not UNSET:
-            field_dict["checked"] = checked
-        if position is not UNSET:
-            field_dict["position"] = position
-        if food_id is not UNSET:
-            field_dict["foodId"] = food_id
-        if label_id is not UNSET:
-            field_dict["labelId"] = label_id
-        if unit_id is not UNSET:
-            field_dict["unitId"] = unit_id
-        if extras is not UNSET:
-            field_dict["extras"] = extras
-        if label is not UNSET:
-            field_dict["label"] = label
-        if recipe_references is not UNSET:
-            field_dict["recipeReferences"] = recipe_references
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.ingredient_food_output import IngredientFoodOutput  # noqa: PLC0415
-        from ..models.ingredient_unit_output import IngredientUnitOutput  # noqa: PLC0415
-        from ..models.multi_purpose_label_summary import MultiPurposeLabelSummary  # noqa: PLC0415
-        from ..models.recipe_output import RecipeOutput  # noqa: PLC0415
+        from ..models.ingredient_food_out_output import IngredientFoodOutOutput  # noqa: PLC0415
+        from ..models.ingredient_unit_out_output import IngredientUnitOutOutput  # noqa: PLC0415
+        from ..models.multi_purpose_label_summary_output import MultiPurposeLabelSummaryOutput  # noqa: PLC0415
+        from ..models.recipe_draft_output import RecipeDraftOutput  # noqa: PLC0415
         from ..models.shopping_list_item_out_output_extras_type_0 import (
             ShoppingListItemOutOutputExtrasType0,
         )
-        from ..models.shopping_list_item_recipe_ref_out import (
-            ShoppingListItemRecipeRefOut,
+        from ..models.shopping_list_item_recipe_ref_out_output import (
+            ShoppingListItemRecipeRefOutOutput,
         )
 
         d = dict(src_dict)
-        shopping_list_id = d.pop("shoppingListId")
+        quantity = d.pop("quantity")
 
-        id = d.pop("id")
-
-        group_id = d.pop("groupId")
-
-        household_id = d.pop("householdId")
-
-        quantity = d.pop("quantity", UNSET)
-
-        def _parse_unit(data: object) -> IngredientUnitOutput | Unset | None:
+        def _parse_unit(data: object) -> IngredientUnitOutOutput | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                unit_type_0 = IngredientUnitOutput.from_dict(data)
+                unit_type_0 = IngredientUnitOutOutput.from_dict(data)
 
                 return unit_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(IngredientUnitOutput | None | Unset, data)
+            return cast(IngredientUnitOutOutput | None, data)
 
-        unit = _parse_unit(d.pop("unit", UNSET))
+        unit = _parse_unit(d.pop("unit"))
 
-        def _parse_food(data: object) -> IngredientFoodOutput | Unset | None:
+        def _parse_food(data: object) -> IngredientFoodOutOutput | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                food_type_0 = IngredientFoodOutput.from_dict(data)
+                food_type_0 = IngredientFoodOutOutput.from_dict(data)
 
                 return food_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(IngredientFoodOutput | None | Unset, data)
+            return cast(IngredientFoodOutOutput | None, data)
 
-        food = _parse_food(d.pop("food", UNSET))
+        food = _parse_food(d.pop("food"))
 
-        def _parse_referenced_recipe(data: object) -> RecipeOutput | Unset | None:
+        def _parse_referenced_recipe(data: object) -> RecipeDraftOutput | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                referenced_recipe_type_0 = RecipeOutput.from_dict(data)
+                referenced_recipe_type_0 = RecipeDraftOutput.from_dict(data)
 
                 return referenced_recipe_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | RecipeOutput | Unset, data)
+            return cast(None | RecipeDraftOutput, data)
 
-        referenced_recipe = _parse_referenced_recipe(d.pop("referencedRecipe", UNSET))
+        referenced_recipe = _parse_referenced_recipe(d.pop("referencedRecipe"))
 
-        def _parse_note(data: object) -> str | Unset | None:
+        def _parse_note(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        note = _parse_note(d.pop("note", UNSET))
+        note = _parse_note(d.pop("note"))
 
-        display = d.pop("display", UNSET)
+        display = d.pop("display")
 
-        checked = d.pop("checked", UNSET)
+        shopping_list_id = d.pop("shoppingListId")
 
-        position = d.pop("position", UNSET)
+        checked = d.pop("checked")
 
-        def _parse_food_id(data: object) -> str | Unset | None:
+        position = d.pop("position")
+
+        def _parse_food_id(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        food_id = _parse_food_id(d.pop("foodId", UNSET))
+        food_id = _parse_food_id(d.pop("foodId"))
 
-        def _parse_label_id(data: object) -> str | Unset | None:
+        def _parse_label_id(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        label_id = _parse_label_id(d.pop("labelId", UNSET))
+        label_id = _parse_label_id(d.pop("labelId"))
 
-        def _parse_unit_id(data: object) -> str | Unset | None:
+        def _parse_unit_id(data: object) -> str | None:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+            return cast(None | str, data)
 
-        unit_id = _parse_unit_id(d.pop("unitId", UNSET))
+        unit_id = _parse_unit_id(d.pop("unitId"))
 
-        def _parse_extras(data: object) -> ShoppingListItemOutOutputExtrasType0 | Unset | None:
+        def _parse_extras(data: object) -> ShoppingListItemOutOutputExtrasType0 | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
@@ -358,42 +290,42 @@ class ShoppingListItemOutOutput:
                 return extras_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(None | ShoppingListItemOutOutputExtrasType0 | Unset, data)
+            return cast(None | ShoppingListItemOutOutputExtrasType0, data)
 
-        extras = _parse_extras(d.pop("extras", UNSET))
+        extras = _parse_extras(d.pop("extras"))
 
-        def _parse_label(data: object) -> MultiPurposeLabelSummary | Unset | None:
+        id = d.pop("id")
+
+        group_id = d.pop("groupId")
+
+        household_id = d.pop("householdId")
+
+        def _parse_label(data: object) -> MultiPurposeLabelSummaryOutput | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                label_type_0 = MultiPurposeLabelSummary.from_dict(data)
+                label_type_0 = MultiPurposeLabelSummaryOutput.from_dict(data)
 
                 return label_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(MultiPurposeLabelSummary | None | Unset, data)
+            return cast(MultiPurposeLabelSummaryOutput | None, data)
 
-        label = _parse_label(d.pop("label", UNSET))
+        label = _parse_label(d.pop("label"))
 
-        _recipe_references = d.pop("recipeReferences", UNSET)
-        recipe_references: list[ShoppingListItemRecipeRefOut] | Unset = UNSET
-        if _recipe_references is not UNSET:
-            recipe_references = []
-            for recipe_references_item_data in _recipe_references:
-                recipe_references_item = ShoppingListItemRecipeRefOut.from_dict(
-                    recipe_references_item_data
-                )
+        recipe_references = []
+        _recipe_references = d.pop("recipeReferences")
+        for recipe_references_item_data in _recipe_references:
+            recipe_references_item = ShoppingListItemRecipeRefOutOutput.from_dict(
+                recipe_references_item_data
+            )
 
-                recipe_references.append(recipe_references_item)
+            recipe_references.append(recipe_references_item)
 
-        def _parse_created_at(data: object) -> datetime.datetime | Unset | None:
+        def _parse_created_at(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -403,14 +335,12 @@ class ShoppingListItemOutOutput:
                 return created_at_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        created_at = _parse_created_at(d.pop("createdAt", UNSET))
+        created_at = _parse_created_at(d.pop("createdAt"))
 
-        def _parse_updated_at(data: object) -> datetime.datetime | Unset | None:
+        def _parse_updated_at(data: object) -> datetime.datetime | None:
             if data is None:
-                return data
-            if isinstance(data, Unset):
                 return data
             try:
                 if not isinstance(data, str):
@@ -420,27 +350,27 @@ class ShoppingListItemOutOutput:
                 return updated_at_type_0
             except TypeError, ValueError, AttributeError, KeyError:
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(datetime.datetime | None, data)
 
-        updated_at = _parse_updated_at(d.pop("updatedAt", UNSET))
+        updated_at = _parse_updated_at(d.pop("updatedAt"))
 
         shopping_list_item_out_output = cls(
-            shopping_list_id=shopping_list_id,
-            id=id,
-            group_id=group_id,
-            household_id=household_id,
             quantity=quantity,
             unit=unit,
             food=food,
             referenced_recipe=referenced_recipe,
             note=note,
             display=display,
+            shopping_list_id=shopping_list_id,
             checked=checked,
             position=position,
             food_id=food_id,
             label_id=label_id,
             unit_id=unit_id,
             extras=extras,
+            id=id,
+            group_id=group_id,
+            household_id=household_id,
             label=label,
             recipe_references=recipe_references,
             created_at=created_at,
