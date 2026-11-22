@@ -7,7 +7,9 @@ unsupplied ``recipe_id`` link and ``entry_type`` survive the PUT-replace, so a
 regression in fetch-then-merge would fail the test. Separate tests omit
 ``entry_type`` on each create tool and pin the differing slots Mealie seeds, and
 one stages a rule whose filter matches nothing to pin what an unmatched rule
-does. Cleanup runs even when the test body fails so no `mcp-test-` data lingers.
+does. Others create week entries, pin the 422s for an off-span end date and a
+non-positive scale, and change and remove the recipe, scale and week through
+the update tool. Cleanup runs even when the test body fails so no `mcp-test-` data lingers.
 """
 
 from __future__ import annotations
@@ -17,7 +19,6 @@ import datetime as dt
 from collections.abc import Callable, Iterator
 from http import HTTPStatus
 from typing import Any
-from uuid import UUID
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -143,22 +144,20 @@ def test_week_entry_is_listed_on_request_and_keeps_its_span_on_update(
     """A week entry keeps its span and scale through an update, and a moved date moves the span."""
     plan_date = dt.date(2030, 1, 7)
     span = dt.timedelta(days=6)
-    created = expect_dict(
-        "create_mealplan",
-        create_one_api_households_mealplans_post.sync_detailed(
-            client=mealie_client,
-            body=PlanEntryCreate(
-                date=plan_date,
-                end_date=plan_date + span,
-                recipe_id=UUID(created_recipe["id"]),
-                recipe_scale=2.5,
-                title=sentinel_name,
-            ),
-        ),
-        HTTPStatus.CREATED,
-    )
-    item_id = created["id"]
+    item_id: int | None = None
     try:
+        created = call_tool(
+            "mealie_create_mealplan",
+            {
+                "date": plan_date.isoformat(),
+                "end_date": (plan_date + span).isoformat(),
+                "recipe_id": created_recipe["id"],
+                "recipe_scale": 2.5,
+                "title": sentinel_name,
+            },
+        )
+        assert isinstance(created, dict)
+        item_id = created["id"]
         assert created["endDate"] == (plan_date + span).isoformat()
         assert created["recipeScale"] == 2.5
 
@@ -188,8 +187,9 @@ def test_week_entry_is_listed_on_request_and_keeps_its_span_on_update(
         assert moved["endDate"] == (new_date + span).isoformat()
         assert moved["recipeScale"] == 2.5
     finally:
-        with contextlib.suppress(ToolError):
-            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
+        if item_id is not None:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
 
 
 @pytest.mark.live
@@ -271,7 +271,7 @@ def test_create_mealplan_round_trips_through_wrapper(
 
 
 @pytest.mark.live
-def test_create_mealplan_defaults_to_breakfast(
+def test_create_mealplan_defaults_to_breakfast_and_scale_one(
     mealie_client: AuthenticatedClient,
     created_recipe: dict[str, str],
 ) -> None:
@@ -285,6 +285,7 @@ def test_create_mealplan_defaults_to_breakfast(
     item_id = created["id"]
     try:
         assert created["entryType"] == "breakfast"
+        assert created["recipeScale"] == 1.0
         fetched = households_meal_plans.get_mealplan(mealie_client, item_id=item_id)
         assert fetched["entryType"] == "breakfast"
     finally:
@@ -344,24 +345,135 @@ def test_create_random_mealplan_fails_when_the_matching_rule_filters_everything_
 
 @pytest.mark.live
 @pytest.mark.usefixtures("created_recipe")
-def test_create_random_mealplan_picks_a_recipe(
+def test_create_random_mealplan_picks_a_recipe_for_a_week(
     mealie_client: AuthenticatedClient,
     call_tool: Callable[[str, dict[str, object]], object],
 ) -> None:
     # A sentinel recipe is staged, so the household holds at least one recipe the
     # server-side random pick can resolve to a real recipe link rather than a null
     # slot. This asserts the pick landed on a recipe, not that it landed on this one.
-    plan_date = dt.date(2030, 1, 3).isoformat()
-    created = call_tool(
-        "mealie_create_random_mealplan",
-        {"date": plan_date, "entry_type": "dinner"},
-    )
-    assert isinstance(created, dict)
-    item_id = created["id"]
+    plan_date = dt.date(2030, 1, 3)
+    end_date = (plan_date + dt.timedelta(days=6)).isoformat()
+    item_id: int | None = None
     try:
-        assert created["date"] == plan_date
+        created = call_tool(
+            "mealie_create_random_mealplan",
+            {"date": plan_date.isoformat(), "entry_type": "dinner", "end_date": end_date},
+        )
+        assert isinstance(created, dict)
+        item_id = created["id"]
+        assert created["date"] == plan_date.isoformat()
+        assert created["endDate"] == end_date
         assert created["entryType"] == "dinner"
         assert created["recipeId"] is not None
     finally:
-        with contextlib.suppress(ToolError):
-            households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
+        if item_id is not None:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
+
+
+@pytest.mark.live
+def test_create_tools_reject_an_off_span_end_date_and_a_non_positive_scale(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    # Capturing each result means a regression that schedules an entry instead
+    # of raising is torn down rather than left on the plan.
+    plan_date = dt.date(2030, 1, 8)
+    off_span = (plan_date + dt.timedelta(days=3)).isoformat()
+    created: list[dict[str, Any]] = []
+    try:
+        with pytest.raises(ToolError, match=r"Mealie create_mealplan failed \(422"):
+            created.append(
+                households_meal_plans.create_mealplan(
+                    mealie_client,
+                    date=plan_date.isoformat(),
+                    end_date=off_span,
+                    title=sentinel_name,
+                )
+            )
+        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(422"):
+            created.append(
+                households_meal_plans.create_random_mealplan(
+                    mealie_client, date=plan_date.isoformat(), end_date=off_span
+                )
+            )
+        with pytest.raises(ToolError, match=r"Mealie create_mealplan failed \(422"):
+            created.append(
+                households_meal_plans.create_mealplan(
+                    mealie_client,
+                    date=plan_date.isoformat(),
+                    recipe_id=created_recipe["id"],
+                    recipe_scale=0,
+                )
+            )
+    finally:
+        for entry in created:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=entry["id"])
+
+
+@pytest.mark.live
+def test_update_mealplan_swaps_and_removes_the_recipe_scale_and_week(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """Recipe, scale and week change through the wrapper; empty strings remove them."""
+    plan_date = dt.date(2030, 1, 9)
+    week_end = (plan_date + dt.timedelta(days=6)).isoformat()
+    item_id: int | None = None
+    other_slug: str | None = None
+    try:
+        other_slug = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-other")["slug"]
+        other_id = recipe_crud.get_recipe(mealie_client, slug_or_id=other_slug)["id"]
+        item_id = households_meal_plans.create_mealplan(
+            mealie_client,
+            date=plan_date.isoformat(),
+            recipe_id=created_recipe["id"],
+            recipe_scale=2,
+            title=sentinel_name,
+            entry_type="lunch",
+        )["id"]
+
+        changed = call_tool(
+            "mealie_update_mealplan",
+            {
+                "item_id": item_id,
+                "recipe_id": other_id,
+                "recipe_scale": 3.5,
+                "end_date": week_end,
+            },
+        )
+        assert isinstance(changed, dict)
+        assert changed["recipeId"] == other_id
+        assert changed["recipeScale"] == 3.5
+        assert changed["endDate"] == week_end
+        assert changed["title"] == sentinel_name
+        assert changed["entryType"] == "lunch"
+
+        with pytest.raises(ToolError, match=r"Mealie update_mealplan failed \(422"):
+            households_meal_plans.update_mealplan(
+                mealie_client,
+                item_id=item_id,
+                end_date=(plan_date + dt.timedelta(days=2)).isoformat(),
+            )
+        with pytest.raises(ToolError, match=r"Mealie update_mealplan failed \(422"):
+            households_meal_plans.update_mealplan(mealie_client, item_id=item_id, recipe_scale=0)
+
+        cleared = households_meal_plans.update_mealplan(
+            mealie_client, item_id=item_id, recipe_id="", end_date=""
+        )
+        assert cleared["recipeId"] is None
+        assert cleared["endDate"] is None
+        assert cleared["date"] == plan_date.isoformat()
+        assert cleared["recipeScale"] == 3.5
+    finally:
+        if item_id is not None:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
+        if other_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=other_slug)
