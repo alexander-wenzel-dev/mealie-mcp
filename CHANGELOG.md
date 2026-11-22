@@ -12,6 +12,17 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   one organizer into another and return the surviving organizer. Recipes on the
   source move to the target and the source is deleted. Cookbook and meal plan
   rule filters that name the source keep its id. Both need Mealie v3.27.0.
+- `mealie_merge_tool` merges one recipe tool into another the same way.
+- `mealie_merge_label` merges one multi purpose label into another. Foods and
+  shopping list items on the source move to the target, shopping lists drop
+  the source from their label order, and the source is deleted.
+- `mealie_list_empty_tools`, `mealie_list_empty_labels` and
+  `mealie_list_empty_foods` list the unused entries. A label is in use on a
+  food or a shopping list item, a food on a recipe or a shopping list item.
+- `mealie_get_household_recipe` reads when the current household last made a
+  recipe, in UTC, null when it never did.
+- `mealie_create_recipe_asset_from_url` attaches an image from a URL to a
+  recipe as an asset. Each call adds a new asset; the title image stays.
 
 ### Changed
 
@@ -32,6 +43,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_list_mealplans` takes `include_week_entries`. Mealie leaves entries
   planned for a whole week out of the list unless it is set, and out of
   today's plan always.
+- `mealie_create_mealplan` takes `end_date` and `recipe_scale`, and
+  `mealie_create_random_mealplan` takes `end_date`. A week entry needs
+  `end_date` exactly six days after `date`.
+- `mealie_update_mealplan` changes an entry's recipe, recipe scale and week. An
+  empty `recipe_id` removes the recipe link and an empty `end_date` makes the
+  entry a single day.
 - `mealie_update_recipe` resolves each tag, category and tool by id or by name.
   An id of an existing entry wins, a known name links its entry, a new name
   creates one, and an empty name is dropped. An update no longer rewrites a
@@ -42,8 +59,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_update_shopping_list_item` keeps an item's recipe links when it
   checks the item off.
 - `mealie_update_last_made` documents that the recipe payload carries no
-  `lastMade`; Mealie v3.31.0 stores the timestamp per household and shows it
-  only on the household's recipe summary, which no tool reads.
+  `lastMade`; Mealie v3.31.0 stores the timestamp per household. Read it with
+  `mealie_get_household_recipe`.
 
 ### Fixed
 
