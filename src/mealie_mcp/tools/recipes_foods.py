@@ -1,7 +1,7 @@
 """Recipe food tools.
 
-Mirrors `mealie_mcp.client.api.recipes_foods`. Exposes list, read, create,
-update, delete, and merge for ingredient foods.
+Mirrors `mealie_mcp.client.api.recipes_foods`. Exposes list, the empty
+list, read, create, update, delete, and merge for ingredient foods.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from mealie_mcp.client.api.recipes_foods import (
     create_one_api_foods_post,
     delete_one_api_foods_item_id_delete,
     get_all_api_foods_get,
+    get_all_empty_api_foods_empty_get,
     get_one_api_foods_item_id_get,
     merge_one_api_foods_merge_put,
     update_one_api_foods_item_id_put,
@@ -28,6 +29,7 @@ from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    expect_list,
     parse_order_direction,
     parse_uuid,
     raise_api_error,
@@ -56,6 +58,12 @@ def list_foods(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_foods", response)
+
+
+def list_empty_foods(client: AuthenticatedClient) -> list[dict[str, Any]]:
+    """List foods no recipe and no shopping list item uses. Returns a bare list."""
+    response = get_all_empty_api_foods_empty_get.sync_detailed(client=client)
+    return expect_list("list_empty_foods", response)
 
 
 def get_food(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
@@ -200,6 +208,22 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             order_by=order_by,
             order_direction=order_direction,
         )
+
+    @mcp.tool(name="mealie_list_empty_foods")
+    def _list_empty_foods() -> list[dict[str, Any]]:
+        """List ingredient foods that no recipe and no shopping list item uses.
+
+        Use this to find unused foods worth cleaning up. Delete one with
+        ``mealie_delete_food``, or fold a duplicate into another with
+        ``mealie_merge_food``. Takes no arguments and returns every empty food
+        at once, not a page.
+
+        Returns:
+            A list of food payloads, empty when every food is in use. The MCP
+            structured output wraps the list under a ``result`` key
+            (``{"result": [...]}``).
+        """
+        return list_empty_foods(get_client())
 
     @mcp.tool(name="mealie_get_food")
     def _get_food(item_id: str) -> dict[str, Any]:
