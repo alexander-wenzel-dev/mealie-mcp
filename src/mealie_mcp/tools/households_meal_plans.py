@@ -114,11 +114,15 @@ def create_mealplan(
     title: str | None = None,
     text: str | None = None,
     entry_type: str | None = None,
+    end_date: str | None = None,
+    recipe_scale: float | None = None,
 ) -> dict[str, Any]:
     """Create a meal plan entry. Returns the new entry payload."""
     body = PlanEntryCreate(
         date=_parse_date("date", date),
+        end_date=_parse_date_opt("end_date", end_date),
         recipe_id=_parse_recipe_id(recipe_id),
+        recipe_scale=to_unset(recipe_scale),
         title=to_unset(title),
         text=to_unset(text),
         entry_type=_parse_entry_type(entry_type),
@@ -131,6 +135,7 @@ def create_random_mealplan(
     client: AuthenticatedClient,
     date: str,
     entry_type: str | None = None,
+    end_date: str | None = None,
 ) -> dict[str, Any]:
     """Create a meal plan entry with a recipe Mealie picks at random.
 
@@ -139,6 +144,7 @@ def create_random_mealplan(
     """
     body = RandomPlanEntryCreate(
         date=_parse_date("date", date),
+        end_date=_parse_date_opt("end_date", end_date),
         entry_type=_parse_entry_type(entry_type),
     )
     response = create_random_meal_api_households_mealplans_random_post.sync_detailed(
@@ -161,36 +167,48 @@ def update_mealplan(
     title: str | None = None,
     text: str | None = None,
     entry_type: str | None = None,
+    recipe_id: str | None = None,
+    recipe_scale: float | None = None,
+    end_date: str | None = None,
 ) -> dict[str, Any]:
     """Update a meal plan entry. Returns the updated entry payload.
 
     The endpoint PUT-replaces the entry, so the current entry is fetched and
     the caller's edits are merged onto it. Fields left unset keep their current
-    value, and the entry's recipe link, recipe scale and week span are
-    preserved. A new ``date`` moves the week span with it.
+    value. A new ``date`` without ``end_date`` moves the week span with it. An
+    empty ``recipe_id`` removes the recipe link and an empty ``end_date`` makes
+    the entry a single day.
     """
-    if date is None and title is None and text is None and entry_type is None:
+    supplied = (date, title, text, entry_type, recipe_id, recipe_scale, end_date)
+    if all(value is None for value in supplied):
         raise ToolError("update_mealplan requires at least one field to update")
 
     new_date = _parse_date("date", date) if date is not None else None
     new_entry_type = _parse_entry_type(entry_type)
+    new_recipe_id = parse_uuid("recipe_id", recipe_id) if recipe_id else None
+    new_end_date = _parse_date("end_date", end_date) if end_date else None
 
     current = get_mealplan(client, item_id)
     current_recipe_id = current.get("recipeId")
     current_date = _parse_date("date", current["date"])
     plan_date = new_date if new_date is not None else current_date
     current_end_date = current.get("endDate")
-    end_date = (
-        plan_date + (_parse_date("endDate", current_end_date) - current_date)
-        if current_end_date
-        else None
-    )
+    if end_date is not None:
+        plan_end_date = new_end_date
+    elif current_end_date:
+        plan_end_date = plan_date + (_parse_date("endDate", current_end_date) - current_date)
+    else:
+        plan_end_date = None
+    if recipe_id is not None:
+        plan_recipe_id = new_recipe_id
+    else:
+        plan_recipe_id = UUID(current_recipe_id) if current_recipe_id else None
     body = PlanEntryUpdate(
         id=item_id,
         group_id=UUID(current["groupId"]),
         user_id=UUID(current["userId"]),
         date=plan_date,
-        end_date=end_date,
+        end_date=plan_end_date,
         title=to_unset(title if title is not None else current.get("title")),
         text=to_unset(text if text is not None else current.get("text")),
         entry_type=(
@@ -198,8 +216,10 @@ def update_mealplan(
             if entry_type is not None
             else _parse_entry_type(current.get("entryType"))
         ),
-        recipe_id=UUID(current_recipe_id) if current_recipe_id else None,
-        recipe_scale=to_unset(current.get("recipeScale")),
+        recipe_id=plan_recipe_id,
+        recipe_scale=to_unset(
+            recipe_scale if recipe_scale is not None else current.get("recipeScale")
+        ),
     )
     response = update_one_api_households_mealplans_item_id_put.sync_detailed(
         item_id, client=client, body=body
@@ -279,12 +299,15 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         title: str | None = None,
         text: str | None = None,
         entry_type: str | None = None,
+        end_date: str | None = None,
+        recipe_scale: float | None = None,
     ) -> dict[str, Any]:
-        """Create a meal plan entry for a single day.
+        """Create a meal plan entry for a single day or a whole week.
 
         An entry references either a recipe (via ``recipe_id``) or a free-text
         ``title``/``text`` note. Mealie references recipes by UUID here, not by
-        slug.
+        slug. A week entry needs ``end_date`` exactly six days after ``date``;
+        Mealie rejects any other end date with a 422.
 
         Args:
             date: Day of the entry as ``YYYY-MM-DD``. Required.
@@ -295,6 +318,11 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 ``side``, ``snack``, ``dessert``, ``drink``. If omitted, Mealie
                 seeds ``breakfast``; ``mealie_create_random_mealplan`` seeds
                 ``dinner`` instead.
+            end_date: Optional last day of a week entry as ``YYYY-MM-DD``,
+                exactly six days after ``date``. Omit for a single day.
+            recipe_scale: Optional multiplier for the recipe's servings,
+                greater than 0. Mealie stores 1 when omitted and rejects 0 or
+                less with a 422.
 
         Returns:
             The newly created meal plan entry as a JSON-compatible dict.
@@ -306,12 +334,15 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             title=title,
             text=text,
             entry_type=entry_type,
+            end_date=end_date,
+            recipe_scale=recipe_scale,
         )
 
     @mcp.tool(name="mealie_create_random_mealplan")
     def _create_random_mealplan(
         date: str,
         entry_type: str | None = None,
+        end_date: str | None = None,
     ) -> dict[str, Any]:
         """Add a meal plan entry whose recipe Mealie picks at random.
 
@@ -320,7 +351,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         fill a slot without naming a recipe. The household must have at least one
         recipe for the pick to succeed. If a rule covers the day and slot but its
         filter matches no recipe, the call fails with a 404 instead of falling
-        back to the unfiltered list.
+        back to the unfiltered list. A week entry needs ``end_date`` exactly six
+        days after ``date``; Mealie rejects any other end date with a 422.
 
         Args:
             date: Day of the entry as ``YYYY-MM-DD``. Required.
@@ -328,6 +360,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
                 ``side``, ``snack``, ``dessert``, ``drink``. If omitted, Mealie
                 seeds ``dinner``; ``mealie_create_mealplan`` seeds ``breakfast``
                 instead.
+            end_date: Optional last day of a week entry as ``YYYY-MM-DD``,
+                exactly six days after ``date``. Omit for a single day.
 
         Returns:
             The newly created meal plan entry as a JSON-compatible dict.
@@ -336,6 +370,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             get_client(),
             date=date,
             entry_type=entry_type,
+            end_date=end_date,
         )
 
     @mcp.tool(name="mealie_get_mealplan")
@@ -357,15 +392,16 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         title: str | None = None,
         text: str | None = None,
         entry_type: str | None = None,
+        recipe_id: str | None = None,
+        recipe_scale: float | None = None,
+        end_date: str | None = None,
     ) -> dict[str, Any]:
         """Edit fields on an existing meal plan entry.
 
         Only the fields supplied are changed; omitted fields keep their current
-        value and the entry's recipe link and recipe scale are preserved. A
-        week entry keeps its week, and a new ``date`` moves the week to start
-        on that day. At least one field beyond ``item_id`` must be provided.
-        The recipe link is read-only through this tool; change it by deleting
-        the entry and creating a new one with the desired ``recipe_id``.
+        value. A week entry keeps its week, and a new ``date`` without
+        ``end_date`` moves the week to start on that day. At least one field
+        beyond ``item_id`` must be provided.
 
         Args:
             item_id: Integer id of the meal plan entry.
@@ -374,6 +410,13 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             text: New free-text note.
             entry_type: New meal slot. One of ``breakfast``, ``lunch``,
                 ``dinner``, ``side``, ``snack``, ``dessert``, ``drink``.
+            recipe_id: New recipe UUID, or an empty string to remove the
+                recipe link.
+            recipe_scale: New multiplier for the recipe's servings, greater
+                than 0. Mealie rejects 0 or less with a 422.
+            end_date: ``YYYY-MM-DD`` exactly six days after the entry's date to
+                make it a week entry, or an empty string to make it a single
+                day. Mealie rejects any other end date with a 422.
 
         Returns:
             The updated meal plan entry payload as a JSON-compatible dict.
@@ -385,6 +428,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             title=title,
             text=text,
             entry_type=entry_type,
+            recipe_id=recipe_id,
+            recipe_scale=recipe_scale,
+            end_date=end_date,
         )
 
     @mcp.tool(name="mealie_delete_mealplan")

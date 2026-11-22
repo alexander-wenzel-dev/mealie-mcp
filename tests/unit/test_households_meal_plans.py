@@ -46,6 +46,10 @@ class TestCreateMealplan:
         with pytest.raises(ToolError, match="entry_type must be one of"):
             households_meal_plans.create_mealplan(client, date="2026-06-15", entry_type="brunch")
 
+    def test_rejects_malformed_end_date(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="end_date must be an ISO 8601 date"):
+            households_meal_plans.create_mealplan(client, date="2026-06-15", end_date="next week")
+
 
 class TestCreateRandomMealplan:
     def test_rejects_malformed_date(self, client: AuthenticatedClient) -> None:
@@ -62,6 +66,12 @@ class TestCreateRandomMealplan:
                 client, date="2026-06-15", entry_type="brunch"
             )
 
+    def test_rejects_malformed_end_date(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="end_date must be an ISO 8601 date"):
+            households_meal_plans.create_random_mealplan(
+                client, date="2026-06-15", end_date="next week"
+            )
+
 
 class TestUpdateMealplan:
     def test_rejects_no_fields(self, client: AuthenticatedClient) -> None:
@@ -75,3 +85,11 @@ class TestUpdateMealplan:
     def test_rejects_unknown_entry_type(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="entry_type must be one of"):
             households_meal_plans.update_mealplan(client, item_id=1, entry_type="brunch")
+
+    def test_rejects_malformed_end_date(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="end_date must be an ISO 8601 date"):
+            households_meal_plans.update_mealplan(client, item_id=1, end_date="next week")
+
+    def test_rejects_non_uuid_recipe_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="recipe_id must be a UUID"):
+            households_meal_plans.update_mealplan(client, item_id=1, recipe_id="pancakes")
