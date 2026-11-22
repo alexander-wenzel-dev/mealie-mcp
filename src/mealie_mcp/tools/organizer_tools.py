@@ -266,8 +266,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Merge one Mealie recipe tool into another, resolving a duplicate.
 
         Recipes that use the source tool use the target instead, once each.
-        Cookbook and meal plan rule filters that name the source keep its id;
-        update them by hand.
+        The source's ``householdsWithTool`` (the households that have it on
+        hand) is lost; the target does not gain them. Cookbook and meal plan rule
+        filters that name the source keep its id; update them by hand.
 
         Args:
             from_tool_id: UUID of the tool to merge away, from

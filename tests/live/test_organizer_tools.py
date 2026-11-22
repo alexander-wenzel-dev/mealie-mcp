@@ -177,8 +177,9 @@ def test_merge_tool_repoints_recipes_and_deletes_the_source(
 ) -> None:
     """The merge moves recipes to the target, once each, and drops the source.
 
-    The merge runs through the wrapper because both arguments are ids of the
-    same type, where a swapped forward would delete the surviving tool.
+    The source's on-hand households do not reach the target. The merge runs
+    through the wrapper because both arguments are ids of the same type, where
+    a swapped forward would delete the surviving tool.
     """
     tool_ids: list[str] = []
     slugs: list[str] = []
@@ -191,6 +192,24 @@ def test_merge_tool_repoints_recipes_and_deletes_the_source(
         tool_ids.append(str(target["id"]))
         source_id, target_id = tool_ids
         source_filter = f'tools.id IN ["{source_id}"]'
+        self_household = expect_dict(
+            "households_self",
+            get_logged_in_user_household_api_households_self_get.sync_detailed(
+                client=mealie_client
+            ),
+        )
+        expect_dict(
+            "seed_tool_households",
+            update_one_api_organizers_tools_item_id_put.sync_detailed(
+                source_id,
+                client=mealie_client,
+                body=ToolCreate(
+                    name=source["name"], households_with_tool=[str(self_household["slug"])]
+                ),
+            ),
+        )
+        seeded = organizer_tools.get_tool(mealie_client, item_id=source_id)
+        assert seeded["householdsWithTool"] == [self_household["slug"]]
 
         only_source = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-only")
         slugs.append(only_source["slug"])
@@ -214,6 +233,7 @@ def test_merge_tool_repoints_recipes_and_deletes_the_source(
         )
         assert isinstance(survivor, dict)
         assert survivor["id"] == target_id
+        assert survivor["householdsWithTool"] == []
 
         for slug in slugs:
             carried = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["tools"]
