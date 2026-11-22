@@ -11,6 +11,8 @@ import contextlib
 import datetime as dt
 import json
 import os
+import struct
+import zlib
 from collections.abc import Callable, Iterator
 from typing import Any
 from uuid import uuid4
@@ -65,6 +67,23 @@ def created_recipe(
     finally:
         with contextlib.suppress(ToolError):
             recipe_crud.delete_recipe(mealie_client, slug_or_id=created["slug"])
+
+
+def _png(side: int) -> bytes:
+    """A valid uncompressed RGB PNG of random pixels, about ``3 * side**2`` bytes."""
+    rows = b"".join(b"\x00" + os.urandom(side * 3) for _ in range(side))
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        crc = zlib.crc32(kind + data)
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", crc)
+
+    header = struct.pack(">IIBBBBB", side, side, 8, 2, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", header)
+        + chunk(b"IDAT", zlib.compress(rows, 0))
+        + chunk(b"IEND", b"")
+    )
 
 
 @pytest.fixture
@@ -569,6 +588,9 @@ def test_create_recipe_asset_from_url_adds_an_asset_per_call(
     """Each call adds a served image asset by slug or id and leaves the title image alone."""
     slug = created_recipe["slug"]
     recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["id"]
+    title_image = recipe_crud.set_recipe_image_from_url(
+        mealie_client, slug_or_id=slug, url=served_image_url
+    )["image"]
 
     first = call_tool(
         "mealie_create_recipe_asset_from_url", {"slug_or_id": slug, "url": served_image_url}
@@ -588,7 +610,7 @@ def test_create_recipe_asset_from_url_adds_an_asset_per_call(
         first["fileName"],
         second["fileName"],
     ]
-    assert after["image"] is None
+    assert after["image"] == title_image
 
     served = mealie_client.get_httpx_client().get(
         f"/api/media/recipes/{recipe_id}/assets/{second['fileName']}"
@@ -607,6 +629,50 @@ def test_create_recipe_asset_from_url_rejects_a_non_image_and_an_svg(
         with pytest.raises(ToolError, match=r"Mealie create_recipe_asset_from_url failed \(400"):
             recipe_crud.create_recipe_asset_from_url(mealie_client, slug_or_id=slug, url=url)
     assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["assets"] == []
+
+
+@pytest.mark.live
+def test_create_recipe_asset_from_url_rejects_an_image_over_5_mb(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
+) -> None:
+    """A PNG just over 5 MB, staged as an uploaded asset Mealie serves itself, is refused."""
+    slug = created_recipe["slug"]
+    recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["id"]
+    oversized = _png(1400)
+    assert len(oversized) > 5 * 1024 * 1024
+    # The generated upload model types the file part as a string, so the
+    # multipart staging goes through httpx directly.
+    uploaded = mealie_client.get_httpx_client().post(
+        f"/api/recipes/{slug}/assets",
+        data={"name": "oversized", "icon": "mdi-file-image", "extension": "png"},
+        files={"file": ("oversized.png", oversized, "image/png")},
+    )
+    assert uploaded.status_code == 200, uploaded.text
+    url = (
+        f"{os.environ['MEALIE_BASE_URL'].rstrip('/')}"
+        f"/api/media/recipes/{recipe_id}/assets/{uploaded.json()['fileName']}"
+    )
+
+    with pytest.raises(ToolError, match=r"failed \(400.*larger than 5MB"):
+        recipe_crud.create_recipe_asset_from_url(mealie_client, slug_or_id=slug, url=url)
+    assets = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["assets"]
+    assert [asset["fileName"] for asset in assets] == [uploaded.json()["fileName"]]
+
+
+@pytest.mark.live
+def test_image_and_asset_from_url_refuse_a_private_address(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
+) -> None:
+    """A private address outside ``HTTP_ALLOW_LIST`` is refused before Mealie fetches it."""
+    slug = created_recipe["slug"]
+    private_url = "http://10.255.255.1/x.png"
+    with pytest.raises(ToolError, match=r"failed \(400.*not from an allowed domain"):
+        recipe_crud.set_recipe_image_from_url(mealie_client, slug_or_id=slug, url=private_url)
+    with pytest.raises(ToolError, match=r"failed \(400.*not from an allowed domain"):
+        recipe_crud.create_recipe_asset_from_url(mealie_client, slug_or_id=slug, url=private_url)
+    after = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert after["image"] is None
+    assert after["assets"] == []
 
 
 @pytest.mark.live
