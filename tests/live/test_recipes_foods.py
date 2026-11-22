@@ -1,4 +1,4 @@
-"""Live tests for the food lifecycle and the food merge.
+"""Live tests for the food lifecycle, the empty list, and the food merge.
 
 Stages a sentinel food, exercises the read, list, update, and delete tools,
 and tears the sentinel down even when the body fails so no `mcp-test-`
@@ -378,5 +378,58 @@ def test_merge_food_moves_ingredients_and_deletes_the_source(
             with contextlib.suppress(ToolError):
                 recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
         for food_id in (source_id, target_id):
+            with contextlib.suppress(ToolError):
+                recipes_foods.delete_food(mealie_client, item_id=food_id)
+
+
+@pytest.mark.live
+def test_empty_foods_drop_a_food_once_a_recipe_or_an_item_uses_it(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    food_ids: list[str] = []
+    recipe_slug: str | None = None
+    list_id: str | None = None
+    try:
+        for suffix in ("recipe", "item"):
+            food = recipes_foods.create_food(mealie_client, name=f"{sentinel_name}-{suffix}")
+            food_ids.append(str(food["id"]))
+        recipe_food_id, item_food_id = food_ids
+        empty = {entry["id"] for entry in recipes_foods.list_empty_foods(mealie_client)}
+        assert {recipe_food_id, item_food_id} <= empty
+
+        recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
+        recipe_crud.update_recipe(
+            mealie_client,
+            slug_or_id=recipe_slug,
+            recipe_ingredient=[
+                {
+                    "note": f"{sentinel_name}-ingredient",
+                    "food": {"id": recipe_food_id, "name": f"{sentinel_name}-recipe"},
+                }
+            ],
+        )
+        list_id = str(
+            households_shopping_lists.create_shopping_list(
+                mealie_client, name=f"{sentinel_name}-list"
+            )["id"]
+        )
+        households_shopping_list_items.add_shopping_list_item(
+            mealie_client,
+            shopping_list_id=list_id,
+            note=f"{sentinel_name}-item",
+            food_id=item_food_id,
+        )
+
+        empty = {entry["id"] for entry in recipes_foods.list_empty_foods(mealie_client)}
+        assert recipe_food_id not in empty
+        assert item_food_id not in empty
+    finally:
+        if list_id is not None:
+            with contextlib.suppress(ToolError):
+                households_shopping_lists.delete_shopping_list(mealie_client, list_id=list_id)
+        if recipe_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
+        for food_id in food_ids:
             with contextlib.suppress(ToolError):
                 recipes_foods.delete_food(mealie_client, item_id=food_id)
