@@ -3,7 +3,7 @@
 Mirrors `mealie_mcp.client.api.recipe_crud`. Exposes the recipe lifecycle
 operations: list, create, read, duplicate, scrape from URL or raw payload,
 patch the last-made timestamp, edit fields, set or delete the title image,
-and delete.
+add an image asset from a URL, and delete.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.recipe_crud import (
     create_one_api_recipes_post,
+    create_recipe_asset_from_url_api_recipes_slug_assets_url_post,
     create_recipe_from_html_or_json_api_recipes_create_html_or_json_post,
     delete_one_api_recipes_slug_delete,
     delete_recipe_image_api_recipes_slug_image_delete,
@@ -334,6 +335,19 @@ def set_recipe_image_from_url(
         slug_or_id, client=client, body=ScrapeRecipe(url=url)
     )
     return expect_dict("set_recipe_image_from_url", response)
+
+
+def create_recipe_asset_from_url(
+    client: AuthenticatedClient, slug_or_id: str, url: str
+) -> dict[str, Any]:
+    """Store an image from a URL as a recipe asset. Returns the asset payload."""
+    require_non_empty("slug_or_id", slug_or_id)
+    require_non_empty("url", url)
+
+    response = create_recipe_asset_from_url_api_recipes_slug_assets_url_post.sync_detailed(
+        slug_or_id, client=client, body=ScrapeRecipe(url=url)
+    )
+    return expect_dict("create_recipe_asset_from_url", response)
 
 
 def delete_recipe_image(client: AuthenticatedClient, slug_or_id: str) -> dict[str, Any]:
@@ -728,6 +742,28 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             new key, which is what makes cached copies of the old image stale.
         """
         return set_recipe_image_from_url(get_client(), slug_or_id=slug_or_id, url=url)
+
+    @mcp.tool(name="mealie_create_recipe_asset_from_url")
+    def _create_recipe_asset_from_url(slug_or_id: str, url: str) -> dict[str, Any]:
+        """Attach an image from a URL to a recipe as an asset.
+
+        Mealie fetches the image from ``url`` server-side and adds it to the
+        recipe's ``assets``; the title image stays unchanged. Each call adds a
+        new asset, so a repeated URL gets a suffixed ``fileName``. Mealie
+        rejects a URL that does not serve an image, or points at an SVG, with
+        a 400. It refuses a URL that resolves to a private or internal address
+        unless its ``HTTP_ALLOW_LIST`` names the host.
+
+        Args:
+            slug_or_id: Recipe slug or UUID.
+            url: URL of an image Mealie can fetch.
+
+        Returns:
+            ``{"name": <URL file stem>, "icon": "mdi-file-image", "fileName":
+            <stored file>}``. Mealie serves the file at
+            ``/api/media/recipes/<recipe id>/assets/<fileName>``.
+        """
+        return create_recipe_asset_from_url(get_client(), slug_or_id=slug_or_id, url=url)
 
     @mcp.tool(name="mealie_delete_recipe_image")
     def _delete_recipe_image(slug_or_id: str) -> dict[str, Any]:
