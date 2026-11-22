@@ -647,7 +647,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Set a recipe's last-made timestamp.
 
         Mealie stores the timestamp per household, so the returned recipe
-        payload carries no ``lastMade`` field.
+        payload carries no ``lastMade`` field. Read it back with
+        ``mealie_get_household_recipe``.
 
         Args:
             slug_or_id: Recipe slug or UUID.

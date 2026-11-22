@@ -28,13 +28,11 @@ from mealie_mcp.client.api.households_cookbooks import (
     create_one_api_households_cookbooks_post,
     delete_one_api_households_cookbooks_item_id_delete,
 )
-from mealie_mcp.client.api.households_self_service import (
-    get_household_recipe_api_households_self_recipes_recipe_slug_get,
-)
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.cook_book_create import CookBookCreate
 from mealie_mcp.client.models.household_create import HouseholdCreate
 from mealie_mcp.tools import (
+    households_self_service,
     organizer_categories,
     organizer_tags,
     organizer_tools,
@@ -500,11 +498,8 @@ def test_update_last_made_persists_timestamp(
     )
     assert result["slug"] == created_recipe["slug"]
     assert "lastMade" not in result
-    household_recipe = expect_dict(
-        "get_household_recipe",
-        get_household_recipe_api_households_self_recipes_recipe_slug_get.sync_detailed(
-            created_recipe["slug"], client=mealie_client
-        ),
+    household_recipe = households_self_service.get_household_recipe(
+        mealie_client, slug_or_id=created_recipe["slug"]
     )
     returned_iso = household_recipe["lastMade"]
     assert returned_iso is not None
