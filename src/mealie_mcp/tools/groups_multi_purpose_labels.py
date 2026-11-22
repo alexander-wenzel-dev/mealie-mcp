@@ -261,8 +261,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         """Merge one multi purpose label into another, resolving a duplicate.
 
         Foods and shopping list items that carry the source label carry the
-        target instead. Shopping lists drop the source's entry from their label
-        order.
+        target instead. A shopping list that already has the target in its
+        label order drops the source's entry; a list without it gives the
+        source's entry to the target at the same position.
 
         Args:
             from_label_id: UUID of the label to merge away, from

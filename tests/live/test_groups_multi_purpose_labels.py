@@ -210,8 +210,11 @@ def test_merge_label_repoints_foods_and_items_and_deletes_the_source(
                 label_id=source_id,
             )["id"]
         )
+        # Mealie gives every list an entry for every label, so the list holds
+        # both and the merge takes the branch that drops the source's entry.
         staged = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
-        assert any(entry["labelId"] == source_id for entry in staged["labelSettings"])
+        positions = {entry["labelId"]: entry["position"] for entry in staged["labelSettings"]}
+        assert {source_id, target_id} <= positions.keys()
 
         survivor = call_tool(
             "mealie_merge_label", {"from_label_id": source_id, "to_label_id": target_id}
@@ -222,7 +225,11 @@ def test_merge_label_repoints_foods_and_items_and_deletes_the_source(
         assert recipes_foods.get_food(mealie_client, item_id=food_id)["labelId"] == target_id
         assert _list_item(mealie_client, list_id, item_id)["labelId"] == target_id
         merged = households_shopping_lists.get_shopping_list(mealie_client, list_id=list_id)
-        assert all(entry["labelId"] != source_id for entry in merged["labelSettings"])
+        merged_positions = {
+            entry["labelId"]: entry["position"] for entry in merged["labelSettings"]
+        }
+        assert source_id not in merged_positions
+        assert merged_positions[target_id] == positions[target_id]
         with pytest.raises(ToolError, match=r"Mealie get_label failed \(404"):
             groups_multi_purpose_labels.get_label(mealie_client, item_id=source_id)
     finally:
