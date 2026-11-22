@@ -140,6 +140,16 @@ class TestSetRecipeImageFromUrl:
             recipe_crud.set_recipe_image_from_url(client, slug_or_id="abc", url="")
 
 
+class TestCreateRecipeAssetFromUrl:
+    def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):
+            recipe_crud.create_recipe_asset_from_url(client, slug_or_id="", url="https://x/i.png")
+
+    def test_rejects_empty_url(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="url must be a non-empty string"):
+            recipe_crud.create_recipe_asset_from_url(client, slug_or_id="abc", url="")
+
+
 class TestDeleteRecipeImage:
     def test_rejects_empty_slug(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="slug_or_id must be a non-empty string"):

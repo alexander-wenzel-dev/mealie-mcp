@@ -560,6 +560,56 @@ def test_set_recipe_image_from_url_changes_image(
 
 
 @pytest.mark.live
+def test_create_recipe_asset_from_url_adds_an_asset_per_call(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    served_image_url: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """Each call adds a served image asset by slug or id and leaves the title image alone."""
+    slug = created_recipe["slug"]
+    recipe_id = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["id"]
+
+    first = call_tool(
+        "mealie_create_recipe_asset_from_url", {"slug_or_id": slug, "url": served_image_url}
+    )
+    assert first == {
+        "name": "android-chrome-512x512",
+        "icon": "mdi-file-image",
+        "fileName": "android-chrome-512x512.png",
+    }
+    second = recipe_crud.create_recipe_asset_from_url(
+        mealie_client, slug_or_id=recipe_id, url=served_image_url
+    )
+    assert second["fileName"] != first["fileName"]
+
+    after = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)
+    assert [asset["fileName"] for asset in after["assets"]] == [
+        first["fileName"],
+        second["fileName"],
+    ]
+    assert after["image"] is None
+
+    served = mealie_client.get_httpx_client().get(
+        f"/api/media/recipes/{recipe_id}/assets/{second['fileName']}"
+    )
+    assert served.status_code == 200
+    assert served.headers["content-type"] == "image/png"
+
+
+@pytest.mark.live
+def test_create_recipe_asset_from_url_rejects_a_non_image_and_an_svg(
+    mealie_client: AuthenticatedClient, created_recipe: dict[str, str]
+) -> None:
+    slug = created_recipe["slug"]
+    base = os.environ["MEALIE_BASE_URL"].rstrip("/")
+    for url in (f"{base}/api/app/about", f"{base}/icons/safari-pinned-tab.svg"):
+        with pytest.raises(ToolError, match=r"Mealie create_recipe_asset_from_url failed \(400"):
+            recipe_crud.create_recipe_asset_from_url(mealie_client, slug_or_id=slug, url=url)
+    assert recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["assets"] == []
+
+
+@pytest.mark.live
 def test_delete_recipe_image_removes_image(
     mealie_client: AuthenticatedClient,
     created_recipe: dict[str, str],
