@@ -1,14 +1,15 @@
-"""Live test for the tool (equipment) lifecycle.
+"""Live tests for the tool (equipment) lifecycle, the empty list, and the merge.
 
-Stages a sentinel tool, exercises the read, list, update, and delete tools,
-and tears the sentinel down even when the body fails so no `mcp-test-`
-data lingers.
+Stages sentinel tools, recipes, a cookbook, and a meal plan rule, exercises
+the read, list, update, delete, and merge tools, and tears the sentinels
+down even when the body fails so no `mcp-test-` data lingers.
 """
 
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from typing import Any
 
 import pytest
 from fastmcp.exceptions import ToolError
@@ -19,8 +20,18 @@ from mealie_mcp.client.api.households_self_service import (
 from mealie_mcp.client.api.organizer_tools import update_one_api_organizers_tools_item_id_put
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.tool_create import ToolCreate
-from mealie_mcp.tools import organizer_tools, recipe_crud
+from mealie_mcp.tools import (
+    households_cookbooks,
+    households_meal_plan_rules,
+    organizer_tools,
+    recipe_crud,
+)
 from mealie_mcp.tools._common import expect_dict
+
+
+def _ref(organizer: dict[str, Any]) -> dict[str, Any]:
+    """Reduce an organizer payload to the reference a recipe update accepts."""
+    return {"id": organizer["id"], "name": organizer["name"], "slug": organizer["slug"]}
 
 
 @pytest.fixture
@@ -129,3 +140,101 @@ def test_get_tool_by_id_omits_recipes_while_by_slug_hydrates(
                 recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
         with contextlib.suppress(ToolError):
             organizer_tools.delete_tool(mealie_client, item_id=tool_id)
+
+
+@pytest.mark.live
+def test_empty_tools_drops_a_tool_once_a_recipe_uses_it(
+    mealie_client: AuthenticatedClient, sentinel_name: str
+) -> None:
+    tool_id: str | None = None
+    recipe_slug: str | None = None
+    try:
+        tool = organizer_tools.create_tool(mealie_client, name=sentinel_name)
+        tool_id = str(tool["id"])
+        empty = organizer_tools.list_empty_tools(mealie_client)
+        listed = next((t for t in empty if t["id"] == tool_id), None)
+        assert listed is not None, f"unused tool {tool_id} missing from the empty list"
+        assert listed["recipeCount"] == 0
+
+        recipe_slug = recipe_crud.create_recipe(mealie_client, name=sentinel_name)["slug"]
+        recipe_crud.update_recipe(mealie_client, slug_or_id=recipe_slug, tools=[_ref(tool)])
+
+        assert all(t["id"] != tool_id for t in organizer_tools.list_empty_tools(mealie_client))
+    finally:
+        if recipe_slug is not None:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=recipe_slug)
+        if tool_id is not None:
+            with contextlib.suppress(ToolError):
+                organizer_tools.delete_tool(mealie_client, item_id=tool_id)
+
+
+@pytest.mark.live
+def test_merge_tool_repoints_recipes_and_deletes_the_source(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+    call_tool: Callable[[str, dict[str, object]], object],
+) -> None:
+    """The merge moves recipes to the target, once each, and drops the source.
+
+    The merge runs through the wrapper because both arguments are ids of the
+    same type, where a swapped forward would delete the surviving tool.
+    """
+    tool_ids: list[str] = []
+    slugs: list[str] = []
+    cookbook_id: str | None = None
+    rule_id: str | None = None
+    try:
+        source = organizer_tools.create_tool(mealie_client, name=f"{sentinel_name}-source")
+        tool_ids.append(str(source["id"]))
+        target = organizer_tools.create_tool(mealie_client, name=f"{sentinel_name}-target")
+        tool_ids.append(str(target["id"]))
+        source_id, target_id = tool_ids
+        source_filter = f'tools.id IN ["{source_id}"]'
+
+        only_source = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-only")
+        slugs.append(only_source["slug"])
+        both = recipe_crud.create_recipe(mealie_client, name=f"{sentinel_name}-both")
+        slugs.append(both["slug"])
+        recipe_crud.update_recipe(
+            mealie_client, slug_or_id=only_source["slug"], tools=[_ref(source)]
+        )
+        recipe_crud.update_recipe(
+            mealie_client, slug_or_id=both["slug"], tools=[_ref(source), _ref(target)]
+        )
+        cookbook_id = households_cookbooks.create_cookbook(
+            mealie_client, name=f"{sentinel_name}-cookbook", query_filter_string=source_filter
+        )["id"]
+        rule_id = households_meal_plan_rules.create_mealplan_rule(
+            mealie_client, query_filter_string=source_filter
+        )["id"]
+
+        survivor = call_tool(
+            "mealie_merge_tool", {"from_tool_id": source_id, "to_tool_id": target_id}
+        )
+        assert isinstance(survivor, dict)
+        assert survivor["id"] == target_id
+
+        for slug in slugs:
+            carried = recipe_crud.get_recipe(mealie_client, slug_or_id=slug)["tools"]
+            assert [entry["id"] for entry in carried] == [target_id]
+        with pytest.raises(ToolError, match=r"Mealie get_tool failed \(404"):
+            organizer_tools.get_tool(mealie_client, item_id=source_id)
+
+        cookbook = households_cookbooks.get_cookbook(mealie_client, item_id=cookbook_id)
+        assert cookbook["queryFilterString"] == source_filter
+        rule = households_meal_plan_rules.get_mealplan_rule(mealie_client, item_id=rule_id)
+        assert rule["queryFilterString"] == source_filter
+    finally:
+        if rule_id is not None:
+            with contextlib.suppress(ToolError):
+                households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+        if cookbook_id is not None:
+            with contextlib.suppress(ToolError):
+                households_cookbooks.delete_cookbook(mealie_client, item_id=cookbook_id)
+        for slug in slugs:
+            with contextlib.suppress(ToolError):
+                recipe_crud.delete_recipe(mealie_client, slug_or_id=slug)
+        for item_id in tool_ids:
+            with contextlib.suppress(ToolError):
+                organizer_tools.delete_tool(mealie_client, item_id=item_id)

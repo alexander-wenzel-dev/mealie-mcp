@@ -1,7 +1,8 @@
 """Recipe tool (equipment) tools.
 
 Mirrors `mealie_mcp.client.api.organizer_tools`. Exposes list, read, create,
-update, and delete for recipe tools, the kitchen equipment a recipe calls for.
+update, delete, and merge for recipe tools, the kitchen equipment a recipe
+calls for.
 """
 
 from __future__ import annotations
@@ -10,22 +11,28 @@ from http import HTTPStatus
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 
 from mealie_mcp.client.api.organizer_tools import (
     create_one_api_organizers_tools_post,
     delete_one_api_organizers_tools_item_id_delete,
     get_all_api_organizers_tools_get,
+    get_all_empty_api_organizers_tools_empty_get,
     get_one_api_organizers_tools_item_id_get,
     get_one_by_slug_api_organizers_tools_slug_tool_slug_get,
+    merge_tools_api_organizers_tools_merge_post,
     update_one_api_organizers_tools_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
+from mealie_mcp.client.models.organizer_merge import OrganizerMerge
 from mealie_mcp.client.models.tool_create import ToolCreate
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    expect_list,
     parse_order_direction,
+    parse_uuid,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -51,6 +58,12 @@ def list_tools(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_tools", response)
+
+
+def list_empty_tools(client: AuthenticatedClient) -> list[dict[str, Any]]:
+    """List tools no recipe uses. Returns a bare list."""
+    response = get_all_empty_api_organizers_tools_empty_get.sync_detailed(client=client)
+    return expect_list("list_empty_tools", response)
 
 
 def get_tool(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
@@ -113,6 +126,23 @@ def delete_tool(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
     return ack_delete("delete_tool", response, item_id)
 
 
+def merge_tool(client: AuthenticatedClient, from_tool_id: str, to_tool_id: str) -> dict[str, Any]:
+    """Merge one tool into another. Returns the surviving tool payload."""
+    require_non_empty("from_tool_id", from_tool_id)
+    require_non_empty("to_tool_id", to_tool_id)
+    source = parse_uuid("from_tool_id", from_tool_id)
+    target = parse_uuid("to_tool_id", to_tool_id)
+    # Mealie answers a self merge with a 400 and keeps the tool. The local
+    # check keeps that contract independent of the Mealie version.
+    if source == target:
+        raise ToolError("merge_tool requires two different tools")
+
+    response = merge_tools_api_organizers_tools_merge_post.sync_detailed(
+        client=client, body=OrganizerMerge(from_id=str(source), to_id=str(target))
+    )
+    return expect_dict("merge_tool", response)
+
+
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the tool (equipment) tools on the given FastMCP instance."""
 
@@ -148,6 +178,21 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             order_by=order_by,
             order_direction=order_direction,
         )
+
+    @mcp.tool(name="mealie_list_empty_tools")
+    def _list_empty_tools() -> list[dict[str, Any]]:
+        """List recipe tools (kitchen equipment) that no recipe uses.
+
+        Use this to find unused tools worth cleaning up. Delete one with
+        ``mealie_delete_tool``. Takes no arguments and returns every empty tool
+        at once, not a page.
+
+        Returns:
+            A list of tool payloads, each with ``recipeCount`` 0, empty when
+            every tool is in use. The MCP structured output wraps the list
+            under a ``result`` key (``{"result": [...]}``).
+        """
+        return list_empty_tools(get_client())
 
     @mcp.tool(name="mealie_get_tool")
     def _get_tool(item_id: str) -> dict[str, Any]:
@@ -215,3 +260,23 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_tool(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_tool")
+    def _merge_tool(from_tool_id: str, to_tool_id: str) -> dict[str, Any]:
+        """Merge one Mealie recipe tool into another, resolving a duplicate.
+
+        Recipes that use the source tool use the target instead, once each.
+        Cookbook and meal plan rule filters that name the source keep its id;
+        update them by hand.
+
+        Args:
+            from_tool_id: UUID of the tool to merge away, from
+                ``mealie_list_tools``; a name or slug is rejected. This tool
+                is deleted.
+            to_tool_id: UUID of the tool that survives. Must differ from
+                ``from_tool_id``.
+
+        Returns:
+            The surviving tool payload as a JSON-compatible dict.
+        """
+        return merge_tool(get_client(), from_tool_id=from_tool_id, to_tool_id=to_tool_id)
