@@ -13,6 +13,8 @@ from fastmcp.exceptions import ToolError
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.tools import groups_multi_purpose_labels
 
+ITEM_ID = "0b6c9a53-1f0e-4f7a-9d6e-3c2b8a7e5d41"
+
 
 @pytest.fixture
 def client() -> AuthenticatedClient:
@@ -56,3 +58,29 @@ class TestDeleteLabel:
     def test_rejects_blank_item_id(self, client: AuthenticatedClient) -> None:
         with pytest.raises(ToolError, match="item_id must be a non-empty string"):
             groups_multi_purpose_labels.delete_label(client, item_id="   ")
+
+
+class TestMergeLabel:
+    def test_rejects_empty_source_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="from_label_id must be a non-empty string"):
+            groups_multi_purpose_labels.merge_label(client, from_label_id="", to_label_id=ITEM_ID)
+
+    def test_rejects_empty_target_id(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="to_label_id must be a non-empty string"):
+            groups_multi_purpose_labels.merge_label(client, from_label_id=ITEM_ID, to_label_id="")
+
+    def test_rejects_a_name(self, client: AuthenticatedClient) -> None:
+        with pytest.raises(ToolError, match="to_label_id must be a UUID"):
+            groups_multi_purpose_labels.merge_label(
+                client, from_label_id=ITEM_ID, to_label_id="Produce"
+            )
+
+    @pytest.mark.parametrize(
+        "to_label_id",
+        [ITEM_ID, ITEM_ID.upper(), ITEM_ID.replace("-", ""), f"urn:uuid:{ITEM_ID}"],
+    )
+    def test_rejects_a_self_merge(self, client: AuthenticatedClient, to_label_id: str) -> None:
+        with pytest.raises(ToolError, match="merge_label requires two different labels"):
+            groups_multi_purpose_labels.merge_label(
+                client, from_label_id=ITEM_ID, to_label_id=to_label_id
+            )

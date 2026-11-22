@@ -1,10 +1,11 @@
 """Multi purpose label tools.
 
-Mirrors `mealie_mcp.client.api.groups_multi_purpose_labels`. Exposes CRUD for the
-group's multi purpose labels, the categories that shopping list items and foods
-carry through their ``labelId``. Assigning a label to a food or a shopping list
-item is out of scope here; it belongs to those resources' own tools. ``color`` is
-an opaque hex string passed through verbatim, with hex validation left to Mealie.
+Mirrors `mealie_mcp.client.api.groups_multi_purpose_labels`. Exposes CRUD, the
+empty list, and the merge for the group's multi purpose labels, the categories
+that shopping list items and foods carry through their ``labelId``. Assigning a
+label to a food or a shopping list item is out of scope here; it belongs to
+those resources' own tools. ``color`` is an opaque hex string passed through
+verbatim, with hex validation left to Mealie.
 """
 
 from __future__ import annotations
@@ -18,17 +19,22 @@ from mealie_mcp.client.api.groups_multi_purpose_labels import (
     create_one_api_groups_labels_post,
     delete_one_api_groups_labels_item_id_delete,
     get_all_api_groups_labels_get,
+    get_all_empty_api_groups_labels_empty_get,
     get_one_api_groups_labels_item_id_get,
+    merge_labels_api_groups_labels_merge_post,
     update_one_api_groups_labels_item_id_put,
 )
 from mealie_mcp.client.client import AuthenticatedClient
 from mealie_mcp.client.models.multi_purpose_label_create import MultiPurposeLabelCreate
+from mealie_mcp.client.models.multi_purpose_label_merge import MultiPurposeLabelMerge
 from mealie_mcp.client.models.multi_purpose_label_update import MultiPurposeLabelUpdate
 from mealie_mcp.client_factory import ClientProvider
 from mealie_mcp.tools._common import (
     ack_delete,
     expect_dict,
+    expect_list,
     parse_order_direction,
+    parse_uuid,
     require_non_empty,
     require_pagination,
     to_unset,
@@ -52,6 +58,12 @@ def list_labels(
         order_direction=parse_order_direction(order_direction),
     )
     return expect_dict("list_labels", response)
+
+
+def list_empty_labels(client: AuthenticatedClient) -> list[dict[str, Any]]:
+    """List labels no food and no shopping list item uses. Returns a bare list."""
+    response = get_all_empty_api_groups_labels_empty_get.sync_detailed(client=client)
+    return expect_list("list_empty_labels", response)
 
 
 def create_label(
@@ -120,6 +132,25 @@ def delete_label(client: AuthenticatedClient, item_id: str) -> dict[str, Any]:
     return ack_delete("delete_label", response, item_id)
 
 
+def merge_label(
+    client: AuthenticatedClient, from_label_id: str, to_label_id: str
+) -> dict[str, Any]:
+    """Merge one label into another. Returns the surviving label payload."""
+    require_non_empty("from_label_id", from_label_id)
+    require_non_empty("to_label_id", to_label_id)
+    source = parse_uuid("from_label_id", from_label_id)
+    target = parse_uuid("to_label_id", to_label_id)
+    # Mealie answers a self merge with a 400 and keeps the label. The local
+    # check keeps that contract independent of the Mealie version.
+    if source == target:
+        raise ToolError("merge_label requires two different labels")
+
+    response = merge_labels_api_groups_labels_merge_post.sync_detailed(
+        client=client, body=MultiPurposeLabelMerge(from_id=str(source), to_id=str(target))
+    )
+    return expect_dict("merge_label", response)
+
+
 def register(mcp: FastMCP, get_client: ClientProvider) -> None:
     """Register the multi purpose label tools on the given FastMCP instance."""
 
@@ -148,6 +179,21 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             order_by=order_by,
             order_direction=order_direction,
         )
+
+    @mcp.tool(name="mealie_list_empty_labels")
+    def _list_empty_labels() -> list[dict[str, Any]]:
+        """List multi purpose labels that no food and no shopping list item uses.
+
+        Use this to find unused labels worth cleaning up. Delete one with
+        ``mealie_delete_label``. Takes no arguments and returns every empty
+        label at once, not a page.
+
+        Returns:
+            A list of label payloads, empty when every label is in use. The MCP
+            structured output wraps the list under a ``result`` key
+            (``{"result": [...]}``).
+        """
+        return list_empty_labels(get_client())
 
     @mcp.tool(name="mealie_create_label")
     def _create_label(name: str, color: str | None = None) -> dict[str, Any]:
@@ -209,3 +255,23 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             A canonical acknowledgement ``{"id": <item_id>, "deleted": True}``.
         """
         return delete_label(get_client(), item_id=item_id)
+
+    @mcp.tool(name="mealie_merge_label")
+    def _merge_label(from_label_id: str, to_label_id: str) -> dict[str, Any]:
+        """Merge one multi purpose label into another, resolving a duplicate.
+
+        Foods and shopping list items that carry the source label carry the
+        target instead. Shopping lists drop the source's entry from their label
+        order.
+
+        Args:
+            from_label_id: UUID of the label to merge away, from
+                ``mealie_list_labels``; a name is rejected. This label is
+                deleted.
+            to_label_id: UUID of the label that survives. Must differ from
+                ``from_label_id``.
+
+        Returns:
+            The surviving label payload as a JSON-compatible dict.
+        """
+        return merge_label(get_client(), from_label_id=from_label_id, to_label_id=to_label_id)
