@@ -212,7 +212,7 @@ probes `/health` over the loopback, stays green.
 
 ## Tools
 
-The server exposes 103 tools across 16 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
+The server exposes 110 tools across 17 groups, one per Mealie OpenAPI tag. New groups are added as the project grows.
 
 <details>
 <summary>All tool groups</summary>
@@ -221,7 +221,7 @@ The server exposes 103 tools across 16 groups, one per Mealie OpenAPI tag. New g
 
 | Group                 | Coverage                                                                                                                                                                                            |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `recipe_crud`         | Create, read, list, duplicate, update, and delete recipes; scrape from a URL or from HTML or JSON, suggest recipes from the foods on hand, patch the last-made timestamp, and set or delete the title image. |
+| `recipe_crud`         | Create, read, list, duplicate, update, and delete recipes; scrape from a URL or from HTML or JSON, suggest recipes from the foods on hand, patch the last-made timestamp, set or delete the title image, and attach an image asset from a URL. |
 | `recipe_comments`     | Create, read, list, update, and delete recipe comments.                                                                                                                                           |
 | `recipe_timeline`     | Create, read, list, update, and delete a recipe's timeline events, its cooking journal.                                                                                                           |
 | `recipe_bulk_actions` | Tag, categorize, apply settings to, or delete many recipes in one call.                                                                                                                           |
@@ -232,20 +232,21 @@ The server exposes 103 tools across 16 groups, one per Mealie OpenAPI tag. New g
 | ----------------------------- | ----------------------------------------------------------------------------------- |
 | `organizer_categories`        | Create, read by id or slug, list (including empty ones), update, delete, and merge recipe categories. |
 | `organizer_tags`              | Create, read by id or slug, list (including empty ones), update, delete, and merge recipe tags.        |
-| `organizer_tools`             | Create, read by id or slug, list, update, and delete recipe tools.                  |
-| `groups_multi_purpose_labels` | Create, read, list, update, and delete multi-purpose labels.                        |
-| `recipes_foods`               | Create, read, list, update, delete, and merge ingredient foods, with the label link that sorts them into aisles on a shopping list. |
+| `organizer_tools`             | Create, read by id or slug, list (including empty ones), update, delete, and merge recipe tools. |
+| `groups_multi_purpose_labels` | Create, read, list (including empty ones), update, delete, and merge multi-purpose labels. |
+| `recipes_foods`               | Create, read, list (including empty ones), update, delete, and merge ingredient foods, with the label link that sorts them into aisles on a shopping list. |
 | `recipes_units`               | Create, read, list, update, delete, and merge ingredient units.                     |
 
 ### Households
 
 | Group                            | Coverage                                                                                                          |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `households_meal_plans`          | Create, read, list, update, and delete meal plan entries; get today's plan and add a server-picked random entry. |
+| `households_meal_plans`          | Create, read, list, update, and delete meal plan entries for a day or a week, with a recipe scale; get today's plan and add a server-picked random entry. |
 | `households_meal_plan_rules`     | Create, read, list, update, and delete meal plan rules.                                                          |
 | `households_shopping_lists`      | Create, read, list, update, and delete shopping lists, and add or remove a recipe's ingredients, one recipe or several. |
 | `households_shopping_list_items` | List, add, update, and delete shopping list items, one at a time or several in one call, with food, unit, and label links. |
 | `households_cookbooks`           | Create, read, list, update, and delete cookbooks.                                                                |
+| `households_self_service`        | Read when the household last made a recipe.                                                                      |
 
 ### Users
 
