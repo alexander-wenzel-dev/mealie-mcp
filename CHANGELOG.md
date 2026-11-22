@@ -6,6 +6,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-22
+
 ### Added
 
 - `mealie_merge_category` and `mealie_merge_tag` resolve a duplicate by merging
@@ -68,12 +70,24 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `mealie_update_last_made` documents that the recipe payload carries no
   `lastMade`; Mealie v3.31.0 stores the timestamp per household. Read it with
   `mealie_get_household_recipe`.
+- FastMCP moves to 4.2.0 and Starlette to 1.10.0.
 
 ### Fixed
 
 - `mealie_update_mealplan` keeps a week entry's span and the entry's recipe
   scale. A new date moves the week with it. Against a Mealie without a recipe
   scale it sends none instead of failing.
+- `scripts/mealie-up` warns on stderr when its host port leaves the emitted
+  `MEALIE_BASE_URL` unreachable from Mealie itself, which fails the recipe image
+  live tests.
+
+### Security
+
+- The FastMCP and Starlette floors sit above the releases with known
+  vulnerabilities.
+- The lock file pins pyjwt, urllib3, virtualenv, opentelemetry-api, dnspython
+  and certifi to releases without known vulnerabilities. The certifi pin fixes
+  PYSEC-2026-4320.
 
 ## [0.5.0] - 2026-09-19
 
@@ -237,7 +251,8 @@ First public release.
 - The HTTP transport refuses to start without a bearer token, and helpers redact
   the `Authorization` header so tokens never reach logs.
 
-[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/alexander-wenzel-dev/mealie-mcp/compare/v0.3.0...v0.3.1
