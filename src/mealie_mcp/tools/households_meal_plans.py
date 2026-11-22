@@ -352,7 +352,9 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         recipe for the pick to succeed. If a rule covers the day and slot but its
         filter matches no recipe, the call fails with a 404 instead of falling
         back to the unfiltered list. A week entry needs ``end_date`` exactly six
-        days after ``date``; Mealie rejects any other end date with a 422.
+        days after ``date``; Mealie rejects any other end date with a 422. A
+        week entry follows only the rules set for all days; weekday rules do not
+        apply to it.
 
         Args:
             date: Day of the entry as ``YYYY-MM-DD``. Required.
@@ -411,7 +413,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
             entry_type: New meal slot. One of ``breakfast``, ``lunch``,
                 ``dinner``, ``side``, ``snack``, ``dessert``, ``drink``.
             recipe_id: New recipe UUID, or an empty string to remove the
-                recipe link.
+                recipe link. Removing it needs a title on the entry or in
+                ``title``; Mealie rejects an entry with neither with a 422.
             recipe_scale: New multiplier for the recipe's servings, greater
                 than 0. Mealie rejects 0 or less with a 422.
             end_date: ``YYYY-MM-DD`` exactly six days after the entry's date to

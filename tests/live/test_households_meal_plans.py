@@ -477,3 +477,90 @@ def test_update_mealplan_swaps_and_removes_the_recipe_scale_and_week(
         if other_slug is not None:
             with contextlib.suppress(ToolError):
                 recipe_crud.delete_recipe(mealie_client, slug_or_id=other_slug)
+
+
+@pytest.mark.live
+@pytest.mark.usefixtures("created_recipe")
+def test_create_random_mealplan_week_entry_follows_only_all_days_rules(
+    mealie_client: AuthenticatedClient,
+    sentinel_name: str,
+) -> None:
+    # Both rules filter on a tag no recipe carries, so whichever rule applies
+    # leaves nothing to pick. The weekday rule blocks a day entry but not a week
+    # entry starting that day; the all-days rule blocks the week entry.
+    plan_date = dt.date(2030, 1, 13)
+    week_end = (plan_date + dt.timedelta(days=6)).isoformat()
+    no_match = f'tags.name CONTAINS ALL ["{sentinel_name}"]'
+    rule_ids: list[str] = []
+    created: list[dict[str, Any]] = []
+    try:
+        rule_ids.append(
+            households_meal_plan_rules.create_mealplan_rule(
+                mealie_client,
+                day=plan_date.strftime("%A").lower(),
+                entry_type="side",
+                query_filter_string=no_match,
+            )["id"]
+        )
+        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
+            created.append(
+                households_meal_plans.create_random_mealplan(
+                    mealie_client, date=plan_date.isoformat(), entry_type="side"
+                )
+            )
+        week_entry = households_meal_plans.create_random_mealplan(
+            mealie_client, date=plan_date.isoformat(), entry_type="side", end_date=week_end
+        )
+        created.append(week_entry)
+        assert week_entry["endDate"] == week_end
+        assert week_entry["recipeId"] is not None
+
+        rule_ids.append(
+            households_meal_plan_rules.create_mealplan_rule(
+                mealie_client, entry_type="side", query_filter_string=no_match
+            )["id"]
+        )
+        with pytest.raises(ToolError, match=r"Mealie create_random_mealplan failed \(404"):
+            created.append(
+                households_meal_plans.create_random_mealplan(
+                    mealie_client, date=plan_date.isoformat(), entry_type="side", end_date=week_end
+                )
+            )
+    finally:
+        for entry in created:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=entry["id"])
+        for rule_id in rule_ids:
+            with contextlib.suppress(ToolError):
+                households_meal_plan_rules.delete_mealplan_rule(mealie_client, item_id=rule_id)
+
+
+@pytest.mark.live
+def test_update_mealplan_removes_the_recipe_only_with_a_title(
+    mealie_client: AuthenticatedClient,
+    created_recipe: dict[str, str],
+    sentinel_name: str,
+) -> None:
+    plan_date = dt.date(2030, 1, 10)
+    item_id: int | None = None
+    try:
+        item_id = households_meal_plans.create_mealplan(
+            mealie_client, date=plan_date.isoformat(), recipe_id=created_recipe["id"]
+        )["id"]
+
+        with pytest.raises(ToolError, match=r"Mealie update_mealplan failed \(422"):
+            households_meal_plans.update_mealplan(mealie_client, item_id=item_id, recipe_id="")
+        assert (
+            households_meal_plans.get_mealplan(mealie_client, item_id=item_id)["recipeId"]
+            == created_recipe["id"]
+        )
+
+        cleared = households_meal_plans.update_mealplan(
+            mealie_client, item_id=item_id, recipe_id="", title=sentinel_name
+        )
+        assert cleared["recipeId"] is None
+        assert cleared["title"] == sentinel_name
+    finally:
+        if item_id is not None:
+            with contextlib.suppress(ToolError):
+                households_meal_plans.delete_mealplan(mealie_client, item_id=item_id)
