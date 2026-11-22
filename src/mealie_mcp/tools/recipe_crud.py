@@ -729,7 +729,7 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Mealie fetches the image from ``url`` server-side, so the URL must
         point at an image Mealie's instance can reach. Mealie refuses a URL
-        that resolves to a private or internal address unless its
+        that resolves to a private or internal address with a 400 unless its
         ``HTTP_ALLOW_LIST`` names the host. This sets the recipe's own title
         image; it does not scrape a recipe page.
 
@@ -750,9 +750,10 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
         Mealie fetches the image from ``url`` server-side and adds it to the
         recipe's ``assets``; the title image stays unchanged. Each call adds a
         new asset, so a repeated URL gets a suffixed ``fileName``. Mealie
-        rejects a URL that does not serve an image, or points at an SVG, with
-        a 400. It refuses a URL that resolves to a private or internal address
-        unless its ``HTTP_ALLOW_LIST`` names the host.
+        rejects a URL that does not serve an image, points at an SVG, or serves
+        an image larger than 5 MB with a 400. It refuses a URL that resolves to
+        a private or internal address with a 400 unless its ``HTTP_ALLOW_LIST``
+        names the host.
 
         Args:
             slug_or_id: Recipe slug or UUID.
@@ -760,7 +761,8 @@ def register(mcp: FastMCP, get_client: ClientProvider) -> None:
 
         Returns:
             ``{"name": <URL file stem>, "icon": "mdi-file-image", "fileName":
-            <stored file>}``. Mealie serves the file at
+            <stored file>}``. ``name`` is ``"image"`` when the stem holds no
+            letter or digit. Mealie serves the file at
             ``/api/media/recipes/<recipe id>/assets/<fileName>``.
         """
         return create_recipe_asset_from_url(get_client(), slug_or_id=slug_or_id, url=url)
